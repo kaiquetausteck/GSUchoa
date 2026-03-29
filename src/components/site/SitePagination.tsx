@@ -26,7 +26,7 @@ export function SitePagination({
   return (
     <div className="mt-12 flex flex-wrap items-center justify-center gap-3">
       <button
-        className="rounded-full border border-outline-variant/15 bg-surface-container-low px-5 py-3 text-xs font-bold uppercase tracking-[0.2em] text-on-surface-variant transition-colors hover:border-primary/24 hover:text-primary disabled:cursor-not-allowed disabled:opacity-40"
+        className="mobile-wrap-control rounded-full border border-outline-variant/15 bg-surface-container-low px-5 py-3 text-xs font-bold uppercase tracking-[0.2em] text-on-surface-variant transition-colors hover:border-primary/24 hover:text-primary disabled:cursor-not-allowed disabled:opacity-40"
         disabled={currentPage <= 1}
         onClick={() => onPageChange(currentPage - 1)}
         type="button"
@@ -36,7 +36,7 @@ export function SitePagination({
 
       {pages.map((page) => (
         <button
-          className={`rounded-full border px-4 py-3 text-xs font-bold uppercase tracking-[0.2em] transition-colors ${
+          className={`mobile-wrap-control rounded-full border px-4 py-3 text-xs font-bold uppercase tracking-[0.2em] transition-colors ${
             currentPage === page
               ? "border-primary bg-primary text-white"
               : "border-outline-variant/15 bg-surface-container-low text-on-surface-variant hover:border-primary/24 hover:text-primary"
@@ -50,12 +50,12 @@ export function SitePagination({
       ))}
 
       <button
-        className="rounded-full border border-outline-variant/15 bg-surface-container-low px-5 py-3 text-xs font-bold uppercase tracking-[0.2em] text-on-surface-variant transition-colors hover:border-primary/24 hover:text-primary disabled:cursor-not-allowed disabled:opacity-40"
+        className="mobile-wrap-control rounded-full border border-outline-variant/15 bg-surface-container-low px-5 py-3 text-xs font-bold uppercase tracking-[0.2em] text-on-surface-variant transition-colors hover:border-primary/24 hover:text-primary disabled:cursor-not-allowed disabled:opacity-40"
         disabled={currentPage >= totalPages}
         onClick={() => onPageChange(currentPage + 1)}
         type="button"
       >
-        Proxima
+        Próxima
       </button>
     </div>
   );

@@ -3,6 +3,7 @@ import { Outlet, useLocation, useNavigate } from "react-router-dom";
 
 import { usePanelAuth } from "../../context/painel/PanelAuthContext";
 import { useToast } from "../../context/shared/ToastContext";
+import { Seo } from "../shared/Seo";
 import {
   getPanelUserById,
   updatePanelUser,
@@ -18,6 +19,16 @@ import {
   createPanelUserDraft,
   getPanelUserDrawerTabFromErrorMessage,
 } from "./panelUserDraft";
+
+const PANEL_PAGE_TITLES: Record<string, string> = {
+  "/painel/dashboard": "Dashboard do Painel",
+  "/painel/usuarios": "Usuários do Painel",
+  "/painel/contatos": "Todos os Contatos do Painel",
+  "/painel/contatos/funil": "Funil de Contatos do Painel",
+  "/painel/clientes": "Clientes do Painel",
+  "/painel/portfolio": "Portfólio do Painel",
+  "/painel/depoimentos": "Depoimentos do Painel",
+};
 
 export function PanelLayout() {
   const navigate = useNavigate();
@@ -36,6 +47,7 @@ export function PanelLayout() {
   const [profileDraft, setProfileDraft] = useState<PanelUserDraft | null>(null);
   const [isProfileLoading, setIsProfileLoading] = useState(false);
   const [isProfileSaving, setIsProfileSaving] = useState(false);
+  const panelTitle = PANEL_PAGE_TITLES[location.pathname] ?? "Painel Administrativo";
 
   useEffect(() => {
     setMobileSidebarOpen(false);
@@ -69,11 +81,11 @@ export function PanelLayout() {
         }
 
         toast.error({
-          title: "Nao foi possivel abrir seus dados",
+          title: "Não foi possível abrir seus dados",
           description:
             error instanceof Error
               ? error.message
-              : "O painel nao conseguiu carregar os detalhes do seu perfil.",
+              : "O painel não conseguiu carregar os detalhes do seu perfil.",
         });
         setProfileDrawerOpen(false);
       } finally {
@@ -125,7 +137,7 @@ export function PanelLayout() {
     if (!profileDraft.name.trim() || !profileDraft.email.trim()) {
       setProfileDrawerTab("main");
       toast.error({
-        title: "Campos obrigatorios",
+        title: "Campos obrigatórios",
         description: "Nome e e-mail precisam ser preenchidos.",
       });
       return;
@@ -135,7 +147,7 @@ export function PanelLayout() {
       if (profileDraft.password.length < 6) {
         setProfileDrawerTab("password");
         toast.error({
-          title: "Senha invalida",
+          title: "Senha inválida",
           description: "A senha precisa ter pelo menos 6 caracteres.",
         });
         return;
@@ -144,8 +156,8 @@ export function PanelLayout() {
       if (profileDraft.password !== profileDraft.passwordConfirmation) {
         setProfileDrawerTab("password");
         toast.error({
-          title: "Confirmacao incorreta",
-          description: "A confirmacao da senha precisa ser igual a senha informada.",
+          title: "Confirmação incorreta",
+          description: "A confirmação da senha precisa corresponder à senha informada.",
         });
         return;
       }
@@ -173,7 +185,7 @@ export function PanelLayout() {
       const message =
         error instanceof Error
           ? error.message
-          : "Nao foi possivel salvar seus dados agora.";
+          : "Não foi possível salvar seus dados agora.";
 
       setProfileDrawerTab(getPanelUserDrawerTabFromErrorMessage(message));
       toast.error({
@@ -187,6 +199,13 @@ export function PanelLayout() {
 
   return (
     <>
+      <Seo
+        description="Área administrativa da GSUCHOA."
+        noindex
+        path={location.pathname}
+        structuredData={null}
+        title={panelTitle}
+      />
       <div className="panel-layout-shell h-screen overflow-hidden text-on-surface">
         <div className="hero-gradient panel-layout-glow pointer-events-none fixed inset-0" />
         <div className="relative flex h-full overflow-hidden">

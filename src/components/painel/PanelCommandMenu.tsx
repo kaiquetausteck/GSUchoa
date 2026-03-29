@@ -45,7 +45,7 @@ const NAVIGATION_ENTRIES: CommandEntry[] = [
     implemented: item.implemented,
     keywords: `${item.label} ${item.title} ${item.segment}`,
     label: item.label,
-    meta: "Modulo principal",
+    meta: "Módulo principal",
     to: item.to,
   })),
   ...PANEL_NAV_GROUPS.flatMap((group) =>
@@ -65,48 +65,48 @@ const NAVIGATION_ENTRIES: CommandEntry[] = [
 
 const QUICK_ACTIONS: CommandEntry[] = [
   {
-    description: "Abra a gestao de acessos e siga para a criacao de um novo administrador.",
-    group: "Acoes rapidas",
+    description: "Abra a gestão de acessos e siga para a criação de um novo administrador.",
+    group: "Ações rápidas",
     icon: PlusCircle,
     id: "new-user",
     keywords: "novo usuario criar usuario acesso admin",
-    label: "Novo usuario",
-    meta: "Ir para usuarios",
+    label: "Novo usuário",
+    meta: "Ir para usuários",
     to: "/painel/usuarios",
   },
   {
-    description: "Volte para a visao geral do painel e acompanhe indicadores e atividade recente.",
-    group: "Acoes rapidas",
+    description: "Volte para a visão geral do painel e acompanhe indicadores e atividade recente.",
+    group: "Ações rápidas",
     icon: LayoutDashboard,
     id: "workspace",
     keywords: "workspace geral painel dashboard",
-    label: "Abrir visao geral",
+    label: "Abrir visão geral",
     meta: "Dashboard",
     to: "/painel/dashboard",
   },
   {
     description: "Gerencie a vitrine institucional, os cases publicados e os itens em destaque.",
-    group: "Acoes rapidas",
+    group: "Ações rápidas",
     icon: BriefcaseBusiness,
     id: "portfolio-next",
     keywords: "portfolio cases projetos",
-    label: "Ir para portfolio",
+    label: "Ir para portfólio",
     meta: "Gerenciamento",
     to: "/painel/portfolio",
   },
   {
-    description: "Acesse rapidamente a listagem completa de usuarios administrativos.",
-    group: "Acoes rapidas",
+    description: "Acesse rapidamente a listagem completa de usuários administrativos.",
+    group: "Ações rápidas",
     icon: Users,
     id: "user-list",
     keywords: "usuarios administradores equipe",
-    label: "Abrir usuarios",
+    label: "Abrir usuários",
     meta: "Acesso",
     to: "/painel/usuarios",
   },
   {
-    description: "Visualize clientes, logos institucionais e destaque as marcas mais relevantes.",
-    group: "Acoes rapidas",
+    description: "Visualize clientes, logotipos institucionais e destaque as marcas mais relevantes.",
+    group: "Ações rápidas",
     icon: UsersRound,
     id: "clients-list",
     keywords: "clientes marcas logos destaque",
@@ -116,7 +116,7 @@ const QUICK_ACTIONS: CommandEntry[] = [
   },
   {
     description: "Abra a curadoria de depoimentos publicados e de prova social da marca.",
-    group: "Acoes rapidas",
+    group: "Ações rápidas",
     icon: MessageSquareQuote,
     id: "testimonials-list",
     keywords: "depoimentos prova social testimonials",
@@ -125,8 +125,8 @@ const QUICK_ACTIONS: CommandEntry[] = [
     to: "/painel/depoimentos",
   },
   {
-    description: "Acompanhe o modulo editorial de social media dentro do agrupamento de resultados.",
-    group: "Acoes rapidas",
+    description: "Acompanhe o módulo editorial de social media dentro do agrupamento de resultados.",
+    group: "Ações rápidas",
     icon: Image,
     id: "social-media-list",
     keywords: "social media conteudo redes sociais resultado",
@@ -135,22 +135,22 @@ const QUICK_ACTIONS: CommandEntry[] = [
     to: "/painel/social-media",
   },
   {
-    description: "Acesse o modulo de trafego pago e acompanhe a estrutura de resultados futura.",
-    group: "Acoes rapidas",
+    description: "Acesse o módulo de tráfego pago e acompanhe a estrutura futura de resultados.",
+    group: "Ações rápidas",
     icon: Target,
     id: "paid-traffic-list",
     keywords: "trafego pago campanhas resultado midia",
-    label: "Ir para trafego pago",
+    label: "Ir para tráfego pago",
     meta: "Resultados",
     to: "/painel/trafego-pago",
   },
   {
-    description: "Abra o espaco de contas e integracoes usado pelos modulos de resultado.",
-    group: "Acoes rapidas",
+    description: "Abra o espaço de contas e integrações usado pelos módulos de resultado.",
+    group: "Ações rápidas",
     icon: Link2,
     id: "integrations-list",
     keywords: "contas integracao conexoes credenciais",
-    label: "Abrir integracoes",
+    label: "Abrir integrações",
     meta: "Resultados",
     to: "/painel/contas-integracao",
   },
@@ -237,10 +237,10 @@ export function PanelCommandMenu() {
 
         <div className="min-w-0 flex-1">
           <p className="truncate text-sm font-semibold text-on-surface">
-            Buscar no workspace
+            Buscar no painel
           </p>
           <p className="truncate text-xs text-on-surface-variant">
-            {searchContextPreview || "Paginas, modulos e atalhos do painel"}
+            {searchContextPreview || "Páginas, módulos e atalhos do painel"}
           </p>
         </div>
 
@@ -282,10 +282,10 @@ export function PanelCommandMenu() {
                             Busca global
                           </p>
                           <p className="mt-2 text-base font-semibold text-on-surface">
-                            Acesse paginas, modulos e atalhos do painel
+                            Acesse páginas, módulos e atalhos do painel
                           </p>
                           <p className="mt-1 text-sm text-on-surface-variant">
-                            {searchContextPreview || "Dashboard, Usuarios, Portfolio, Clientes e mais"}
+                            {searchContextPreview || "Dashboard, Usuários, Portfólio, Clientes e mais"}
                           </p>
                         </div>
 
@@ -305,7 +305,7 @@ export function PanelCommandMenu() {
                           <Command.Input
                             autoFocus
                             className="w-full bg-transparent py-3 text-sm text-on-surface outline-none placeholder:text-on-surface-variant/65"
-                            placeholder="Procure por paginas, modulos, pessoas ou acoes rapidas..."
+                            placeholder="Procure por páginas, módulos, pessoas ou ações rápidas..."
                           />
                         </div>
                       </div>
@@ -378,7 +378,7 @@ export function PanelCommandMenu() {
                           <span className="rounded-lg border border-outline-variant/18 px-2 py-1 font-semibold">
                             Esc
                           </span>
-                          fechar busca
+                          fechar a busca
                         </div>
 
                         <p className="text-xs text-on-surface-variant">

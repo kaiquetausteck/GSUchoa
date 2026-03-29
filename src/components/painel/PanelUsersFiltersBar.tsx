@@ -50,7 +50,7 @@ export function PanelUsersFiltersBar({
               {statusLabel}
             </span>
             <span className="panel-card-muted inline-flex items-center rounded-full border px-3 py-1.5 text-xs font-semibold text-on-surface">
-              {perPage} por pagina
+              {perPage} por página
             </span>
             {hasActiveFilters ? (
               <button
@@ -107,7 +107,7 @@ export function PanelUsersFiltersBar({
                   </AppSelect>
 
                   <AppSelect
-                    label="Por pagina"
+                    label="Por página"
                     onChange={(event) => onPerPageChange(Number(event.target.value))}
                     value={String(perPage)}
                   >
@@ -124,7 +124,7 @@ export function PanelUsersFiltersBar({
                       onClick={onResetFilters}
                       type="button"
                     >
-                      Restaurar padrao
+                      Restaurar padrão
                     </button>
                     <Popover.Close asChild>
                       <button

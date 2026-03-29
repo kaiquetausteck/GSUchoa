@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 
 export const SITE_SECTION_ROUTES = [
-  { label: "Inicio", id: "inicio", href: "/", legacyPath: null },
+  { label: "Início", id: "inicio", href: "/", legacyPath: null },
   { label: "Resultados", id: "resultados", href: "/#resultados", legacyPath: "/resultados" },
   { label: "Sobre", id: "sobre", href: "/#sobre", legacyPath: "/sobre" },
   { label: "Serviços", id: "servicos", href: "/#servicos", legacyPath: "/servicos" },

@@ -98,11 +98,11 @@ export function PanelUsersDrawer({
     };
   }, [previewUrl, user?.avatarFile]);
 
-  const title = mode === "create" ? "Adicionar usuario" : user?.name || "Editar usuario";
+  const title = mode === "create" ? "Adicionar usuário" : user?.name || "Editar usuário";
   const description =
     mode === "create"
       ? "Crie um novo acesso administrativo e deixe o perfil pronto para o painel."
-      : "Atualize os dados principais, a senha e os metadados em um fluxo unico.";
+      : "Atualize os dados principais, a senha e os metadados em um fluxo único.";
 
   return (
     <>
@@ -129,8 +129,8 @@ export function PanelUsersDrawer({
                   ? "Criando..."
                   : "Salvando..."
                 : mode === "create"
-                  ? "Criar usuario"
-                  : "Salvar alteracoes"}
+                  ? "Criar usuário"
+                  : "Salvar alterações"}
             </button>
           </div>
         }
@@ -183,13 +183,13 @@ export function PanelUsersDrawer({
                     <div className="relative flex h-28 w-28 items-center justify-center overflow-hidden rounded-[1.75rem] bg-surface-container-high">
                       {previewUrl ? (
                         <img
-                          alt={user.name || "Usuario"}
+                          alt={user.name || "Usuário"}
                           className="h-full w-full object-cover"
                           src={previewUrl}
                         />
                       ) : (
                         <span className="text-3xl font-black text-primary">
-                          {getInitials(user.name || "Usuario")}
+                          {getInitials(user.name || "Usuário")}
                         </span>
                       )}
 
@@ -268,7 +268,7 @@ export function PanelUsersDrawer({
 
             {activeTab === "password" ? (
               <PanelFormSection
-                description="Troque a senha de acesso mantendo a confirmacao no mesmo fluxo."
+                description="Troque a senha de acesso mantendo a confirmação no mesmo fluxo."
                 icon={<Shield className="h-4 w-4" />}
                 title="Senha"
               >
@@ -295,21 +295,21 @@ export function PanelUsersDrawer({
                 <div className="panel-card rounded-[1.5rem] border p-5">
                   <p className="text-xs font-semibold text-on-surface">Identificador</p>
                   <p className="mt-3 break-all text-sm leading-relaxed text-on-surface-variant">
-                    {mode === "create" ? "Sera gerado apos salvar." : user.id}
+                    {mode === "create" ? "Será gerado após salvar." : user.id}
                   </p>
                 </div>
 
                 <div className="panel-card rounded-[1.5rem] border p-5">
                   <p className="text-xs font-semibold text-on-surface">Criado em</p>
                   <p className="mt-3 text-sm leading-relaxed text-on-surface-variant">
-                    {mode === "create" ? "Sera registrado apos a criacao." : formatDate(user.createdAt)}
+                    {mode === "create" ? "Será registrado após a criação." : formatDate(user.createdAt)}
                   </p>
                 </div>
 
                 <div className="panel-card rounded-[1.5rem] border p-5">
                   <p className="text-xs font-semibold text-on-surface">Atualizado em</p>
                   <p className="mt-3 text-sm leading-relaxed text-on-surface-variant">
-                    {mode === "create" ? "Ainda sem alteracoes." : formatDate(user.updatedAt)}
+                    {mode === "create" ? "Ainda sem alterações." : formatDate(user.updatedAt)}
                   </p>
                 </div>
               </section>

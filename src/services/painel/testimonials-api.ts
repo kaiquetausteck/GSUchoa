@@ -220,7 +220,7 @@ async function requestJson(path: string, token: string, init?: RequestInit) {
     });
   } catch {
     throw new PanelTestimonialsApiError(
-      `Nao foi possivel conectar com a API em ${PANEL_API_BASE_URL}. Verifique se o backend esta ativo.`,
+      `Não foi possível conectar com a API em ${PANEL_API_BASE_URL}. Verifique se o backend está ativo.`,
     );
   }
 
@@ -369,7 +369,7 @@ export async function listPanelTestimonials(token: string, filters: PanelTestimo
 
   if (!response.ok) {
     throw new PanelTestimonialsApiError(
-      extractMessage(payload, "Nao foi possivel carregar a listagem de depoimentos."),
+      extractMessage(payload, "Não foi possível carregar a listagem de depoimentos."),
       response.status,
     );
   }
@@ -382,7 +382,7 @@ export async function getPanelTestimonialById(token: string, id: string) {
 
   if (!response.ok) {
     throw new PanelTestimonialsApiError(
-      extractMessage(payload, "Nao foi possivel carregar esse depoimento."),
+      extractMessage(payload, "Não foi possível carregar esse depoimento."),
       response.status,
     );
   }
@@ -393,7 +393,7 @@ export async function getPanelTestimonialById(token: string, id: string) {
 
   if (!item) {
     throw new PanelTestimonialsApiError(
-      "A API respondeu ao depoimento, mas o formato nao foi reconhecido.",
+      "A API respondeu ao depoimento, mas o formato não foi reconhecido.",
     );
   }
 
@@ -408,7 +408,7 @@ export async function createPanelTestimonial(token: string, input: PanelTestimon
 
   if (!response.ok) {
     throw new PanelTestimonialsApiError(
-      extractMessage(payload, "Nao foi possivel criar esse depoimento."),
+      extractMessage(payload, "Não foi possível criar esse depoimento."),
       response.status,
     );
   }
@@ -419,7 +419,7 @@ export async function createPanelTestimonial(token: string, input: PanelTestimon
 
   if (!item) {
     throw new PanelTestimonialsApiError(
-      "A API respondeu ao create, mas o depoimento retornado nao foi reconhecido.",
+      "A API respondeu à criação, mas o depoimento retornado não foi reconhecido.",
     );
   }
 
@@ -434,7 +434,7 @@ export async function updatePanelTestimonial(token: string, id: string, input: P
 
   if (!response.ok) {
     throw new PanelTestimonialsApiError(
-      extractMessage(payload, "Nao foi possivel salvar esse depoimento."),
+      extractMessage(payload, "Não foi possível salvar esse depoimento."),
       response.status,
     );
   }
@@ -445,7 +445,7 @@ export async function updatePanelTestimonial(token: string, id: string, input: P
 
   if (!item) {
     throw new PanelTestimonialsApiError(
-      "A API respondeu ao update, mas o depoimento retornado nao foi reconhecido.",
+      "A API respondeu à atualização, mas o depoimento retornado não foi reconhecido.",
     );
   }
 
@@ -459,7 +459,7 @@ export async function deletePanelTestimonial(token: string, id: string) {
 
   if (!response.ok && response.status !== 204) {
     throw new PanelTestimonialsApiError(
-      extractMessage(payload, "Nao foi possivel excluir esse depoimento."),
+      extractMessage(payload, "Não foi possível excluir esse depoimento."),
       response.status,
     );
   }
@@ -476,7 +476,7 @@ export async function setPanelTestimonialPublished(token: string, id: string, is
 
   if (!response.ok) {
     throw new PanelTestimonialsApiError(
-      extractMessage(payload, "Nao foi possivel atualizar a publicacao desse depoimento."),
+      extractMessage(payload, "Não foi possível atualizar a publicação desse depoimento."),
       response.status,
     );
   }
@@ -487,7 +487,7 @@ export async function setPanelTestimonialPublished(token: string, id: string, is
 
   if (!item) {
     throw new PanelTestimonialsApiError(
-      "A API respondeu ao publish, mas o depoimento retornado nao foi reconhecido.",
+      "A API respondeu à publicação, mas o depoimento retornado não foi reconhecido.",
     );
   }
 
@@ -502,7 +502,7 @@ export async function setPanelTestimonialFeatured(token: string, id: string, fea
 
   if (!response.ok) {
     throw new PanelTestimonialsApiError(
-      extractMessage(payload, "Nao foi possivel atualizar o destaque desse depoimento."),
+      extractMessage(payload, "Não foi possível atualizar o destaque desse depoimento."),
       response.status,
     );
   }
@@ -513,7 +513,7 @@ export async function setPanelTestimonialFeatured(token: string, id: string, fea
 
   if (!item) {
     throw new PanelTestimonialsApiError(
-      "A API respondeu ao destaque, mas o depoimento retornado nao foi reconhecido.",
+      "A API respondeu ao destaque, mas o depoimento retornado não foi reconhecido.",
     );
   }
 

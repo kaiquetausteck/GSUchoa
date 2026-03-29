@@ -40,7 +40,7 @@ export function PortfolioSection({
         setErrorMessage(
           error instanceof Error
             ? error.message
-            : "Nao foi possivel carregar os cases em destaque.",
+            : "Não foi possível carregar os cases em destaque.",
         );
       } finally {
         if (isMounted) {
@@ -55,7 +55,7 @@ export function PortfolioSection({
   }, []);
 
   return (
-    <RevealSection className="relative overflow-hidden bg-surface-container-low py-32" id="cases">
+    <RevealSection className="site-section relative overflow-hidden bg-surface-container-low" id="cases">
       <div className="brand-watermark pointer-events-none absolute bottom-[-10%] left-[-15%] w-[60%] select-none opacity-[0.02]">
         <LogoIconAnimated animated={false} className="logo-icon-theme h-auto w-full" decorative />
       </div>
@@ -64,9 +64,9 @@ export function PortfolioSection({
         <div className="mb-24 flex flex-col items-start justify-between gap-8 md:flex-row md:items-end">
           <div>
             <h2 className="mb-6 text-xs font-bold uppercase tracking-[0.3em] text-primary">
-              Nosso Portfolio
+              Nosso portfólio
             </h2>
-            <p className="text-5xl font-black leading-none tracking-tight">Cases de Sucesso</p>
+            <p className="text-5xl font-black leading-none tracking-tight">Cases de sucesso</p>
           </div>
           <Link
             className="group flex items-center gap-2 font-bold text-primary transition-opacity hover:opacity-80"
@@ -84,7 +84,7 @@ export function PortfolioSection({
           </div>
         ) : errorMessage ? (
           <div className="rounded-[2rem] border border-outline-variant/12 bg-surface px-8 py-10 text-center">
-            <p className="text-sm font-semibold text-on-surface">Nao foi possivel carregar o portfolio.</p>
+            <p className="text-sm font-semibold text-on-surface">Não foi possível carregar o portfólio.</p>
             <p className="mt-2 text-sm leading-relaxed text-on-surface-variant">
               {errorMessage}
             </p>

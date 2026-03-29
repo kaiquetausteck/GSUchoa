@@ -61,7 +61,7 @@ export function PanelUsersTable({
   if (!items.length) {
     return (
       <div className="panel-card rounded-[1.75rem] border border-dashed px-6 py-12 text-center">
-        <p className="text-sm font-semibold text-on-surface">Nenhum usuario encontrado</p>
+        <p className="text-sm font-semibold text-on-surface">Nenhum usuário encontrado</p>
         <p className="mt-2 text-sm leading-relaxed text-on-surface-variant">
           Ajuste os filtros ou tente novamente com outra busca.
         </p>
@@ -75,11 +75,11 @@ export function PanelUsersTable({
         <table className="min-w-full text-left text-sm">
           <thead className="panel-card-muted border-b border-outline-variant/12">
             <tr className="text-[11px] uppercase tracking-[0.18em] text-on-surface-variant">
-              <th className="px-6 py-4 font-semibold">Usuario</th>
+              <th className="px-6 py-4 font-semibold">Usuário</th>
               <th className="px-6 py-4 font-semibold">Status</th>
               <th className="px-6 py-4 font-semibold">Criado em</th>
               <th className="px-6 py-4 font-semibold">Atualizado em</th>
-              <th className="px-6 py-4 text-right font-semibold">Acoes</th>
+              <th className="px-6 py-4 text-right font-semibold">Ações</th>
             </tr>
           </thead>
           <tbody>

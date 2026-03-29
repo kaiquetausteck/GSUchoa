@@ -152,7 +152,7 @@ export default function TestimonialsPage() {
       const message =
         error instanceof Error
           ? error.message
-          : "Nao foi possivel carregar os depoimentos.";
+          : "Não foi possível carregar os depoimentos.";
 
       setItems([]);
       setTotalPages(1);
@@ -192,11 +192,11 @@ export default function TestimonialsPage() {
         }
 
         toast.error({
-          title: "Nao foi possivel abrir o depoimento",
+          title: "Não foi possível abrir o depoimento",
           description:
             error instanceof Error
               ? error.message
-              : "O painel nao conseguiu carregar os detalhes desse depoimento.",
+              : "O painel não conseguiu carregar os detalhes deste depoimento.",
         });
       } finally {
         if (isMounted) {
@@ -276,7 +276,7 @@ export default function TestimonialsPage() {
     ) {
       setDrawerActiveTab("main");
       toast.error({
-        title: "Campos obrigatorios",
+        title: "Campos obrigatórios",
         description: "Marca, autor e cargo precisam ser preenchidos.",
       });
       return;
@@ -285,7 +285,7 @@ export default function TestimonialsPage() {
     if (!selectedTestimonial.message.trim()) {
       setDrawerActiveTab("content");
       toast.error({
-        title: "Mensagem obrigatoria",
+        title: "Mensagem obrigatória",
         description: "Preencha o depoimento antes de salvar.",
       });
       return;
@@ -294,7 +294,7 @@ export default function TestimonialsPage() {
     if (selectedTestimonial.rating < 1 || selectedTestimonial.rating > 5) {
       setDrawerActiveTab("main");
       toast.error({
-        title: "Nota invalida",
+        title: "Nota inválida",
         description: "A nota precisa estar entre 1 e 5 estrelas.",
       });
       return;
@@ -358,13 +358,13 @@ export default function TestimonialsPage() {
 
       toast.success({
         title: "Depoimento atualizado",
-        description: "As alteracoes foram salvas com sucesso.",
+        description: "As alterações foram salvas com sucesso.",
       });
     } catch (error) {
       const message =
         error instanceof Error
           ? error.message
-          : "Nao foi possivel concluir essa operacao agora.";
+          : "Não foi possível concluir esta operação agora.";
 
       setDrawerActiveTab(getDrawerTabFromErrorMessage(message));
       toast.error({
@@ -410,7 +410,7 @@ export default function TestimonialsPage() {
       }
 
       toast.success({
-        title: "Depoimento excluido",
+        title: "Depoimento excluído",
         description: "O depoimento foi removido com sucesso.",
       });
 
@@ -426,7 +426,7 @@ export default function TestimonialsPage() {
         description:
           error instanceof Error
             ? error.message
-            : "Nao foi possivel excluir esse depoimento agora.",
+            : "Não foi possível excluir este depoimento agora.",
       });
     } finally {
       setIsDeleting(false);
@@ -450,11 +450,11 @@ export default function TestimonialsPage() {
       });
     } catch (error) {
       toast.error({
-        title: "Falha ao atualizar publicacao",
+        title: "Falha ao atualizar publicação",
         description:
           error instanceof Error
             ? error.message
-            : "Nao foi possivel atualizar esse depoimento.",
+            : "Não foi possível atualizar este depoimento.",
       });
     }
   }, [drawerMode, selectedTestimonialId, toast, token]);
@@ -480,7 +480,7 @@ export default function TestimonialsPage() {
         description:
           error instanceof Error
             ? error.message
-            : "Nao foi possivel atualizar esse depoimento.",
+            : "Não foi possível atualizar este depoimento.",
       });
     }
   }, [drawerMode, selectedTestimonialId, toast, token]);
@@ -503,7 +503,7 @@ export default function TestimonialsPage() {
             { label: "Painel", to: "/painel/dashboard" },
             { label: "Depoimentos" },
           ]}
-          description="Organize a prova social do site com controle de publicacao, destaque e ordem editorial."
+          description="Organize a prova social do site com controle de publicação, destaque e ordem editorial."
           title="Depoimentos"
         />
 
@@ -585,14 +585,14 @@ export default function TestimonialsPage() {
         confirmLabel={isDeleting ? "Excluindo..." : "Excluir depoimento"}
         description={
           testimonialToDelete
-            ? `Essa acao remove o depoimento da marca ${testimonialToDelete.brand} da area administrativa.`
+            ? `Essa ação remove o depoimento da marca ${testimonialToDelete.brand} da área administrativa.`
             : ""
         }
         isLoading={isDeleting}
         onClose={() => setTestimonialToDelete(null)}
         onConfirm={() => void handleDeleteTestimonial()}
         open={Boolean(testimonialToDelete)}
-        title="Confirmar exclusao"
+        title="Confirmar exclusão"
       />
     </>
   );

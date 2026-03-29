@@ -42,7 +42,7 @@ function formatFileName(name: string) {
 
 export function ImageCropDialog({
   confirmLabel = "Aplicar recorte",
-  description = "Posicione a imagem dentro da area de recorte e ajuste o zoom antes de salvar.",
+  description = "Posicione a imagem dentro da área de recorte e ajuste o zoom antes de salvar.",
   onClose,
   onConfirm,
   open,
@@ -193,7 +193,7 @@ export function ImageCropDialog({
             <div className="flex flex-col gap-2 md:flex-row md:items-start md:justify-between">
               <div>
                 <p className="text-xs font-bold uppercase tracking-[0.32em] text-primary">
-                  Upload
+                  Recorte
                 </p>
                 <h2 className="mt-2 text-2xl font-black tracking-tight text-on-surface">
                   {title}

@@ -12,7 +12,7 @@ const EASE_OUT = [0.22, 1, 0.36, 1] as const;
 const ROUTE_NAV_ITEMS = [
   { key: "resultados", label: "Resultados", to: "/#resultados" },
   { key: "sobre", label: "Sobre", to: "/#sobre" },
-  { key: "servicos", label: "Servicos", to: "/#servicos" },
+  { key: "servicos", label: "Serviços", to: "/#servicos" },
   { key: "processo", label: "Processo", to: "/#processo" },
   { key: "cases", label: "Cases", to: "/cases" },
   { key: "depoimentos", label: "Depoimentos", to: "/depoimentos" },
@@ -34,7 +34,7 @@ export function SiteRouteShell({
   }, [location.pathname, location.hash]);
 
   return (
-    <div className="min-h-screen bg-background text-on-surface">
+    <div className="site-shell min-h-screen bg-background text-on-surface">
       <nav className="nav-elevated fixed top-0 z-50 h-20 w-full bg-surface/70 backdrop-blur-xl">
         <div className="mx-auto flex h-full w-full max-w-7xl items-center justify-between px-6 md:px-8">
           <Link className="flex items-center gap-3" to="/">
@@ -68,7 +68,7 @@ export function SiteRouteShell({
               className="rounded-lg bg-primary px-6 py-2.5 text-sm font-bold tracking-tight text-white transition-all duration-300 hover:opacity-90 active:scale-95"
               to="/#contato"
             >
-              Falar com Especialista
+              Falar com um especialista
             </Link>
           </div>
 
@@ -133,13 +133,13 @@ export function SiteRouteShell({
               onClick={() => setMobileOpen(false)}
               to="/#contato"
             >
-              Falar com Especialista
+              Falar com um especialista
             </Link>
           </div>
         </div>
       </motion.div>
 
-      <main className="pt-20">{children}</main>
+      <main className="site-shell pt-20">{children}</main>
 
       <footer className="border-t border-outline-variant/10 bg-surface-container-low px-6 py-12 md:px-8">
         <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-8 md:flex-row">
@@ -156,13 +156,13 @@ export function SiteRouteShell({
               />
             </Link>
             <p className="text-xs uppercase tracking-widest text-on-surface-variant opacity-60">
-              © 2026 GSUCHOA. Estrategia Digital de Alta Performance.
+              © 2026 GSUCHOA. Estratégia digital de alta performance.
             </p>
           </div>
 
           <div className="flex flex-wrap justify-center gap-8">
             <Link className="text-xs uppercase tracking-widest text-on-surface-variant transition-colors hover:text-primary" to="/">
-              Inicio
+              Início
             </Link>
             <Link className="text-xs uppercase tracking-widest text-on-surface-variant transition-colors hover:text-primary" to="/cases">
               Cases

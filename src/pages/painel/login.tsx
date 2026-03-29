@@ -3,6 +3,7 @@ import { useEffect, useState, type FormEvent } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 
 import { LogoIconAnimated } from "../../components/shared/LogoIconAnimated";
+import { Seo } from "../../components/shared/Seo";
 import { usePanelAuth } from "../../context/painel/PanelAuthContext";
 import { useToast } from "../../context/shared/ToastContext";
 import {
@@ -74,9 +75,9 @@ export default function LoginPage() {
     const normalizedPassword = password.trim();
 
     if (!normalizedEmail || !normalizedPassword) {
-      const message = "Preencha e-mail e senha para acessar o painel.";
+      const message = "Preencha o e-mail e a senha para acessar o painel.";
       toast.error({
-        title: "Campos obrigatorios",
+        title: "Campos obrigatórios",
         description: message,
       });
       return;
@@ -90,7 +91,7 @@ export default function LoginPage() {
       const message =
         loginError instanceof Error
           ? loginError.message
-          : "Nao foi possivel autenticar no painel.";
+          : "Não foi possível autenticar no painel.";
 
       toast.error({
         title: "Falha no login",
@@ -103,6 +104,13 @@ export default function LoginPage() {
 
   return (
     <div className="relative min-h-screen overflow-hidden bg-background text-on-surface">
+      <Seo
+        description="Acesso à área administrativa da GSUCHOA."
+        noindex
+        path="/painel/login"
+        structuredData={null}
+        title="Login do Painel"
+      />
       <div className="hero-gradient pointer-events-none absolute inset-0 opacity-70" />
       <div className="absolute left-[-12%] top-[-12%] h-80 w-80 rounded-full bg-primary/12 blur-[140px]" />
       <div className="absolute bottom-[-14%] right-[-8%] h-96 w-96 rounded-full bg-primary/10 blur-[150px]" />
@@ -123,13 +131,13 @@ export default function LoginPage() {
             </div>
 
             <p className="text-xs font-bold uppercase tracking-[0.35em] text-primary">
-              Area restrita
+              Área restrita
             </p>
             <h1 className="mt-5 text-5xl font-black leading-[1.02] tracking-tight text-on-surface">
-              Acesse o workspace administrativo da GSUCHOA.
+              Acesse a área administrativa da GSUCHOA.
             </h1>
             <p className="mt-5 max-w-md text-lg leading-relaxed text-on-surface-variant">
-              Um ambiente privado para operacao, clientes, portfolio e crescimento da marca.
+              Um ambiente privado para operação, clientes, portfólio e crescimento da marca.
             </p>
             <div className="mt-8 inline-flex items-center gap-3 rounded-2xl border border-outline-variant/15 bg-surface-container px-4 py-3">
               <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary">
@@ -138,7 +146,7 @@ export default function LoginPage() {
               <div>
                 <p className="text-sm font-semibold text-on-surface">Acesso seguro</p>
                 <p className="text-xs leading-relaxed text-on-surface-variant">
-                  Disponivel apenas para usuarios autorizados.
+                  Disponível apenas para usuários autorizados.
                 </p>
               </div>
             </div>
@@ -153,7 +161,7 @@ export default function LoginPage() {
             <div>
               <p className="text-sm font-semibold text-on-surface">GSUCHOA Painel</p>
               <p className="text-[10px] uppercase tracking-[0.28em] text-on-surface-variant">
-                Area restrita
+                Área restrita
               </p>
             </div>
           </div>
@@ -184,7 +192,7 @@ export default function LoginPage() {
                   onChange={(event) => {
                     setEmail(event.target.value);
                   }}
-                  placeholder="voce@empresa.com"
+                  placeholder="nome@empresa.com"
                   type="email"
                   value={email}
                 />

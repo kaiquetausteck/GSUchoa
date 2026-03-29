@@ -13,33 +13,33 @@ const EASE_OUT = [0.22, 1, 0.36, 1] as const;
 const SERVICES = [
   {
     icon: <MousePointer2 />,
-    title: "Aquisicao de Clientes",
-    desc: "Trafego pago e funis de conversao otimizados para ROI maximo. Transformamos desconhecidos em clientes fieis.",
-    items: ["Performance Paid Media", "Sales Funnels"],
+    title: "Aquisição de clientes",
+    desc: "Tráfego pago e funis de conversão otimizados para maximizar o ROI. Transformamos desconhecidos em clientes fiéis.",
+    items: ["Mídia de performance", "Funis de vendas"],
   },
   {
     icon: <Diamond />,
-    title: "Posicionamento de Marca",
-    desc: "Branding e identidade visual que comunicam autoridade imediata. Nao seja apenas mais um no feed.",
-    items: ["Brand Strategy", "Visual Identity"],
+    title: "Posicionamento de marca",
+    desc: "Branding e identidade visual que comunicam autoridade desde o primeiro contato. Sua marca deixa de ser apenas mais uma no feed.",
+    items: ["Estratégia de marca", "Identidade visual"],
   },
   {
     icon: <TrendingUp />,
-    title: "Conteudo de Alta Performance",
-    desc: "Videos e social media que prendem a atencao e geram desejo de compra visceral.",
-    items: ["Short Form Video", "Content Systems"],
+    title: "Conteúdo de alta performance",
+    desc: "Vídeos e conteúdo para redes sociais que capturam atenção e despertam desejo de compra.",
+    items: ["Vídeos curtos", "Sistemas de conteúdo"],
   },
   {
     icon: <Network />,
-    title: "Presenca Digital",
-    desc: "Landing Pages e sites de alta conversao. Experiencia fluida que vende 24 horas por dia.",
-    items: ["High-Ticket LPs", "Corporate Ecosystems"],
+    title: "Presença digital",
+    desc: "Landing pages e sites de alta conversão. Uma experiência fluida que vende todos os dias.",
+    items: ["LPs de alto ticket", "Ecossistemas institucionais"],
   },
 ];
 
 export function ServicesSection() {
   return (
-    <RevealSection className="bg-surface-container-low py-32" id="servicos">
+    <RevealSection className="site-section bg-surface-container-low" id="servicos">
       <div className="mx-auto max-w-7xl px-6 md:px-8">
         <div className="mx-auto mb-24 max-w-3xl text-center">
           <h2 className="mb-6 text-xs font-bold uppercase tracking-[0.3em] text-primary">

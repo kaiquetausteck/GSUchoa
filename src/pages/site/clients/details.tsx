@@ -5,6 +5,12 @@ import { Link, useLocation, useParams } from "react-router-dom";
 import { ClientCard } from "../../../components/site/ClientCard";
 import { ClientCardSkeleton } from "../../../components/site/ClientCardSkeleton";
 import { SiteRouteShell } from "../../../components/site/SiteRouteShell";
+import { Seo } from "../../../components/shared/Seo";
+import {
+  buildAbsoluteUrl,
+  createBreadcrumbStructuredData,
+  truncateSeoText,
+} from "../../../config/site/seo";
 import {
   getPublicClientBySlug,
   listFeaturedPublicClients,
@@ -16,7 +22,7 @@ import {
 function ClientDetailsSkeleton() {
   return (
     <article className="pb-24">
-      <section className="relative overflow-hidden py-20">
+      <section className="site-section relative overflow-hidden">
         <div className="hero-gradient absolute inset-0 opacity-20" />
         <div className="relative z-10 mx-auto max-w-7xl px-6 md:px-8">
           <div className="h-4 w-24 animate-pulse rounded-full bg-surface-container-high" />
@@ -58,6 +64,53 @@ export default function ClientDetailsPage() {
     typeof (location.state as { from?: string } | null)?.from === "string"
       ? (location.state as { from?: string }).from!
       : "/clientes";
+  const seoPath = slug ? `/clientes/${slug}` : "/clientes";
+  const seoTitle = client ? `${client.name} | Cliente GSUCHOA` : "Cliente";
+  const seoDescription = client
+    ? truncateSeoText(
+        client.description || `Conheça ${client.name}, marca parceira da GSUCHOA presente em nossa vitrine pública.`,
+        160,
+      )
+    : "Conheça uma marca parceira da GSUCHOA e entenda como ela aparece em nossa vitrine pública.";
+  const seoStructuredData = client
+    ? [
+        createBreadcrumbStructuredData([
+          { name: "Início", path: "/" },
+          { name: "Clientes", path: "/clientes" },
+          { name: client.name, path: seoPath },
+        ]),
+        {
+          "@context": "https://schema.org",
+          "@type": "WebPage",
+          name: `${client.name} | Cliente GSUCHOA`,
+          description: seoDescription,
+          url: buildAbsoluteUrl(seoPath),
+          inLanguage: "pt-BR",
+          mainEntity: {
+            "@type": "Organization",
+            name: client.name,
+            url: client.website || buildAbsoluteUrl(seoPath),
+            logo: client.logoUrl,
+            description: client.description || undefined,
+          },
+        },
+      ]
+    : [
+        createBreadcrumbStructuredData([
+          { name: "Início", path: "/" },
+          { name: "Clientes", path: "/clientes" },
+        ]),
+      ];
+  const seo = (
+    <Seo
+      description={seoDescription}
+      image={client?.logoUrl}
+      path={seoPath}
+      structuredData={seoStructuredData}
+      title={seoTitle}
+      type="profile"
+    />
+  );
 
   useEffect(() => {
     let isMounted = true;
@@ -113,7 +166,7 @@ export default function ClientDetailsPage() {
         setErrorMessage(
           error instanceof Error
             ? error.message
-            : "Nao foi possivel carregar esse cliente.",
+            : "Não foi possível carregar este cliente.",
         );
         setIsRelatedLoading(false);
       } finally {
@@ -130,43 +183,50 @@ export default function ClientDetailsPage() {
 
   if (isLoading) {
     return (
-      <SiteRouteShell>
-        <ClientDetailsSkeleton />
-      </SiteRouteShell>
+      <>
+        {seo}
+        <SiteRouteShell>
+          <ClientDetailsSkeleton />
+        </SiteRouteShell>
+      </>
     );
   }
 
   if (!client) {
     return (
-      <SiteRouteShell>
-        <section className="mx-auto max-w-7xl px-6 py-28 md:px-8">
-          <div className="max-w-2xl rounded-[2.25rem] border border-outline-variant/12 bg-surface-container-low p-10">
-            <p className="text-xs font-bold uppercase tracking-[0.34em] text-primary">
-              Cliente nao encontrado
-            </p>
-            <h1 className="mt-5 text-4xl font-black tracking-tight text-on-surface">
-              Esse cliente nao existe ou ainda nao foi publicado.
-            </h1>
-            <p className="mt-5 text-lg leading-relaxed text-on-surface-variant">
-              {errorMessage ?? "Voce pode voltar para a listagem geral e navegar pelas outras marcas publicadas."}
-            </p>
-            <Link
-              className="mt-8 inline-flex items-center gap-2 rounded-2xl bg-primary px-6 py-4 text-sm font-bold text-white"
-              to={backTarget}
-            >
-              <ArrowLeft className="h-4 w-4" />
-              Voltar
-            </Link>
-          </div>
-        </section>
-      </SiteRouteShell>
+      <>
+        {seo}
+        <SiteRouteShell>
+          <section className="mx-auto max-w-7xl px-6 py-28 md:px-8">
+            <div className="max-w-2xl rounded-[2.25rem] border border-outline-variant/12 bg-surface-container-low p-10">
+              <p className="text-xs font-bold uppercase tracking-[0.34em] text-primary">
+                Cliente não encontrado
+              </p>
+              <h1 className="mt-5 text-4xl font-black tracking-tight text-on-surface">
+                Este cliente não existe ou ainda não foi publicado.
+              </h1>
+              <p className="mt-5 text-lg leading-relaxed text-on-surface-variant">
+                {errorMessage ?? "Você pode voltar para a listagem geral e navegar pelas outras marcas publicadas."}
+              </p>
+              <Link
+                className="mt-8 inline-flex items-center gap-2 rounded-2xl bg-primary px-6 py-4 text-sm font-bold text-white"
+                to={backTarget}
+              >
+                <ArrowLeft className="h-4 w-4" />
+                Voltar
+              </Link>
+            </div>
+          </section>
+        </SiteRouteShell>
+      </>
     );
   }
 
   return (
     <SiteRouteShell>
+      {seo}
       <article className="pb-24">
-        <section className="relative overflow-hidden py-20">
+        <section className="site-section relative overflow-hidden">
           <div className="hero-gradient absolute inset-0 opacity-20" />
           <div className="relative z-10 mx-auto max-w-7xl px-6 md:px-8">
             <Link
@@ -195,7 +255,7 @@ export default function ClientDetailsPage() {
                   </p>
                 ) : (
                   <p className="mt-8 max-w-3xl text-lg leading-relaxed text-on-surface-variant md:text-xl">
-                    Uma marca parceira presente na vitrine publica da GSUCHOA.
+                    Uma marca parceira presente na vitrine pública da GSUCHOA.
                   </p>
                 )}
 

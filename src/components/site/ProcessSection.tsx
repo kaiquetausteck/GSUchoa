@@ -8,30 +8,30 @@ const EASE_OUT = [0.22, 1, 0.36, 1] as const;
 const PROCESS_STEPS = [
   {
     step: 1,
-    title: "Diagnostico",
-    desc: "Mapeamos suas metricas atuais e identificamos os gargalos de crescimento.",
+    title: "Diagnóstico",
+    desc: "Mapeamos suas métricas atuais e identificamos os gargalos de crescimento.",
   },
   {
     step: 2,
-    title: "Estrategia",
-    desc: "Desenhamos o ecossistema customizado focado em ROI e posicionamento.",
+    title: "Estratégia",
+    desc: "Desenhamos um ecossistema sob medida, com foco em ROI e posicionamento.",
   },
   {
     step: 3,
-    title: "Execucao",
-    desc: "Colocamos a engrenagem para rodar com design e trafego de elite.",
+    title: "Execução",
+    desc: "Colocamos a engrenagem para rodar com design e tráfego de alta performance.",
   },
   {
     step: 4,
     title: "Escala",
-    desc: "Otimizamos os resultados para expandir o faturamento de forma previsivel.",
+    desc: "Otimizamos os resultados para expandir o faturamento de forma previsível.",
     active: true,
   },
 ];
 
 export function ProcessSection() {
   return (
-    <RevealSection className="bg-surface py-32" id="processo">
+    <RevealSection className="site-section bg-surface" id="processo">
       <div className="mx-auto max-w-7xl px-6 md:px-8">
         <h2 className="mb-24 text-center text-xs font-bold uppercase tracking-[0.3em] text-primary">
           O Caminho para a Escala

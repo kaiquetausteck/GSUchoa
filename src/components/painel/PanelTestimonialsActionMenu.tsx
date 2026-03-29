@@ -34,7 +34,7 @@ export function PanelTestimonialsActionMenu({
       <button
         aria-expanded={open}
         aria-haspopup="menu"
-        aria-label="Abrir acoes do depoimento"
+        aria-label="Abrir ações do depoimento"
         className="panel-card-muted inline-flex h-10 w-10 items-center justify-center rounded-xl border text-on-surface transition-colors hover:border-primary/30 hover:text-primary"
         onClick={() => setOpen((current) => !current)}
         ref={triggerRef}
@@ -83,7 +83,7 @@ export function PanelTestimonialsActionMenu({
             type="button"
           >
             <Sparkles className="h-4 w-4 text-primary" />
-            {featured ? "Remover destaque" : "Marcar destaque"}
+            {featured ? "Remover destaque" : "Destacar"}
           </button>
           <button
             className="flex w-full items-center gap-3 rounded-[1rem] px-3 py-3 text-left text-sm font-medium text-red-500 transition-colors hover:bg-red-500/10"

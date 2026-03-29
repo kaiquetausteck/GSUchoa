@@ -3,8 +3,200 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="icon" type="image/svg+xml" href="/src/assets/brand/logo-icon.svg" />
-    <title>GSUchoa - Soluções em Tecnologia</title>
+    <meta name="theme-color" content="#131313" />
+    <meta name="color-scheme" content="dark light" />
+    <meta name="application-name" content="GSUCHOA" />
+    <meta name="apple-mobile-web-app-title" content="GSUCHOA" />
+    <meta name="author" content="GSUCHOA" />
+    <meta
+      name="description"
+      content="Agência de estratégia digital de alta performance focada em crescimento real através de design, conteúdo e tráfego."
+    />
+    <meta
+      name="keywords"
+      content="estratégia digital, agência digital, marketing digital, tráfego pago, conteúdo, design, branding, performance, growth marketing"
+    />
+    <meta
+      name="robots"
+      content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1"
+    />
+    <link rel="canonical" href="https://gsuchoa.com/" />
+
+    <meta property="og:locale" content="pt_BR" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="GSUCHOA" />
+    <meta property="og:title" content="GSUCHOA | Estratégia Digital de Alta Performance" />
+    <meta
+      property="og:description"
+      content="Agência de estratégia digital de alta performance focada em crescimento real através de design, conteúdo e tráfego."
+    />
+    <meta property="og:url" content="https://gsuchoa.com/" />
+    <meta property="og:image" content="https://gsuchoa.com/brand/og-default.png" />
+    <meta property="og:image:alt" content="Identidade visual da GSUCHOA" />
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="GSUCHOA | Estratégia Digital de Alta Performance" />
+    <meta
+      name="twitter:description"
+      content="Agência de estratégia digital de alta performance focada em crescimento real através de design, conteúdo e tráfego."
+    />
+    <meta name="twitter:image" content="https://gsuchoa.com/brand/og-default.png" />
+
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/site.webmanifest" />
+
+    <script>
+      (() => {
+        const siteUrl = "https://gsuchoa.com";
+        const defaultTitle = "GSUCHOA | Estratégia Digital de Alta Performance";
+        const defaultDescription =
+          "Agência de estratégia digital de alta performance focada em crescimento real através de design, conteúdo e tráfego.";
+        const defaultImage = `${siteUrl}/brand/og-default.png`;
+        const indexRobots = "index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1";
+        const noindexRobots = "noindex,nofollow,noarchive";
+        const path = window.location.pathname || "/";
+
+        const routes = [
+          {
+            match: (pathname) => pathname === "/",
+            title: defaultTitle,
+            description: defaultDescription,
+            type: "website",
+            robots: indexRobots,
+          },
+          {
+            match: (pathname) => pathname === "/cases",
+            title: "Cases de Estratégia Digital | GSUCHOA",
+            description:
+              "Explore os cases publicados da GSUCHOA e conheça projetos de estratégia digital, posicionamento, design e performance.",
+            type: "website",
+            robots: indexRobots,
+          },
+          {
+            match: (pathname) => pathname.startsWith("/cases/"),
+            title: "Estudo de Caso | GSUCHOA",
+            description:
+              "Conheça um estudo de caso publicado pela GSUCHOA e veja o contexto, a solução aplicada e os resultados entregues.",
+            type: "article",
+            robots: indexRobots,
+          },
+          {
+            match: (pathname) => pathname === "/clientes",
+            title: "Clientes e Marcas Atendidas | GSUCHOA",
+            description:
+              "Veja as marcas que confiam na GSUCHOA e navegue pela vitrine pública de clientes e parceiros atendidos.",
+            type: "website",
+            robots: indexRobots,
+          },
+          {
+            match: (pathname) => pathname.startsWith("/clientes/"),
+            title: "Cliente | GSUCHOA",
+            description:
+              "Conheça uma marca parceira da GSUCHOA e entenda como ela aparece em nossa vitrine pública.",
+            type: "profile",
+            robots: indexRobots,
+          },
+          {
+            match: (pathname) => pathname === "/depoimentos",
+            title: "Depoimentos e Prova Social | GSUCHOA",
+            description:
+              "Explore os depoimentos publicados pela GSUCHOA e veja relatos reais sobre operação, marca e crescimento.",
+            type: "website",
+            robots: indexRobots,
+          },
+          {
+            match: (pathname) => pathname.startsWith("/depoimentos/"),
+            title: "Depoimento | GSUCHOA",
+            description:
+              "Leia um depoimento publicado pela GSUCHOA e acompanhe percepções reais sobre estratégia, clareza e resultados.",
+            type: "article",
+            robots: indexRobots,
+          },
+          {
+            match: (pathname) => pathname.startsWith("/painel"),
+            title: "Painel Administrativo | GSUCHOA",
+            description: "Área administrativa da GSUCHOA.",
+            type: "website",
+            robots: noindexRobots,
+          },
+        ];
+
+        const currentRoute = routes.find((route) => route.match(path)) ?? routes[0];
+        const canonicalUrl = `${siteUrl}${path === "/" ? "/" : path.replace(/\/$/, "")}`;
+
+        const upsertMeta = (attribute, key, content) => {
+          let element = document.head.querySelector(`meta[${attribute}="${key}"]`);
+
+          if (!element) {
+            element = document.createElement("meta");
+            element.setAttribute(attribute, key);
+            document.head.appendChild(element);
+          }
+
+          element.setAttribute("content", content);
+        };
+
+        let canonical = document.head.querySelector('link[rel="canonical"]');
+        if (!canonical) {
+          canonical = document.createElement("link");
+          canonical.setAttribute("rel", "canonical");
+          document.head.appendChild(canonical);
+        }
+
+        canonical.setAttribute("href", canonicalUrl);
+        document.title = currentRoute.title;
+        upsertMeta("name", "description", currentRoute.description);
+        upsertMeta("name", "robots", currentRoute.robots);
+        upsertMeta("property", "og:title", currentRoute.title);
+        upsertMeta("property", "og:description", currentRoute.description);
+        upsertMeta("property", "og:type", currentRoute.type);
+        upsertMeta("property", "og:url", canonicalUrl);
+        upsertMeta("property", "og:image", defaultImage);
+        upsertMeta("property", "og:image:alt", "Identidade visual da GSUCHOA");
+        upsertMeta("name", "twitter:title", currentRoute.title);
+        upsertMeta("name", "twitter:description", currentRoute.description);
+        upsertMeta("name", "twitter:image", defaultImage);
+      })();
+    </script>
+
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@graph": [
+          {
+            "@type": "ProfessionalService",
+            "@id": "https://gsuchoa.com/#organization",
+            "name": "GSUCHOA",
+            "url": "https://gsuchoa.com/",
+            "logo": "https://gsuchoa.com/icons/icon-512.png",
+            "image": "https://gsuchoa.com/brand/og-default.png",
+            "description": "Agência de estratégia digital de alta performance focada em crescimento real através de design, conteúdo e tráfego.",
+            "email": "contato@gsuchoa.com",
+            "areaServed": "BR",
+            "serviceType": [
+              "Estratégia digital",
+              "Design",
+              "Conteúdo",
+              "Tráfego pago"
+            ]
+          },
+          {
+            "@type": "WebSite",
+            "@id": "https://gsuchoa.com/#website",
+            "name": "GSUCHOA",
+            "url": "https://gsuchoa.com/",
+            "inLanguage": "pt-BR",
+            "publisher": {
+              "@id": "https://gsuchoa.com/#organization"
+            }
+          }
+        ]
+      }
+    </script>
+
+    <title>GSUCHOA | Estratégia Digital de Alta Performance</title>
   </head>
   <body>
     <div id="root"></div>

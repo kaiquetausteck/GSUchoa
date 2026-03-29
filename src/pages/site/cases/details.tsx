@@ -6,6 +6,12 @@ import { CaseMediaDialog } from "../../../components/site/CaseMediaDialog";
 import { CaseStudyCard } from "../../../components/site/CaseStudyCard";
 import { CaseStudyCardSkeleton } from "../../../components/site/CaseStudyCardSkeleton";
 import { SiteRouteShell } from "../../../components/site/SiteRouteShell";
+import { Seo } from "../../../components/shared/Seo";
+import {
+  buildAbsoluteUrl,
+  createBreadcrumbStructuredData,
+  truncateSeoText,
+} from "../../../config/site/seo";
 import {
   getPublicPortfolioBySlug,
   listFeaturedPublicPortfolio,
@@ -17,7 +23,7 @@ import {
 function CaseDetailsSkeleton() {
   return (
     <article className="pb-24">
-      <section className="relative overflow-hidden py-20">
+      <section className="site-section relative overflow-hidden">
         <div className="hero-gradient absolute inset-0 opacity-20" />
         <div className="relative z-10 mx-auto max-w-7xl px-6 md:px-8">
           <div className="h-4 w-24 animate-pulse rounded-full bg-surface-container-high" />
@@ -118,6 +124,55 @@ export default function CaseDetailsPage() {
     typeof (location.state as { from?: string } | null)?.from === "string"
       ? (location.state as { from?: string }).from!
       : "/cases";
+  const seoPath = slug ? `/cases/${slug}` : "/cases";
+  const seoTitle = caseStudy ? `${caseStudy.name} | Case GSUCHOA` : "Estudo de Caso";
+  const seoDescription = caseStudy
+    ? truncateSeoText(caseStudy.overview, 160)
+    : "Conheça um estudo de caso publicado pela GSUCHOA e veja o contexto, a solução aplicada e os resultados entregues.";
+  const seoStructuredData = caseStudy
+    ? [
+        createBreadcrumbStructuredData([
+          { name: "Início", path: "/" },
+          { name: "Cases", path: "/cases" },
+          { name: caseStudy.name, path: seoPath },
+        ]),
+        {
+          "@context": "https://schema.org",
+          "@type": "CreativeWork",
+          name: caseStudy.name,
+          description: seoDescription,
+          url: buildAbsoluteUrl(seoPath),
+          image: caseStudy.thumbnail,
+          inLanguage: "pt-BR",
+          creator: {
+            "@type": "Organization",
+            name: "GSUCHOA",
+            url: buildAbsoluteUrl("/"),
+          },
+          about: [
+            caseStudy.client,
+            caseStudy.sector,
+            ...caseStudy.categories,
+          ],
+          keywords: [...caseStudy.categories, ...caseStudy.scope].join(", "),
+        },
+      ]
+    : [
+        createBreadcrumbStructuredData([
+          { name: "Início", path: "/" },
+          { name: "Cases", path: "/cases" },
+        ]),
+      ];
+  const seo = (
+    <Seo
+      description={seoDescription}
+      image={caseStudy?.thumbnail}
+      path={seoPath}
+      structuredData={seoStructuredData}
+      title={seoTitle}
+      type="article"
+    />
+  );
 
   useEffect(() => {
     let isMounted = true;
@@ -190,7 +245,7 @@ export default function CaseDetailsPage() {
         setErrorMessage(
           error instanceof Error
             ? error.message
-            : "Nao foi possivel carregar esse estudo de caso.",
+            : "Não foi possível carregar este estudo de caso.",
         );
         setIsRelatedLoading(false);
       } finally {
@@ -207,43 +262,50 @@ export default function CaseDetailsPage() {
 
   if (isLoading) {
     return (
-      <SiteRouteShell activeNavKey="cases">
-        <CaseDetailsSkeleton />
-      </SiteRouteShell>
+      <>
+        {seo}
+        <SiteRouteShell activeNavKey="cases">
+          <CaseDetailsSkeleton />
+        </SiteRouteShell>
+      </>
     );
   }
 
   if (!caseStudy) {
     return (
-      <SiteRouteShell activeNavKey="cases">
-        <section className="mx-auto max-w-7xl px-6 py-28 md:px-8">
-          <div className="max-w-2xl rounded-[2.25rem] border border-outline-variant/12 bg-surface-container-low p-10">
-            <p className="text-xs font-bold uppercase tracking-[0.34em] text-primary">
-              Case nao encontrado
-            </p>
-            <h1 className="mt-5 text-4xl font-black tracking-tight text-on-surface">
-              Esse estudo de caso nao existe ou ainda nao foi publicado.
-            </h1>
-            <p className="mt-5 text-lg leading-relaxed text-on-surface-variant">
-              {errorMessage ?? "Enquanto isso, voce pode voltar para a listagem geral e navegar pelos outros projetos."}
-            </p>
-            <Link
-              className="mt-8 inline-flex items-center gap-2 rounded-2xl bg-primary px-6 py-4 text-sm font-bold text-white"
-              to={backTarget}
-            >
-              <ArrowLeft className="h-4 w-4" />
-              Voltar
-            </Link>
-          </div>
-        </section>
-      </SiteRouteShell>
+      <>
+        {seo}
+        <SiteRouteShell activeNavKey="cases">
+          <section className="mx-auto max-w-7xl px-6 py-28 md:px-8">
+            <div className="max-w-2xl rounded-[2.25rem] border border-outline-variant/12 bg-surface-container-low p-10">
+              <p className="text-xs font-bold uppercase tracking-[0.34em] text-primary">
+                Case não encontrado
+              </p>
+              <h1 className="mt-5 text-4xl font-black tracking-tight text-on-surface">
+                Este estudo de caso não existe ou ainda não foi publicado.
+              </h1>
+              <p className="mt-5 text-lg leading-relaxed text-on-surface-variant">
+                {errorMessage ?? "Enquanto isso, você pode voltar para a listagem geral e explorar os outros projetos."}
+              </p>
+              <Link
+                className="mt-8 inline-flex items-center gap-2 rounded-2xl bg-primary px-6 py-4 text-sm font-bold text-white"
+                to={backTarget}
+              >
+                <ArrowLeft className="h-4 w-4" />
+                Voltar
+              </Link>
+            </div>
+          </section>
+        </SiteRouteShell>
+      </>
     );
   }
 
   return (
     <SiteRouteShell activeNavKey="cases">
+      {seo}
       <article className="pb-24">
-        <section className="relative overflow-hidden py-20">
+        <section className="site-section relative overflow-hidden">
           <div className="hero-gradient absolute inset-0 opacity-20" />
           <div className="relative z-10 mx-auto max-w-7xl px-6 md:px-8">
             <Link
@@ -271,7 +333,7 @@ export default function CaseDetailsPage() {
                 </div>
 
                 <p className="text-xs font-bold uppercase tracking-[0.34em] text-primary">
-                  Estudo de Caso • {caseStudy.client} • {caseStudy.year}
+                  Estudo de caso • {caseStudy.client} • {caseStudy.year}
                 </p>
                 <h1 className="mt-6 text-5xl font-black leading-none tracking-tight md:text-7xl">
                   {caseStudy.name}
@@ -283,7 +345,7 @@ export default function CaseDetailsPage() {
                 <div className="mt-12 grid gap-4 md:grid-cols-3">
                   {[
                     { label: "Problema", value: caseStudy.labels.problem },
-                    { label: "Solucao", value: caseStudy.labels.solution },
+                    { label: "Solução", value: caseStudy.labels.solution },
                     { label: "Resultado", value: caseStudy.labels.result },
                   ].map((item) => (
                     <div
@@ -356,7 +418,7 @@ export default function CaseDetailsPage() {
                 Galeria do projeto
               </p>
               <h2 className="mt-4 text-4xl font-black tracking-tight text-on-surface">
-                Assets e registros do case
+                Materiais e registros do case
               </h2>
             </div>
           </div>
@@ -396,7 +458,7 @@ export default function CaseDetailsPage() {
                   )}
 
                   <div className="absolute right-4 top-4 rounded-full border border-white/10 bg-black/45 px-3 py-2 text-[10px] font-bold uppercase tracking-[0.22em] text-white/88 backdrop-blur-md">
-                    {media.type === "image" ? "Abrir imagem" : "Assistir video"}
+                    {media.type === "image" ? "Abrir imagem" : "Assistir vídeo"}
                   </div>
                 </div>
               </button>
@@ -418,7 +480,7 @@ export default function CaseDetailsPage() {
               className="inline-flex items-center gap-2 text-sm font-bold text-primary"
               to="/cases"
             >
-              Ver biblioteca completa
+              Ver acervo completo
               <ArrowUpRight className="h-4 w-4" />
             </Link>
           </div>

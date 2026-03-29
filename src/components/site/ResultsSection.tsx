@@ -8,13 +8,13 @@ import { RevealSection } from "./RevealSection";
 const EASE_OUT = [0.22, 1, 0.36, 1] as const;
 
 const SOCIAL_METRICS = [
-  { label: "Retorno Medio", value: 300, prefix: "+", suffix: "%", sub: "ROI Estrategico" },
-  { label: "Fator de Escala", value: 5, prefix: "+", suffix: "x", sub: "Leads Qualificados" },
+  { label: "Retorno médio", value: 300, prefix: "+", suffix: "%", sub: "ROI estratégico" },
+  { label: "Fator de escala", value: 5, prefix: "+", suffix: "x", sub: "Leads qualificados" },
 ];
 
 export function ResultsSection() {
   return (
-    <RevealSection className="relative overflow-hidden bg-surface-container-low py-32" id="resultados">
+    <RevealSection className="site-section relative overflow-hidden bg-surface-container-low" id="resultados">
       <div className="absolute -mr-64 -mt-32 right-0 top-0 h-[500px] w-[500px] rounded-full bg-primary/5 blur-[120px]" />
       <div className="relative z-10 mx-auto max-w-7xl px-6 md:px-8">
         <div className="mb-24 grid items-center gap-16 lg:grid-cols-2">
@@ -23,12 +23,12 @@ export function ResultsSection() {
               Resultados que Escalam
             </h2>
             <p className="mb-8 text-4xl font-black leading-[1.1] tracking-tight md:text-5xl">
-              Estrategias validadas por numeros que{" "}
-              <span className="text-gradient">dominam o mercado.</span>
+              Estratégias validadas por números que{" "}
+              <span className="text-gradient">colocam marcas à frente do mercado.</span>
             </p>
             <p className="text-lg font-light leading-relaxed text-on-surface-variant">
-              Nao entregamos apenas metricas de vaidade. Construimos maquinas de vendas
-              sustentaveis com foco total em rentabilidade.
+              Não entregamos métricas de vaidade. Construímos máquinas de vendas
+              sustentáveis com foco total em rentabilidade.
             </p>
           </div>
 

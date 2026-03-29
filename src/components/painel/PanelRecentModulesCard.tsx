@@ -50,7 +50,7 @@ export function PanelRecentModulesCard({
                 <div className="min-w-0">
                   <p className="text-sm font-semibold text-on-surface">{section.title}</p>
                   <p className="text-xs text-on-surface-variant">
-                    Ultimos registros criados nesse modulo.
+                    Últimos registros criados nesse módulo.
                   </p>
                 </div>
               </div>
@@ -95,7 +95,7 @@ export function PanelRecentModulesCard({
               </div>
             ) : (
               <div className="mt-4 rounded-[1.15rem] border border-dashed border-outline-variant/20 px-4 py-6 text-center text-sm text-on-surface-variant">
-                Nenhum registro recente encontrado nesse modulo.
+                Nenhum registro recente encontrado nesse módulo.
               </div>
             )}
           </section>

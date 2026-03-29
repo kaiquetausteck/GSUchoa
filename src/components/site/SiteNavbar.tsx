@@ -67,7 +67,7 @@ export function SiteNavbar({
               onNavigate={onNavigate}
               sectionId="contato"
             >
-              Falar com Especialista
+              Falar com um especialista
             </SectionLink>
           </div>
 
@@ -134,7 +134,7 @@ export function SiteNavbar({
               onNavigate={onNavigate}
               sectionId="contato"
             >
-              Falar com Especialista
+              Falar com um especialista
             </SectionLink>
           </div>
         </div>

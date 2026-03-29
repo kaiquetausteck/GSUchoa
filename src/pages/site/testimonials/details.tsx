@@ -3,9 +3,15 @@ import { useEffect, useState } from "react";
 import { Link, useLocation, useParams } from "react-router-dom";
 
 import { SiteRouteShell } from "../../../components/site/SiteRouteShell";
+import { Seo } from "../../../components/shared/Seo";
 import { TestimonialCard } from "../../../components/site/TestimonialCard";
 import { TestimonialCardSkeleton } from "../../../components/site/TestimonialCardSkeleton";
 import { TestimonialStars } from "../../../components/site/TestimonialStars";
+import {
+  buildAbsoluteUrl,
+  createBreadcrumbStructuredData,
+  truncateSeoText,
+} from "../../../config/site/seo";
 import {
   getPublicTestimonialById,
   listFeaturedPublicTestimonials,
@@ -16,7 +22,7 @@ import {
 function TestimonialDetailsSkeleton() {
   return (
     <article className="pb-24">
-      <section className="relative overflow-hidden py-20">
+      <section className="site-section relative overflow-hidden">
         <div className="hero-gradient absolute inset-0 opacity-20" />
         <div className="relative z-10 mx-auto max-w-7xl px-6 md:px-8">
           <div className="h-4 w-24 animate-pulse rounded-full bg-surface-container-high" />
@@ -60,6 +66,63 @@ export default function TestimonialDetailsPage() {
     typeof (location.state as { from?: string } | null)?.from === "string"
       ? (location.state as { from?: string }).from!
       : "/depoimentos";
+  const seoPath = id ? `/depoimentos/${id}` : "/depoimentos";
+  const seoTitle = testimonial
+    ? `${testimonial.authorName} | Depoimento ${testimonial.brand}`
+    : "Depoimento";
+  const seoDescription = testimonial
+    ? truncateSeoText(testimonial.message, 160)
+    : "Leia um depoimento publicado pela GSUCHOA e acompanhe percepções reais sobre estratégia, clareza e resultados.";
+  const seoStructuredData = testimonial
+    ? [
+        createBreadcrumbStructuredData([
+          { name: "Início", path: "/" },
+          { name: "Depoimentos", path: "/depoimentos" },
+          { name: testimonial.authorName, path: seoPath },
+        ]),
+        {
+          "@context": "https://schema.org",
+          "@type": "Review",
+          reviewBody: testimonial.message,
+          inLanguage: "pt-BR",
+          url: buildAbsoluteUrl(seoPath),
+          author: {
+            "@type": "Person",
+            name: testimonial.authorName,
+            jobTitle: testimonial.authorRole,
+          },
+          reviewRating: {
+            "@type": "Rating",
+            ratingValue: testimonial.rating,
+            bestRating: 5,
+            worstRating: 1,
+          },
+          itemReviewed: {
+            "@type": "Organization",
+            name: testimonial.brand,
+          },
+          publisher: {
+            "@type": "Organization",
+            name: "GSUCHOA",
+            url: buildAbsoluteUrl("/"),
+          },
+        },
+      ]
+    : [
+        createBreadcrumbStructuredData([
+          { name: "Início", path: "/" },
+          { name: "Depoimentos", path: "/depoimentos" },
+        ]),
+      ];
+  const seo = (
+    <Seo
+      description={seoDescription}
+      path={seoPath}
+      structuredData={seoStructuredData}
+      title={seoTitle}
+      type="article"
+    />
+  );
 
   useEffect(() => {
     let isMounted = true;
@@ -115,7 +178,7 @@ export default function TestimonialDetailsPage() {
         setErrorMessage(
           error instanceof Error
             ? error.message
-            : "Nao foi possivel carregar esse depoimento.",
+            : "Não foi possível carregar este depoimento.",
         );
         setIsRelatedLoading(false);
       } finally {
@@ -132,43 +195,50 @@ export default function TestimonialDetailsPage() {
 
   if (isLoading) {
     return (
-      <SiteRouteShell activeNavKey="depoimentos">
-        <TestimonialDetailsSkeleton />
-      </SiteRouteShell>
+      <>
+        {seo}
+        <SiteRouteShell activeNavKey="depoimentos">
+          <TestimonialDetailsSkeleton />
+        </SiteRouteShell>
+      </>
     );
   }
 
   if (!testimonial) {
     return (
-      <SiteRouteShell activeNavKey="depoimentos">
-        <section className="mx-auto max-w-7xl px-6 py-28 md:px-8">
-          <div className="max-w-2xl rounded-[2.25rem] border border-outline-variant/12 bg-surface-container-low p-10">
-            <p className="text-xs font-bold uppercase tracking-[0.34em] text-primary">
-              Depoimento nao encontrado
-            </p>
-            <h1 className="mt-5 text-4xl font-black tracking-tight text-on-surface">
-              Esse depoimento nao existe ou ainda nao foi publicado.
-            </h1>
-            <p className="mt-5 text-lg leading-relaxed text-on-surface-variant">
-              {errorMessage ?? "Voce pode voltar para a listagem geral e navegar pelos outros relatos publicados."}
-            </p>
-            <Link
-              className="mt-8 inline-flex items-center gap-2 rounded-2xl bg-primary px-6 py-4 text-sm font-bold text-white"
-              to={backTarget}
-            >
-              <ArrowLeft className="h-4 w-4" />
-              Voltar
-            </Link>
-          </div>
-        </section>
-      </SiteRouteShell>
+      <>
+        {seo}
+        <SiteRouteShell activeNavKey="depoimentos">
+          <section className="mx-auto max-w-7xl px-6 py-28 md:px-8">
+            <div className="max-w-2xl rounded-[2.25rem] border border-outline-variant/12 bg-surface-container-low p-10">
+              <p className="text-xs font-bold uppercase tracking-[0.34em] text-primary">
+                Depoimento não encontrado
+              </p>
+              <h1 className="mt-5 text-4xl font-black tracking-tight text-on-surface">
+                Este depoimento não existe ou ainda não foi publicado.
+              </h1>
+              <p className="mt-5 text-lg leading-relaxed text-on-surface-variant">
+                {errorMessage ?? "Você pode voltar para a listagem geral e navegar pelos outros relatos publicados."}
+              </p>
+              <Link
+                className="mt-8 inline-flex items-center gap-2 rounded-2xl bg-primary px-6 py-4 text-sm font-bold text-white"
+                to={backTarget}
+              >
+                <ArrowLeft className="h-4 w-4" />
+                Voltar
+              </Link>
+            </div>
+          </section>
+        </SiteRouteShell>
+      </>
     );
   }
 
   return (
     <SiteRouteShell activeNavKey="depoimentos">
+      {seo}
       <article className="pb-24">
-        <section className="relative overflow-hidden py-20">
+        <section className="site-section relative overflow-hidden">
           <div className="hero-gradient absolute inset-0 opacity-20" />
           <div className="relative z-10 mx-auto max-w-7xl px-6 md:px-8">
             <Link
@@ -223,7 +293,7 @@ export default function TestimonialDetailsPage() {
                   </div>
                 ) : (
                   <p className="mt-8 text-sm leading-relaxed text-on-surface-variant">
-                    Um relato publicado para documentar percepcao de valor, clareza estrategica e resultado percebido na parceria com a GSUCHOA.
+                    Um relato publicado para documentar percepção de valor, clareza estratégica e resultados percebidos na parceria com a GSUCHOA.
                   </p>
                 )}
               </div>

@@ -1,0 +1,23 @@
+{
+  "name": "GSUCHOA | Estratégia Digital",
+  "short_name": "GSUCHOA",
+  "description": "Agência de estratégia digital de alta performance focada em crescimento real através de design, conteúdo e tráfego.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "lang": "pt-BR",
+  "background_color": "#131313",
+  "theme_color": "#2262f0",
+  "icons": [
+    {
+      "src": "/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

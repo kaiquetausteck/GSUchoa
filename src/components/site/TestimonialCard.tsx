@@ -61,7 +61,7 @@ export function TestimonialCard({
       ) : null}
 
       <div className="mt-6 inline-flex items-center gap-2 text-sm font-bold text-primary">
-        Abrir depoimento
+        Ver depoimento
         <ArrowUpRight className="h-4 w-4 transition-transform duration-300 group-hover:-translate-y-1 group-hover:translate-x-1" />
       </div>
     </Link>

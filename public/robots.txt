@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+Disallow: /painel
+Disallow: /painel/
+
+Sitemap: https://gsuchoa.com/sitemap.xml

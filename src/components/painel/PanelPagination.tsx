@@ -28,7 +28,7 @@ export function PanelPagination({
   return (
     <div className="flex flex-wrap items-center justify-between gap-4">
       <p className="text-sm text-on-surface-variant">
-        Pagina <span className="font-semibold text-on-surface">{currentPage}</span> de{" "}
+        Página <span className="font-semibold text-on-surface">{currentPage}</span> de{" "}
         <span className="font-semibold text-on-surface">{totalPages}</span>
       </p>
 

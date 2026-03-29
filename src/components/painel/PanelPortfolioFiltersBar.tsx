@@ -23,10 +23,10 @@ type PanelPortfolioFiltersBarProps = {
 };
 
 const SORT_OPTIONS: Array<{ label: string; value: PanelPortfolioSort }> = [
-  { label: "Atualizacao recente", value: "updatedAt-desc" },
-  { label: "Atualizacao antiga", value: "updatedAt-asc" },
-  { label: "Criacao recente", value: "createdAt-desc" },
-  { label: "Criacao antiga", value: "createdAt-asc" },
+  { label: "Atualização recente", value: "updatedAt-desc" },
+  { label: "Atualização antiga", value: "updatedAt-asc" },
+  { label: "Criação recente", value: "createdAt-desc" },
+  { label: "Criação antiga", value: "createdAt-asc" },
   { label: "Ano decrescente", value: "year-desc" },
   { label: "Ano crescente", value: "year-asc" },
   { label: "Nome A-Z", value: "name-asc" },
@@ -61,7 +61,7 @@ export function PanelPortfolioFiltersBar({
       : featuredValue === "regular"
         ? "Sem destaque"
         : "Qualquer destaque";
-  const sortLabel = SORT_OPTIONS.find((option) => option.value === sortValue)?.label ?? "Atualizacao recente";
+  const sortLabel = SORT_OPTIONS.find((option) => option.value === sortValue)?.label ?? "Atualização recente";
 
   return (
     <div className="panel-card rounded-[1.75rem] border p-5 md:p-6">
@@ -87,7 +87,7 @@ export function PanelPortfolioFiltersBar({
               {sortLabel}
             </span>
             <span className="panel-card-muted inline-flex items-center rounded-full border px-3 py-1.5 text-xs font-semibold text-on-surface">
-              {perPage} por pagina
+              {perPage} por página
             </span>
             {hasActiveFilters ? (
               <button
@@ -134,7 +134,7 @@ export function PanelPortfolioFiltersBar({
                   </div>
 
                   <AppSelect
-                    label="Publicacao"
+                    label="Publicação"
                     onChange={(event) => onPublishedChange(event.target.value as "all" | "published" | "draft")}
                     value={publishedValue}
                   >
@@ -149,12 +149,12 @@ export function PanelPortfolioFiltersBar({
                     value={featuredValue}
                   >
                     <option value="all">Todos</option>
-                    <option value="featured">Destacados</option>
+                    <option value="featured">Em destaque</option>
                     <option value="regular">Sem destaque</option>
                   </AppSelect>
 
                   <AppSelect
-                    label="Ordenacao"
+                    label="Ordenação"
                     onChange={(event) => onSortChange(event.target.value as PanelPortfolioSort)}
                     value={sortValue}
                   >
@@ -166,7 +166,7 @@ export function PanelPortfolioFiltersBar({
                   </AppSelect>
 
                   <AppSelect
-                    label="Por pagina"
+                    label="Por página"
                     onChange={(event) => onPerPageChange(Number(event.target.value))}
                     value={String(perPage)}
                   >
@@ -183,7 +183,7 @@ export function PanelPortfolioFiltersBar({
                       onClick={onResetFilters}
                       type="button"
                     >
-                      Restaurar padrao
+                      Restaurar padrão
                     </button>
                     <Popover.Close asChild>
                       <button

@@ -44,7 +44,7 @@ export function TestimonialsSection() {
         setErrorMessage(
           error instanceof Error
             ? error.message
-            : "Nao foi possivel carregar os depoimentos publicados.",
+            : "Não foi possível carregar os depoimentos publicados.",
         );
       } finally {
         if (isMounted) {
@@ -61,7 +61,7 @@ export function TestimonialsSection() {
   const [featuredTestimonial, ...secondaryTestimonials] = testimonials;
 
   return (
-    <RevealSection className="relative overflow-hidden bg-surface py-32" id="depoimentos">
+    <RevealSection className="site-section relative overflow-hidden bg-surface" id="depoimentos">
       <div className="hero-gradient absolute inset-0 opacity-20" />
       <div className="absolute left-[8%] top-24 h-48 w-48 rounded-full bg-primary/10 blur-[120px]" />
 
@@ -72,12 +72,12 @@ export function TestimonialsSection() {
               Vozes da Escala
             </p>
             <h2 className="text-5xl font-black leading-none tracking-tight md:text-6xl">
-              Relatos de quem sentiu a marca ganhar <span className="text-gradient">densidade e resultado.</span>
+              Relatos de quem viu a marca ganhar <span className="text-gradient">densidade e resultado.</span>
             </h2>
           </div>
           <div className="max-w-xl">
             <p className="text-lg leading-relaxed text-on-surface-variant">
-              Quando estrategia, design e performance passam a operar juntos, a percepcao da
+              Quando estratégia, design e performance passam a atuar em conjunto, a percepção da
               empresa muda por dentro e por fora. Esses relatos mostram esse ponto de virada.
             </p>
             <Link
@@ -139,7 +139,7 @@ export function TestimonialsSection() {
           </div>
         ) : errorMessage ? (
           <div className="rounded-[2rem] border border-outline-variant/15 bg-surface-container-low px-8 py-10">
-            <p className="text-sm font-semibold text-on-surface">Nao foi possivel carregar os depoimentos.</p>
+            <p className="text-sm font-semibold text-on-surface">Não foi possível carregar os depoimentos.</p>
             <p className="mt-3 text-sm leading-relaxed text-on-surface-variant">{errorMessage}</p>
           </div>
         ) : featuredTestimonial ? (
@@ -236,8 +236,8 @@ export function TestimonialsSection() {
         ) : (
           <div className="rounded-[2rem] border border-outline-variant/15 bg-surface-container-low px-8 py-10">
             <p className="text-sm font-semibold text-on-surface">Nenhum depoimento publicado ainda.</p>
-            <p className="mt-3 text-sm leading-relaxed text-on-surface-variant">
-              Assim que os relatos forem publicados no painel, eles aparecerao aqui automaticamente.
+              <p className="mt-3 text-sm leading-relaxed text-on-surface-variant">
+              Assim que os relatos forem publicados no painel, eles aparecerão aqui automaticamente.
             </p>
           </div>
         )}

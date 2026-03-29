@@ -133,7 +133,7 @@ export function PanelTestimonialsDrawer({
                 : "Salvando..."
               : mode === "create"
                 ? "Criar depoimento"
-                : "Salvar alteracoes"}
+                : "Salvar alterações"}
           </button>
         </div>
       )}
@@ -163,7 +163,7 @@ export function PanelTestimonialsDrawer({
               },
               {
                 key: "content",
-                label: "Conteudo",
+                label: "Conteúdo",
                 icon: <MessageSquareQuote className="h-4 w-4" />,
               },
               {
@@ -178,9 +178,9 @@ export function PanelTestimonialsDrawer({
           {activeTab === "main" ? (
             <section className="space-y-6">
               <PanelFormSection
-                description="Dados de apresentacao usados no card e na pagina interna do depoimento."
+                description="Dados de apresentação usados no card e na página interna do depoimento."
                 icon={<FileText className="h-4 w-4" />}
-                title="Identificacao"
+                title="Identificação"
               >
                 <div className="mt-5 grid gap-4">
                   <AppInput
@@ -207,7 +207,7 @@ export function PanelTestimonialsDrawer({
               <PanelFormSection
                 description="Controle a nota exibida e a ordem editorial desse depoimento."
                 icon={<SlidersHorizontal className="h-4 w-4" />}
-                title="Classificacao"
+                title="Classificação"
               >
                 <div className="mt-5 grid gap-4 md:grid-cols-[1fr_1fr_auto] md:items-end">
                   <AppSelect
@@ -247,7 +247,7 @@ export function PanelTestimonialsDrawer({
                   <AppTextarea
                     label="Depoimento"
                     onChange={(event) => onChange("message", event.target.value)}
-                    placeholder="A GSUCHOA trouxe clareza estrategica para a nossa comunicacao..."
+                    placeholder="A GSUCHOA trouxe clareza estratégica para a nossa comunicação..."
                     rows={7}
                     value={testimonial.message}
                   />
@@ -255,7 +255,7 @@ export function PanelTestimonialsDrawer({
               </PanelFormSection>
 
               <PanelFormSection
-                description="Use esse bloco para destacar um numero e um contexto curto no card principal."
+                description="Use este bloco para destacar um número e um contexto curto no card principal."
                 icon={<Sparkles className="h-4 w-4" />}
                 title="Destaque"
               >
@@ -280,9 +280,9 @@ export function PanelTestimonialsDrawer({
           {activeTab === "meta" ? (
             <section className="space-y-6">
               <PanelFormSection
-                description="Controles editoriais de publicacao e destaque."
+                description="Controles editoriais de publicação e destaque."
                 icon={<CalendarClock className="h-4 w-4" />}
-                title="Publicacao"
+                title="Publicação"
               >
                 <div className="mt-5 grid gap-4 md:grid-cols-3">
                   <AppSelect
@@ -311,7 +311,7 @@ export function PanelTestimonialsDrawer({
               </PanelFormSection>
 
               <PanelFormSection
-                description="Referencias retornadas pela API para auditoria interna."
+                description="Referências retornadas pela API para auditoria interna."
                 icon={<FileText className="h-4 w-4" />}
                 title="Registro"
               >

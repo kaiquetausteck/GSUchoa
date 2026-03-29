@@ -3,8 +3,13 @@ import { useEffect, useMemo, useState } from "react";
 
 import { SiteRouteShell } from "../../../components/site/SiteRouteShell";
 import { SitePagination } from "../../../components/site/SitePagination";
+import { Seo } from "../../../components/shared/Seo";
 import { TestimonialCard } from "../../../components/site/TestimonialCard";
 import { TestimonialCardSkeleton } from "../../../components/site/TestimonialCardSkeleton";
+import {
+  buildAbsoluteUrl,
+  createBreadcrumbStructuredData,
+} from "../../../config/site/seo";
 import {
   listFeaturedPublicTestimonials,
   listPublicTestimonials,
@@ -17,6 +22,8 @@ const FILTERS = [
 ] as const;
 
 const ITEMS_PER_PAGE = 6;
+const SEO_DESCRIPTION =
+  "Explore os depoimentos publicados pela GSUCHOA e veja relatos reais sobre operação, marca e crescimento.";
 
 export default function TestimonialsPagePublic() {
   const [activeFilter, setActiveFilter] = useState<(typeof FILTERS)[number]["key"]>("all");
@@ -51,7 +58,7 @@ export default function TestimonialsPagePublic() {
         setErrorMessage(
           error instanceof Error
             ? error.message
-            : "Nao foi possivel carregar os depoimentos publicados.",
+            : "Não foi possível carregar os depoimentos publicados.",
         );
       } finally {
         if (isMounted) {
@@ -75,10 +82,30 @@ export default function TestimonialsPagePublic() {
   }, [items, page]);
 
   const totalPages = Math.max(1, Math.ceil(items.length / ITEMS_PER_PAGE));
+  const structuredData = [
+    createBreadcrumbStructuredData([
+      { name: "Início", path: "/" },
+      { name: "Depoimentos", path: "/depoimentos" },
+    ]),
+    {
+      "@context": "https://schema.org",
+      "@type": "CollectionPage",
+      name: "Depoimentos da GSUCHOA",
+      description: SEO_DESCRIPTION,
+      url: buildAbsoluteUrl("/depoimentos"),
+      inLanguage: "pt-BR",
+    },
+  ];
 
   return (
     <SiteRouteShell activeNavKey="depoimentos">
-      <section className="relative overflow-hidden py-24 md:py-28">
+      <Seo
+        description={SEO_DESCRIPTION}
+        path="/depoimentos"
+        structuredData={structuredData}
+        title="Depoimentos e Prova Social"
+      />
+      <section className="site-section relative overflow-hidden">
         <div className="hero-gradient absolute inset-0 opacity-25" />
         <div className="relative z-10 mx-auto max-w-7xl px-6 md:px-8">
           <div className="max-w-4xl">
@@ -86,22 +113,22 @@ export default function TestimonialsPagePublic() {
               Vozes da Escala
             </p>
             <h1 className="text-5xl font-black leading-none tracking-tight md:text-7xl">
-              Prova social organizada para navegar por <span className="text-gradient">relato e contexto.</span>
+              Prova social organizada para navegar por <span className="text-gradient">relatos e contextos.</span>
             </h1>
             <p className="mt-8 max-w-3xl text-lg leading-relaxed text-on-surface-variant md:text-xl">
-              Uma camada editorial com depoimentos publicados, destaques e diferentes percepcoes
-              sobre o impacto da GSUCHOA em operacao, marca e crescimento.
+              Uma curadoria editorial com depoimentos publicados, destaques e diferentes percepções
+              sobre o impacto da GSUCHOA em operação, marca e crescimento.
             </p>
           </div>
 
           <div className="mt-14 flex flex-wrap items-center gap-3">
-            <div className="inline-flex items-center gap-2 rounded-full border border-outline-variant/12 bg-surface-container-high px-4 py-3 text-xs font-bold uppercase tracking-[0.24em] text-on-surface-variant">
+            <div className="mobile-wrap-control inline-flex max-w-full items-center gap-2 rounded-full border border-outline-variant/12 bg-surface-container-high px-4 py-3 text-xs font-bold uppercase tracking-[0.24em] text-on-surface-variant">
               <Quote className="h-4 w-4 text-primary" />
               Filtrar depoimentos
             </div>
             {FILTERS.map((filter) => (
               <button
-                className={`rounded-full border px-5 py-3 text-xs font-bold uppercase tracking-[0.22em] transition-colors ${
+                className={`mobile-wrap-control max-w-full rounded-full border px-5 py-3 text-xs font-bold uppercase tracking-[0.22em] transition-colors ${
                   activeFilter === filter.key
                     ? "border-primary bg-primary text-white"
                     : "border-outline-variant/15 bg-surface-container-low text-on-surface-variant hover:border-primary/24 hover:text-primary"
@@ -125,7 +152,7 @@ export default function TestimonialsPagePublic() {
 
           {errorMessage ? (
             <div className="mt-10 rounded-[2rem] border border-outline-variant/12 bg-surface-container-low px-8 py-10 text-center">
-              <p className="text-sm font-semibold text-on-surface">Nao foi possivel carregar os depoimentos.</p>
+              <p className="text-sm font-semibold text-on-surface">Não foi possível carregar os depoimentos.</p>
               <p className="mt-2 text-sm leading-relaxed text-on-surface-variant">
                 {errorMessage}
               </p>

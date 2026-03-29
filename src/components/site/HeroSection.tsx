@@ -1,4 +1,3 @@
-import { ArrowRight } from "lucide-react";
 import { motion } from "motion/react";
 
 import { type SectionId } from "../../hooks/site/useSectionAnchors";
@@ -13,7 +12,7 @@ const EASE_OUT = [0.22, 1, 0.36, 1] as const;
 const HERO_STATS = [
   { label: "Projetos", value: 250, prefix: "+" },
   { label: "Clientes", value: 50, prefix: "+" },
-  { label: "Anos de Experiencia", value: 10, prefix: "+" },
+  { label: "Anos de experiência", value: 10, prefix: "+" },
 ];
 
 export function HeroSection({
@@ -22,22 +21,22 @@ export function HeroSection({
   onNavigate: (sectionId: SectionId) => void;
 }) {
   const heroDescriptionText =
-    "Design, conteudo e trafego que geram resultado, nao apenas estetica. Arquitetamos ecossistemas digitais para marcas que buscam autoridade e lucro.";
+    "Design, conteúdo e tráfego que geram resultado, e não apenas estética. Estruturamos ecossistemas digitais para marcas que buscam autoridade e crescimento.";
 
   const titleLineOne = useTypewriter("Transformamos", true, 18);
-  const titleLineTwo = useTypewriter("estrategia em", titleLineOne.complete, 16);
+  const titleLineTwo = useTypewriter("estratégia em", titleLineOne.complete, 16);
   const titleLineThree = useTypewriter("crescimento real", titleLineTwo.complete, 14);
   const description = useTypewriter(heroDescriptionText, titleLineThree.complete, 7);
   const showHeroBottom = description.complete;
 
   return (
-    <section className="relative flex min-h-screen items-center overflow-hidden pt-20" id="inicio">
+    <section className="hero-section-shell relative flex min-h-screen items-center overflow-hidden pb-16 pt-24 md:pb-20 md:pt-28" id="inicio">
       <div className="brand-watermark pointer-events-none absolute right-[-10%] top-[10%] w-1/2 select-none opacity-[0.03]">
         <LogoIconAnimated animated={false} className="logo-icon-theme h-auto w-full" decorative />
       </div>
       <div className="hero-gradient absolute inset-0" />
 
-      <div className="relative z-10 mx-auto grid w-full max-w-7xl items-center gap-12 px-6 md:px-8 lg:grid-cols-12">
+      <div className="hero-section-grid relative z-10 mx-auto grid w-full max-w-7xl items-center gap-12 px-6 md:px-8 lg:grid-cols-12">
         <div className="lg:col-span-8">
           <motion.div
             animate={{ opacity: 1, y: 0 }}
@@ -83,7 +82,7 @@ export function HeroSection({
                 onNavigate={onNavigate}
                 sectionId="contato"
               >
-                Falar com especialista
+                Falar com um especialista
               </SectionLink>
               <SectionLink
                 className="hero-secondary-button rounded-xl border px-10 py-5 text-center text-lg font-bold active:scale-95"
@@ -115,14 +114,11 @@ export function HeroSection({
           initial={{ opacity: 0, scale: 0.9 }}
           transition={{ duration: 0.8, delay: 0.3, ease: EASE_OUT }}
         >
-          <div className="group relative aspect-[4/5] overflow-hidden rounded-3xl bg-surface-container-high">
-            <img
-              alt="High Tech Environment"
-              className="h-full w-full object-cover grayscale opacity-50 transition-all duration-700 group-hover:scale-110 group-hover:grayscale-0"
-              src="https://lh3.googleusercontent.com/aida-public/AB6AXuD_vWB95GN5P3Seurf7HEsF2uWs_4uDUVg6xS6jPNaTbSbZCL9zuEG99OkhImzTd8Bq9OsGjHpL_jUZ_YIExmXLwy7Sjo-m9Fym91MUwelgLFfol3CG5Df-t0XyaFAm5H75aqX-3jVs9mIgg1SWnuMek8b_vXxjFUONEihzZyR4Bn87kXuaAnJwVJF4P7kTHaodEKXgV3-RAk7WJPjL6NMFXNFMHId29tzvD0s_xp0-PeXUxqa2XMZk6pJ3YXm_9iArloeJGcz-hx9U"
-              referrerPolicy="no-referrer"
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent" />
+          <div className="hero-visual-stage group relative mx-auto flex aspect-[4/5] w-full max-w-[25rem] items-center justify-center px-4 py-6">
+            <div className="hero-visual-halo hero-visual-halo-primary pointer-events-none absolute left-[2%] top-[7%] h-44 w-44 rounded-full blur-3xl" />
+            <div className="hero-visual-halo hero-visual-halo-secondary pointer-events-none absolute bottom-[9%] right-[4%] h-40 w-40 rounded-full blur-3xl" />
+            <div className="hero-visual-spotlight pointer-events-none absolute inset-x-12 bottom-8 h-24 rounded-full blur-3xl" />
+            <div className="hero-visual-beam pointer-events-none absolute left-1/2 top-[12%] h-[68%] w-px -translate-x-1/2" />
             <HeroSignaturePanel />
           </div>
         </motion.div>

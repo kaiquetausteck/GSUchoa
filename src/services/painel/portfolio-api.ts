@@ -293,7 +293,7 @@ async function requestJson(path: string, token: string, init: RequestInit = {}) 
     });
   } catch {
     throw new PanelPortfolioApiError(
-      `Nao foi possivel conectar com a API em ${PANEL_API_BASE_URL}. Verifique se o backend esta ativo.`,
+      `Não foi possível conectar com a API em ${PANEL_API_BASE_URL}. Verifique se o backend está ativo.`,
     );
   }
 
@@ -560,7 +560,7 @@ export async function listPanelPortfolio(token: string, filters: PanelPortfolioL
 
   if (!response.ok) {
     throw new PanelPortfolioApiError(
-      extractMessage(payload, "Nao foi possivel carregar a listagem de portfolios."),
+      extractMessage(payload, "Não foi possível carregar a listagem de portfólios."),
       response.status,
     );
   }
@@ -591,7 +591,7 @@ export async function getPanelPortfolioById(token: string, id: string) {
 
   if (!response.ok) {
     throw new PanelPortfolioApiError(
-      extractMessage(payload, "Nao foi possivel carregar esse portfolio."),
+      extractMessage(payload, "Não foi possível carregar esse portfólio."),
       response.status,
     );
   }
@@ -602,7 +602,7 @@ export async function getPanelPortfolioById(token: string, id: string) {
 
   if (!detail) {
     throw new PanelPortfolioApiError(
-      "A API respondeu ao portfolio, mas o formato nao foi reconhecido.",
+      "A API respondeu ao portfólio, mas o formato não foi reconhecido.",
       response.status,
     );
   }
@@ -618,7 +618,7 @@ export async function createPanelPortfolio(token: string, input: PanelPortfolioU
 
   if (!response.ok) {
     throw new PanelPortfolioApiError(
-      extractMessage(payload, "Nao foi possivel criar esse portfolio."),
+      extractMessage(payload, "Não foi possível criar esse portfólio."),
       response.status,
     );
   }
@@ -628,7 +628,7 @@ export async function createPanelPortfolio(token: string, input: PanelPortfolioU
   );
 
   if (!detail) {
-    throw new PanelPortfolioApiError("A API respondeu ao create, mas o portfolio retornado nao foi reconhecido.");
+    throw new PanelPortfolioApiError("A API respondeu à criação, mas o portfólio retornado não foi reconhecido.");
   }
 
   return detail;
@@ -642,7 +642,7 @@ export async function updatePanelPortfolio(token: string, id: string, input: Pan
 
   if (!response.ok) {
     throw new PanelPortfolioApiError(
-      extractMessage(payload, "Nao foi possivel salvar esse portfolio."),
+      extractMessage(payload, "Não foi possível salvar esse portfólio."),
       response.status,
     );
   }
@@ -652,7 +652,7 @@ export async function updatePanelPortfolio(token: string, id: string, input: Pan
   );
 
   if (!detail) {
-    throw new PanelPortfolioApiError("A API respondeu ao update, mas o portfolio retornado nao foi reconhecido.");
+    throw new PanelPortfolioApiError("A API respondeu à atualização, mas o portfólio retornado não foi reconhecido.");
   }
 
   return detail;
@@ -665,7 +665,7 @@ export async function deletePanelPortfolio(token: string, id: string) {
 
   if (!response.ok && response.status !== 204) {
     throw new PanelPortfolioApiError(
-      extractMessage(payload, "Nao foi possivel excluir esse portfolio."),
+      extractMessage(payload, "Não foi possível excluir esse portfólio."),
       response.status,
     );
   }
@@ -679,7 +679,7 @@ export async function setPanelPortfolioPublished(token: string, id: string, isPu
 
   if (!response.ok) {
     throw new PanelPortfolioApiError(
-      extractMessage(payload, "Nao foi possivel atualizar a publicacao desse portfolio."),
+      extractMessage(payload, "Não foi possível atualizar a publicação desse portfólio."),
       response.status,
     );
   }
@@ -689,7 +689,7 @@ export async function setPanelPortfolioPublished(token: string, id: string, isPu
   );
 
   if (!detail) {
-    throw new PanelPortfolioApiError("A API respondeu ao publish, mas o portfolio retornado nao foi reconhecido.");
+    throw new PanelPortfolioApiError("A API respondeu à publicação, mas o portfólio retornado não foi reconhecido.");
   }
 
   return detail;
@@ -703,7 +703,7 @@ export async function setPanelPortfolioFeatured(token: string, id: string, featu
 
   if (!response.ok) {
     throw new PanelPortfolioApiError(
-      extractMessage(payload, "Nao foi possivel atualizar o destaque desse portfolio."),
+      extractMessage(payload, "Não foi possível atualizar o destaque desse portfólio."),
       response.status,
     );
   }
@@ -713,7 +713,7 @@ export async function setPanelPortfolioFeatured(token: string, id: string, featu
   );
 
   if (!detail) {
-    throw new PanelPortfolioApiError("A API respondeu ao destaque, mas o portfolio retornado nao foi reconhecido.");
+    throw new PanelPortfolioApiError("A API respondeu ao destaque, mas o portfólio retornado não foi reconhecido.");
   }
 
   return detail;

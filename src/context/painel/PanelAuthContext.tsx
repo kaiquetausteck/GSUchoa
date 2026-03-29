@@ -88,11 +88,11 @@ export function PanelAuthProvider({
 
         if (window.location.pathname.startsWith("/painel")) {
           toast.error({
-            title: "Sessao invalida",
+            title: "Sessão inválida",
             description:
               error instanceof Error
                 ? error.message
-                : "Sua autenticacao nao pode ser restaurada.",
+                : "Sua autenticação não pôde ser restaurada.",
           });
         }
       } finally {
@@ -148,8 +148,8 @@ export function PanelAuthProvider({
 
     if (!options?.silent) {
       toast.info({
-        title: "Sessao encerrada",
-        description: "Seu acesso ao painel foi finalizado com seguranca.",
+        title: "Sessão encerrada",
+        description: "Seu acesso ao painel foi finalizado com segurança.",
       });
     }
   };

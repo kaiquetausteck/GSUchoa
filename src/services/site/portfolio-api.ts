@@ -219,7 +219,7 @@ async function requestJson(path: string) {
     });
   } catch {
     throw new PublicPortfolioApiError(
-      `Nao foi possivel conectar com a API em ${SITE_API_BASE_URL}. Verifique se o backend esta ativo.`,
+      `Não foi possível conectar à API em ${SITE_API_BASE_URL}. Verifique se o backend está ativo.`,
     );
   }
 
@@ -398,7 +398,7 @@ export async function listPublicPortfolio(filters: PublicPortfolioListFilters = 
 
   if (!response.ok) {
     throw new PublicPortfolioApiError(
-      extractMessage(payload, "Nao foi possivel carregar os cases publicados."),
+      extractMessage(payload, "Não foi possível carregar os cases publicados."),
       response.status,
     );
   }
@@ -429,7 +429,7 @@ export async function listFeaturedPublicPortfolio() {
 
   if (!response.ok) {
     throw new PublicPortfolioApiError(
-      extractMessage(payload, "Nao foi possivel carregar os cases em destaque."),
+      extractMessage(payload, "Não foi possível carregar os cases em destaque."),
       response.status,
     );
   }
@@ -451,7 +451,7 @@ export async function listPublicPortfolioCategories() {
 
   if (!response.ok) {
     throw new PublicPortfolioApiError(
-      extractMessage(payload, "Nao foi possivel carregar as categorias do portfolio."),
+      extractMessage(payload, "Não foi possível carregar as categorias do portfólio."),
       response.status,
     );
   }
@@ -464,7 +464,7 @@ export async function listPublicPortfolioScopes() {
 
   if (!response.ok) {
     throw new PublicPortfolioApiError(
-      extractMessage(payload, "Nao foi possivel carregar os escopos do portfolio."),
+      extractMessage(payload, "Não foi possível carregar os escopos do portfólio."),
       response.status,
     );
   }
@@ -477,7 +477,7 @@ export async function getPublicPortfolioBySlug(slug: string) {
 
   if (!response.ok) {
     throw new PublicPortfolioApiError(
-      extractMessage(payload, "Nao foi possivel carregar esse estudo de caso."),
+      extractMessage(payload, "Não foi possível carregar este estudo de caso."),
       response.status,
     );
   }
@@ -486,7 +486,7 @@ export async function getPublicPortfolioBySlug(slug: string) {
 
   if (!detail) {
     throw new PublicPortfolioApiError(
-      "A API respondeu ao portfolio publico, mas o formato nao foi reconhecido.",
+      "A API respondeu ao portfólio público, mas o formato não foi reconhecido.",
       response.status,
     );
   }

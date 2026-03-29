@@ -57,7 +57,7 @@ export function CaseStudyCard({
         <div className="grid gap-4 md:grid-cols-3">
           {[
             { label: "Problema", value: caseStudy.labels.problem },
-            { label: "Solucao", value: caseStudy.labels.solution },
+            { label: "Solução", value: caseStudy.labels.solution },
             { label: "Resultado", value: caseStudy.labels.result },
           ].map((item) => (
             <div
@@ -75,7 +75,7 @@ export function CaseStudyCard({
         </div>
 
         <div className="inline-flex items-center gap-2 text-sm font-bold text-primary">
-          Abrir case
+          Ver case
           <ArrowUpRight className="h-4 w-4 transition-transform duration-300 group-hover:-translate-y-1 group-hover:translate-x-1" />
         </div>
       </div>

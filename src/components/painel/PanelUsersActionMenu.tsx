@@ -20,7 +20,7 @@ export function PanelUsersActionMenu({
       <button
         aria-expanded={open}
         aria-haspopup="menu"
-        aria-label="Abrir acoes do usuario"
+        aria-label="Abrir ações do usuário"
         className="panel-card-muted inline-flex h-10 w-10 items-center justify-center rounded-xl border text-on-surface transition-colors hover:border-primary/30 hover:text-primary"
         onClick={() => setOpen((current) => !current)}
         ref={triggerRef}

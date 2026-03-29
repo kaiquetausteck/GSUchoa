@@ -220,7 +220,7 @@ async function requestJson(path: string, token: string) {
     });
   } catch {
     throw new PanelDashboardApiError(
-      `Nao foi possivel conectar com a API em ${PANEL_API_BASE_URL}. Verifique se o backend esta ativo.`,
+      `Não foi possível conectar com a API em ${PANEL_API_BASE_URL}. Verifique se o backend está ativo.`,
     );
   }
 
@@ -423,7 +423,7 @@ export async function fetchPanelDashboard(token: string, range: PanelDashboardRa
 
   if (!response.ok) {
     throw new PanelDashboardApiError(
-      extractMessage(payload, "Nao foi possivel carregar o dashboard agora."),
+      extractMessage(payload, "Não foi possível carregar o dashboard agora."),
       response.status,
     );
   }
@@ -432,7 +432,7 @@ export async function fetchPanelDashboard(token: string, range: PanelDashboardRa
 
   if (!dashboard) {
     throw new PanelDashboardApiError(
-      `A API respondeu ao endpoint ${PANEL_DASHBOARD_PATH}, mas o formato do dashboard nao foi reconhecido.`,
+      `A API respondeu ao endpoint ${PANEL_DASHBOARD_PATH}, mas o formato do dashboard não foi reconhecido.`,
       response.status,
     );
   }

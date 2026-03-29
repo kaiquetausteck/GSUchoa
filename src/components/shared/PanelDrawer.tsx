@@ -1,3 +1,4 @@
+import { createPortal } from "react-dom";
 import { GripVertical, X } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import {
@@ -105,14 +106,14 @@ export function PanelDrawer({
     window.addEventListener("pointerup", handlePointerUp);
   };
 
-  return (
+  const content = (
     <AnimatePresence>
       {open ? (
         <>
           <motion.button
             animate={{ opacity: 1 }}
             aria-label="Fechar painel lateral"
-            className="fixed inset-0 z-40 bg-black/35 backdrop-blur-[2px]"
+            className="fixed inset-0 z-[140] bg-black/35 backdrop-blur-[3px]"
             exit={{ opacity: 0 }}
             initial={{ opacity: 0 }}
             onClick={onClose}
@@ -121,7 +122,7 @@ export function PanelDrawer({
 
           <motion.aside
             animate={{ opacity: 1, x: 0 }}
-            className="panel-popover fixed inset-y-0 right-0 z-50 flex max-w-[calc(100vw-1rem)] flex-col border-l"
+            className="panel-popover fixed inset-y-0 right-0 z-[150] flex max-w-[calc(100vw-1rem)] flex-col border-l"
             exit={{ opacity: 1, x: "100%" }}
             initial={{ opacity: 1, x: "100%" }}
             style={{ width: `${drawerWidth}px` }}
@@ -170,4 +171,10 @@ export function PanelDrawer({
       ) : null}
     </AnimatePresence>
   );
+
+  if (typeof document === "undefined") {
+    return null;
+  }
+
+  return createPortal(content, document.body);
 }

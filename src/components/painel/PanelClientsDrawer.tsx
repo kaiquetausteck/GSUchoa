@@ -113,7 +113,7 @@ export function PanelClientsDrawer({
   const title = mode === "create" ? "Adicionar cliente" : client?.name || "Editar cliente";
   const description =
     mode === "create"
-      ? "Cadastre um novo cliente e deixe a prova social pronta para publicacao."
+      ? "Cadastre um novo cliente e deixe a prova social pronta para publicação."
       : "Atualize logo, posicionamento e status editorial desse cliente.";
 
   return (
@@ -142,7 +142,7 @@ export function PanelClientsDrawer({
                   : "Salvando..."
                 : mode === "create"
                   ? "Criar cliente"
-                  : "Salvar alteracoes"}
+                  : "Salvar alterações"}
             </button>
           </div>
         )}
@@ -172,7 +172,7 @@ export function PanelClientsDrawer({
                 },
                 {
                   key: "content",
-                  label: "Conteudo",
+                  label: "Conteúdo",
                   icon: <LayoutTemplate className="h-4 w-4" />,
                 },
                 {
@@ -208,7 +208,7 @@ export function PanelClientsDrawer({
 
                     <div className="space-y-3">
                       <p className="text-sm leading-relaxed text-on-surface-variant">
-                        O logo sera usado no carrossel, na listagem publica e na pagina do cliente.
+                        O logo será usado no carrossel, na listagem pública e na página do cliente.
                       </p>
 
                       <div className="flex flex-wrap gap-3">
@@ -249,9 +249,9 @@ export function PanelClientsDrawer({
                 </PanelFormSection>
 
                 <PanelFormSection
-                  description="Esses dados estruturam o card e a rota publica do cliente."
+                  description="Esses dados estruturam o card e a rota pública do cliente."
                   icon={<FileText className="h-4 w-4" />}
-                  title="Identificacao"
+                  title="Identificação"
                 >
                   <div className="mt-5 grid gap-4">
                     <AppInput
@@ -267,7 +267,7 @@ export function PanelClientsDrawer({
                       value={client.slug}
                     />
                     <AppInput
-                      label="Website"
+                      label="Site"
                       leadingIcon={<Globe2 className="h-4 w-4" />}
                       onChange={(event) => onChange("website", event.target.value)}
                       placeholder="https://soundblack.com.br"
@@ -281,13 +281,13 @@ export function PanelClientsDrawer({
             {activeTab === "content" ? (
               <section className="space-y-6">
                 <PanelFormSection
-                  description="Texto usado na pagina publica do cliente e no contexto interno do painel."
+                  description="Texto usado na página pública do cliente e no contexto interno do painel."
                   icon={<LayoutTemplate className="h-4 w-4" />}
-                  title="Descricao"
+                  title="Descrição"
                 >
                   <div className="mt-5">
                     <AppTextarea
-                      label="Descricao"
+                      label="Descrição"
                       onChange={(event) => onChange("description", event.target.value)}
                       placeholder="Marca parceira com foco em posicionamento e performance."
                       rows={7}
@@ -301,9 +301,9 @@ export function PanelClientsDrawer({
             {activeTab === "meta" ? (
               <section className="space-y-6">
                 <PanelFormSection
-                  description="Controles editoriais de exibicao, ordem e destaque."
+                  description="Controles editoriais de exibição, ordem e destaque."
                   icon={<CalendarClock className="h-4 w-4" />}
-                  title="Publicacao"
+                  title="Publicação"
                 >
                   <div className="mt-5 grid gap-4 md:grid-cols-2">
                     <AppSelect
@@ -339,7 +339,7 @@ export function PanelClientsDrawer({
                 </PanelFormSection>
 
                 <PanelFormSection
-                  description="Referencias retornadas pela API para auditoria interna."
+                  description="Referências retornadas pela API para auditoria interna."
                   icon={<FileText className="h-4 w-4" />}
                   title="Registro"
                 >

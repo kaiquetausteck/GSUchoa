@@ -153,7 +153,7 @@ async function requestJson(path: string) {
     });
   } catch {
     throw new PublicTestimonialsApiError(
-      `Nao foi possivel conectar com a API em ${SITE_API_BASE_URL}. Verifique se o backend esta ativo.`,
+      `Não foi possível conectar à API em ${SITE_API_BASE_URL}. Verifique se o backend está ativo.`,
     );
   }
 
@@ -230,7 +230,7 @@ export async function listPublicTestimonials(filters?: { featured?: boolean }) {
 
   if (!response.ok) {
     throw new PublicTestimonialsApiError(
-      extractMessage(payload, "Nao foi possivel carregar os depoimentos publicados."),
+      extractMessage(payload, "Não foi possível carregar os depoimentos publicados."),
       response.status,
     );
   }
@@ -243,7 +243,7 @@ export async function listFeaturedPublicTestimonials() {
 
   if (!response.ok) {
     throw new PublicTestimonialsApiError(
-      extractMessage(payload, "Nao foi possivel carregar os depoimentos em destaque."),
+      extractMessage(payload, "Não foi possível carregar os depoimentos em destaque."),
       response.status,
     );
   }
@@ -256,7 +256,7 @@ export async function getPublicTestimonialById(id: string) {
 
   if (!response.ok) {
     throw new PublicTestimonialsApiError(
-      extractMessage(payload, "Nao foi possivel carregar esse depoimento."),
+      extractMessage(payload, "Não foi possível carregar este depoimento."),
       response.status,
     );
   }
@@ -267,7 +267,7 @@ export async function getPublicTestimonialById(id: string) {
 
   if (!item) {
     throw new PublicTestimonialsApiError(
-      "A API respondeu ao depoimento, mas o formato nao foi reconhecido.",
+      "A API respondeu ao depoimento, mas o formato não foi reconhecido.",
     );
   }
 

@@ -71,13 +71,13 @@ export default function UsersPage() {
       const message =
         error instanceof Error
           ? error.message
-          : "Nao foi possivel carregar os usuarios.";
+          : "Não foi possível carregar os usuários.";
 
       setItems([]);
       setTotalPages(1);
 
       toast.error({
-        title: "Falha ao carregar usuarios",
+        title: "Falha ao carregar usuários",
         description: message,
       });
     } finally {
@@ -112,11 +112,11 @@ export default function UsersPage() {
         }
 
         toast.error({
-          title: "Nao foi possivel abrir o usuario",
+          title: "Não foi possível abrir o usuário",
           description:
             error instanceof Error
               ? error.message
-              : "O painel nao conseguiu carregar os detalhes desse usuario.",
+              : "O painel não conseguiu carregar os detalhes desse usuário.",
         });
       } finally {
         if (isMounted) {
@@ -161,7 +161,7 @@ export default function UsersPage() {
     if (!selectedUser.name.trim() || !selectedUser.email.trim()) {
       setDrawerActiveTab("main");
       toast.error({
-        title: "Campos obrigatorios",
+        title: "Campos obrigatórios",
         description: "Nome e e-mail precisam ser preenchidos.",
       });
       return;
@@ -171,8 +171,8 @@ export default function UsersPage() {
       if (drawerMode === "create" && !selectedUser.password.trim()) {
         setDrawerActiveTab("password");
         toast.error({
-          title: "Senha obrigatoria",
-          description: "Para criar um novo usuario, defina uma senha inicial.",
+          title: "Senha obrigatória",
+          description: "Para criar um novo usuário, defina uma senha inicial.",
         });
         return;
       }
@@ -180,7 +180,7 @@ export default function UsersPage() {
       if (selectedUser.password.length < 6) {
         setDrawerActiveTab("password");
         toast.error({
-          title: "Senha invalida",
+          title: "Senha inválida",
           description: "A senha precisa ter pelo menos 6 caracteres.",
         });
         return;
@@ -189,8 +189,8 @@ export default function UsersPage() {
       if (selectedUser.password !== selectedUser.passwordConfirmation) {
         setDrawerActiveTab("password");
         toast.error({
-          title: "Confirmacao incorreta",
-          description: "A confirmacao da senha precisa ser igual a senha informada.",
+          title: "Confirmação incorreta",
+          description: "A confirmação da senha precisa corresponder à senha informada.",
         });
         return;
       }
@@ -208,7 +208,7 @@ export default function UsersPage() {
         });
 
         toast.success({
-          title: "Usuario criado",
+          title: "Usuário criado",
           description: "O novo acesso administrativo foi criado com sucesso.",
         });
 
@@ -242,18 +242,18 @@ export default function UsersPage() {
       );
 
       toast.success({
-        title: "Usuario atualizado",
-        description: "As alteracoes foram salvas com sucesso.",
+        title: "Usuário atualizado",
+        description: "As alterações foram salvas com sucesso.",
       });
     } catch (error) {
       const message =
         error instanceof Error
           ? error.message
-          : "Nao foi possivel concluir essa operacao agora.";
+          : "Não foi possível concluir esta operação agora.";
 
       setDrawerActiveTab(getPanelUserDrawerTabFromErrorMessage(message));
       toast.error({
-        title: drawerMode === "create" ? "Falha ao criar usuario" : "Falha ao salvar usuario",
+        title: drawerMode === "create" ? "Falha ao criar usuário" : "Falha ao salvar usuário",
         description: message,
       });
     } finally {
@@ -282,8 +282,8 @@ export default function UsersPage() {
       }
 
       toast.success({
-        title: "Usuario excluido",
-        description: "A exclusao foi concluida com sucesso.",
+        title: "Usuário excluído",
+        description: "A exclusão foi concluída com sucesso.",
       });
 
       if (willEmptyPage) {
@@ -294,11 +294,11 @@ export default function UsersPage() {
       void loadUsers();
     } catch (error) {
       toast.error({
-        title: "Falha ao excluir usuario",
+        title: "Falha ao excluir usuário",
         description:
           error instanceof Error
             ? error.message
-            : "Nao foi possivel excluir esse usuario agora.",
+            : "Não foi possível excluir esse usuário agora.",
       });
     } finally {
       setIsDeleting(false);
@@ -316,15 +316,15 @@ export default function UsersPage() {
               type="button"
             >
               <Plus className="h-4 w-4" />
-              Adicionar usuario
+              Adicionar usuário
             </button>
           )}
           breadcrumbs={[
             { label: "Painel", to: "/painel/dashboard" },
-            { label: "Usuarios" },
+            { label: "Usuários" },
           ]}
-          description="Gerencie acessos administrativos, credenciais e dados de perfil em um fluxo unico."
-          title="Usuarios"
+          description="Gerencie acessos administrativos, credenciais e dados de perfil em um fluxo único."
+          title="Usuários"
         />
 
         <PanelUsersFiltersBar
@@ -406,17 +406,17 @@ export default function UsersPage() {
       />
 
       <ConfirmDialog
-        confirmLabel={isDeleting ? "Excluindo..." : "Excluir usuario"}
+        confirmLabel={isDeleting ? "Excluindo..." : "Excluir usuário"}
         description={
           userToDelete
-            ? `Essa acao remove o acesso administrativo de ${userToDelete.name}.`
+            ? `Essa ação remove o acesso administrativo de ${userToDelete.name}.`
             : ""
         }
         isLoading={isDeleting}
         onClose={() => setUserToDelete(null)}
         onConfirm={() => void handleDeleteUser()}
         open={Boolean(userToDelete)}
-        title="Confirmar exclusao"
+        title="Confirmar exclusão"
       />
     </>
   );

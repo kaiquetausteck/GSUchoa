@@ -205,7 +205,7 @@ async function requestJson(path: string, token: string, init: RequestInit = {}) 
     });
   } catch {
     throw new PanelUsersApiError(
-      `Nao foi possivel conectar com a API em ${PANEL_API_BASE_URL}. Verifique se o backend esta ativo.`,
+      `Não foi possível conectar com a API em ${PANEL_API_BASE_URL}. Verifique se o backend está ativo.`,
     );
   }
 
@@ -247,7 +247,7 @@ function normalizePanelUserRecord(payload: unknown): PanelUserRecord | null {
 
   return {
     id: getFirstString([payload.id, payload._id, payload.uuid, payload.userId]) ?? email ?? name ?? "user",
-    name: name ?? email ?? "Usuario",
+    name: name ?? email ?? "Usuário",
     email: email ?? "",
     role: getFirstString([payload.role, payload.profile, payload.type, payload.permission]) ?? "admin",
     isActive: status === "active",
@@ -373,7 +373,7 @@ export async function listPanelUsers(token: string, filters: PanelUsersFilters) 
 
   if (!response.ok) {
     throw new PanelUsersApiError(
-      extractMessage(payload, "Nao foi possivel carregar a listagem de usuarios."),
+      extractMessage(payload, "Não foi possível carregar a listagem de usuários."),
       response.status,
     );
   }
@@ -398,7 +398,7 @@ export async function getPanelUserById(token: string, id: string) {
 
   if (!response.ok) {
     throw new PanelUsersApiError(
-      extractMessage(payload, "Nao foi possivel carregar esse usuario."),
+      extractMessage(payload, "Não foi possível carregar esse usuário."),
       response.status,
     );
   }
@@ -408,7 +408,7 @@ export async function getPanelUserById(token: string, id: string) {
   );
 
   if (!user) {
-    throw new PanelUsersApiError("A API respondeu, mas o formato do usuario nao foi reconhecido.", response.status);
+    throw new PanelUsersApiError("A API respondeu, mas o formato do usuário não foi reconhecido.", response.status);
   }
 
   return user;
@@ -435,7 +435,7 @@ export async function updatePanelUser(token: string, input: UpdatePanelUserInput
 
   if (!response.ok) {
     throw new PanelUsersApiError(
-      extractMessage(payload, "Nao foi possivel salvar esse usuario."),
+      extractMessage(payload, "Não foi possível salvar esse usuário."),
       response.status,
     );
   }
@@ -445,7 +445,7 @@ export async function updatePanelUser(token: string, input: UpdatePanelUserInput
   );
 
   if (!updatedUser) {
-    throw new PanelUsersApiError("A API respondeu ao update, mas o usuario retornado nao foi reconhecido.");
+    throw new PanelUsersApiError("A API respondeu à atualização, mas o usuário retornado não foi reconhecido.");
   }
 
   return updatedUser;
@@ -474,7 +474,7 @@ export async function createPanelUser(token: string, input: CreatePanelUserInput
 
   if (!response.ok) {
     throw new PanelUsersApiError(
-      extractMessage(payload, "Nao foi possivel criar esse usuario."),
+      extractMessage(payload, "Não foi possível criar esse usuário."),
       response.status,
     );
   }
@@ -484,7 +484,7 @@ export async function createPanelUser(token: string, input: CreatePanelUserInput
   );
 
   if (!createdUser) {
-    throw new PanelUsersApiError("A API respondeu ao create, mas o usuario retornado nao foi reconhecido.");
+    throw new PanelUsersApiError("A API respondeu à criação, mas o usuário retornado não foi reconhecido.");
   }
 
   return createdUser;
@@ -497,7 +497,7 @@ export async function deletePanelUser(token: string, id: string) {
 
   if (!response.ok) {
     throw new PanelUsersApiError(
-      extractMessage(payload, "Nao foi possivel excluir esse usuario."),
+      extractMessage(payload, "Não foi possível excluir esse usuário."),
       response.status,
     );
   }

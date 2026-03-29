@@ -25,10 +25,10 @@ type PanelTestimonialsFiltersBarProps = {
 const SORT_OPTIONS: Array<{ label: string; value: PanelTestimonialSort }> = [
   { label: "Ordem crescente", value: "sortOrder-asc" },
   { label: "Ordem decrescente", value: "sortOrder-desc" },
-  { label: "Criacao recente", value: "createdAt-desc" },
-  { label: "Criacao antiga", value: "createdAt-asc" },
-  { label: "Publicacao recente", value: "publishedAt-desc" },
-  { label: "Publicacao antiga", value: "publishedAt-asc" },
+  { label: "Criação recente", value: "createdAt-desc" },
+  { label: "Criação antiga", value: "createdAt-asc" },
+  { label: "Publicação recente", value: "publishedAt-desc" },
+  { label: "Publicação antiga", value: "publishedAt-asc" },
 ];
 
 export function PanelTestimonialsFiltersBar({
@@ -85,7 +85,7 @@ export function PanelTestimonialsFiltersBar({
               {sortLabel}
             </span>
             <span className="panel-card-muted inline-flex items-center rounded-full border px-3 py-1.5 text-xs font-semibold text-on-surface">
-              {perPage} por pagina
+              {perPage} por página
             </span>
             {hasActiveFilters ? (
               <button
@@ -132,7 +132,7 @@ export function PanelTestimonialsFiltersBar({
                   </div>
 
                   <AppSelect
-                    label="Publicacao"
+                    label="Publicação"
                     onChange={(event) => onPublishedChange(event.target.value as "all" | "published" | "draft")}
                     value={publishedValue}
                   >
@@ -147,12 +147,12 @@ export function PanelTestimonialsFiltersBar({
                     value={featuredValue}
                   >
                     <option value="all">Todos</option>
-                    <option value="featured">Destacados</option>
+                    <option value="featured">Em destaque</option>
                     <option value="regular">Sem destaque</option>
                   </AppSelect>
 
                   <AppSelect
-                    label="Ordenacao"
+                    label="Ordenação"
                     onChange={(event) => onSortChange(event.target.value as PanelTestimonialSort)}
                     value={sortValue}
                   >
@@ -164,7 +164,7 @@ export function PanelTestimonialsFiltersBar({
                   </AppSelect>
 
                   <AppSelect
-                    label="Por pagina"
+                    label="Por página"
                     onChange={(event) => onPerPageChange(Number(event.target.value))}
                     value={String(perPage)}
                   >
@@ -181,7 +181,7 @@ export function PanelTestimonialsFiltersBar({
                       onClick={onResetFilters}
                       type="button"
                     >
-                      Restaurar padrao
+                      Restaurar padrão
                     </button>
                     <Popover.Close asChild>
                       <button

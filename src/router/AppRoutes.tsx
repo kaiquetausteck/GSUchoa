@@ -4,6 +4,7 @@ import { PanelLayout } from "../components/painel/PanelLayout";
 import { PANEL_NAV_ITEMS } from "../config/painel/navigation";
 import { SITE_SECTION_ROUTES } from "../hooks/site/useSectionAnchors";
 import DashboardPage from "../pages/painel";
+import ContactsPage from "../pages/painel/contacts";
 import ClientsPage from "../pages/painel/clients";
 import LoginPage from "../pages/painel/login";
 import ModulePage from "../pages/painel/module";
@@ -44,6 +45,8 @@ export function AppRoutes() {
             <Route index element={<Navigate replace to="dashboard" />} />
             <Route element={<DashboardPage />} path="dashboard" />
             <Route element={<UsersPage />} path="usuarios" />
+            <Route element={<ContactsPage />} path="contatos" />
+            <Route element={<ContactsPage />} path="contatos/funil" />
             <Route element={<ClientsPage />} path="clientes" />
             <Route element={<PortfolioPage />} path="portfolio" />
             <Route element={<TestimonialsPage />} path="depoimentos" />
@@ -59,12 +62,12 @@ export function AppRoutes() {
                 <ModulePage
                   item={{
                     key: "painel-not-found",
-                    label: "Nao encontrado",
+                    label: "Não encontrado",
                     segment: "",
                     to: "",
                     icon: PANEL_NAV_ITEMS[0].icon,
-                    title: "Pagina nao encontrada",
-                    description: "Essa rota interna do painel nao existe.",
+                    title: "Página não encontrada",
+                    description: "Essa rota interna do painel não existe.",
                   }}
                 />
               }

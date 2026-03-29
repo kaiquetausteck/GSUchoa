@@ -227,11 +227,11 @@ export function PanelPortfolioDrawer({
     };
   }, [thumbnailPreviewUrl, portfolio?.thumbnailFile]);
 
-  const title = mode === "create" ? "Adicionar portfolio" : portfolio?.name || "Editar portfolio";
+  const title = mode === "create" ? "Adicionar portfólio" : portfolio?.name || "Editar portfólio";
   const description =
     mode === "create"
-      ? "Monte um novo case administrativo e deixe a estrutura pronta para publicacao."
-      : "Atualize informacoes, narrativa, midia e metadados desse portfolio.";
+      ? "Cadastre um novo case e deixe a estrutura pronta para publicação."
+      : "Atualize informações, narrativa, mídia e metadados deste portfólio.";
 
   return (
     <>
@@ -258,8 +258,8 @@ export function PanelPortfolioDrawer({
                   ? "Criando..."
                   : "Salvando..."
                 : mode === "create"
-                  ? "Criar portfolio"
-                  : "Salvar alteracoes"}
+                  ? "Criar portfólio"
+                  : "Salvar alterações"}
             </button>
           </div>
         )}
@@ -289,12 +289,12 @@ export function PanelPortfolioDrawer({
                 },
                 {
                   key: "content",
-                  label: "Conteudo",
+                  label: "Conteúdo",
                   icon: <Layers3 className="h-4 w-4" />,
                 },
                 {
                   key: "media",
-                  label: "Midia",
+                  label: "Mídia",
                   icon: <ImagePlus className="h-4 w-4" />,
                 },
                 {
@@ -317,7 +317,7 @@ export function PanelPortfolioDrawer({
                     <div className="panel-card-muted h-40 w-full overflow-hidden rounded-[1.75rem] border sm:w-[18rem]">
                       {thumbnailPreviewUrl ? (
                         <img
-                          alt={portfolio.name || "Thumbnail do portfolio"}
+                          alt={portfolio.name || "Thumbnail do portfólio"}
                           className="h-full w-full object-cover"
                           src={thumbnailPreviewUrl}
                         />
@@ -330,7 +330,7 @@ export function PanelPortfolioDrawer({
 
                     <div className="space-y-3">
                       <p className="text-sm leading-relaxed text-on-surface-variant">
-                        Envie uma imagem principal e recorte aqui antes de salvar.
+                        Envie a imagem principal e faça o recorte antes de salvar.
                       </p>
 
                       <div className="flex flex-wrap gap-3">
@@ -371,15 +371,15 @@ export function PanelPortfolioDrawer({
                 </PanelFormSection>
 
                 <PanelFormSection
-                  description="Esses dados estruturam o card e a URL administrativa do portfolio. O slug acompanha o titulo automaticamente."
+                  description="Esses dados estruturam o card e a URL administrativa do portfólio. O slug acompanha o título automaticamente."
                   icon={<FileText className="h-4 w-4" />}
-                  title="Identificacao"
+                  title="Identificação"
                 >
                   <div className="mt-5 grid gap-4 md:grid-cols-2">
                     <AppInput
                       label="Nome"
                       onChange={(event) => onChange("name", event.target.value)}
-                      placeholder="Expansao Digital: Brand Alpha"
+                      placeholder="Expansão Digital: Brand Alpha"
                       value={portfolio.name}
                     />
                     <AppInput
@@ -416,15 +416,15 @@ export function PanelPortfolioDrawer({
             {activeTab === "content" ? (
               <section className="space-y-6">
                 <PanelFormSection
-                  description="Esses campos alimentam a narrativa e os labels curtos do case."
+                  description="Esses campos alimentam a narrativa e os textos curtos do case."
                   icon={<Layers3 className="h-4 w-4" />}
                   title="Narrativa"
                 >
                   <div className="mt-5 space-y-4">
                     <AppTextarea
-                      label="Overview"
+                      label="Visão geral"
                       onChange={(event) => onChange("overview", event.target.value)}
-                      placeholder="Resumo expandido do contexto e da estrategia aplicada no projeto."
+                      placeholder="Resumo expandido do contexto e da estratégia aplicada no projeto."
                       rows={5}
                       value={portfolio.overview}
                     />
@@ -432,13 +432,13 @@ export function PanelPortfolioDrawer({
                       <AppInput
                         label="Problema"
                         onChange={(event) => onChange("problemLabel", event.target.value)}
-                        placeholder="Conversao baixa"
+                        placeholder="Conversão baixa"
                         value={portfolio.problemLabel}
                       />
                       <AppInput
-                        label="Solucao"
+                        label="Solução"
                         onChange={(event) => onChange("solutionLabel", event.target.value)}
-                        placeholder="Funil hibrido"
+                        placeholder="Funil híbrido"
                         value={portfolio.solutionLabel}
                       />
                       <AppInput
@@ -452,9 +452,9 @@ export function PanelPortfolioDrawer({
                 </PanelFormSection>
 
                 <PanelFormSection
-                  description="Use virgulas ou quebras de linha para separar categorias e escopo."
+                  description="Use vírgulas ou quebras de linha para separar categorias e escopo."
                   icon={<Sparkles className="h-4 w-4" />}
-                  title="Classificacao"
+                  title="Classificação"
                 >
                   <div className="mt-5 grid gap-4 md:grid-cols-2">
                     <AppTagsCombobox
@@ -475,9 +475,9 @@ export function PanelPortfolioDrawer({
                 </PanelFormSection>
 
                 <PanelFormSection
-                  description="Blocos que contam a historia do projeto dentro da pagina interna."
+                  description="Blocos que contam a história do projeto dentro da página interna."
                   icon={<FileText className="h-4 w-4" />}
-                  title="Story"
+                  title="História"
                 >
                   <div className="mt-5 space-y-4">
                     {portfolio.story.map((storyItem, index) => (
@@ -500,15 +500,15 @@ export function PanelPortfolioDrawer({
                         </div>
                         <div className="space-y-4">
                           <AppInput
-                            label="Titulo"
+                            label="Título"
                             onChange={(event) => onStoryChange(storyItem.id, { title: event.target.value })}
-                            placeholder="Cenario"
+                            placeholder="Cenário"
                             value={storyItem.title}
                           />
                           <AppTextarea
                             label="Texto"
                             onChange={(event) => onStoryChange(storyItem.id, { text: event.target.value })}
-                            placeholder="A marca atraia atencao, mas ainda perdia muita energia entre clique e fechamento."
+                            placeholder="A marca atraía atenção, mas ainda perdia muita energia entre clique e fechamento."
                             rows={4}
                             value={storyItem.text}
                           />
@@ -532,7 +532,7 @@ export function PanelPortfolioDrawer({
             {activeTab === "media" ? (
               <section className="space-y-6">
                 <PanelFormSection
-                  description="Gerencie imagens, videos e posters usados no portfolio."
+                  description="Gerencie imagens, vídeos e pôsteres usados no portfólio."
                   icon={<ImagePlus className="h-4 w-4" />}
                   title="Galeria"
                 >
@@ -544,7 +544,7 @@ export function PanelPortfolioDrawer({
                       >
                         <div className="mb-4 flex items-center justify-between gap-3">
                           <p className="text-sm font-semibold text-on-surface">
-                            Midia {index + 1}
+                            Mídia {index + 1}
                           </p>
                           <button
                             className="inline-flex items-center gap-2 rounded-xl px-3 py-2 text-xs font-semibold text-red-500 transition-colors hover:bg-red-500/10"
@@ -563,7 +563,7 @@ export function PanelPortfolioDrawer({
                                 alt={mediaItem.alt}
                                 emptyLabel="Nenhuma imagem vinculada."
                                 file={mediaItem.file}
-                                label="Previa da imagem"
+                                label="Prévia da imagem"
                                 url={mediaItem.src}
                               />
                             </div>
@@ -577,10 +577,10 @@ export function PanelPortfolioDrawer({
                             value={mediaItem.type}
                           >
                             <option value="image">Imagem</option>
-                            <option value="video">Video</option>
+                            <option value="video">Vídeo</option>
                           </AppSelect>
                           <AppInput
-                            label="Alt"
+                            label="Texto alternativo"
                             onChange={(event) => onMediaChange(mediaItem.id, { alt: event.target.value })}
                             placeholder="Tela da Brand Alpha"
                             value={mediaItem.alt}
@@ -589,7 +589,7 @@ export function PanelPortfolioDrawer({
                             <AppTextarea
                               label="Legenda"
                               onChange={(event) => onMediaChange(mediaItem.id, { caption: event.target.value })}
-                              placeholder="Hero principal do case com foco em autoridade e conversao."
+                              placeholder="Hero principal do case com foco em autoridade e conversão."
                               rows={3}
                               value={mediaItem.caption}
                             />
@@ -602,7 +602,7 @@ export function PanelPortfolioDrawer({
                             />
                           ) : null}
                           <div className="space-y-2">
-                            <span className="text-xs font-semibold text-on-surface">Arquivo da midia</span>
+                            <span className="text-xs font-semibold text-on-surface">Arquivo da mídia</span>
                             <label className="panel-card flex cursor-pointer items-center justify-between rounded-2xl border px-4 py-3 text-sm text-on-surface transition-colors hover:border-primary/30">
                               <span className="truncate">
                                 {mediaItem.file ? mediaItem.file.name : "Selecionar arquivo"}
@@ -626,9 +626,9 @@ export function PanelPortfolioDrawer({
                               <div className="md:col-span-2">
                                 <PanelPortfolioAssetPreview
                                   alt={mediaItem.alt}
-                                  emptyLabel="Nenhum poster vinculado."
+                                  emptyLabel="Nenhum pôster vinculado."
                                   file={mediaItem.posterFile}
-                                  label="Previa do poster"
+                                  label="Prévia do pôster"
                                   url={mediaItem.poster}
                                 />
                               </div>
@@ -640,10 +640,10 @@ export function PanelPortfolioDrawer({
                                 />
                               ) : null}
                               <div className="space-y-2">
-                                <span className="text-xs font-semibold text-on-surface">Arquivo do poster</span>
+                                <span className="text-xs font-semibold text-on-surface">Arquivo do pôster</span>
                                 <label className="panel-card flex cursor-pointer items-center justify-between rounded-2xl border px-4 py-3 text-sm text-on-surface transition-colors hover:border-primary/30">
                                   <span className="truncate">
-                                    {mediaItem.posterFile ? mediaItem.posterFile.name : "Selecionar poster"}
+                                    {mediaItem.posterFile ? mediaItem.posterFile.name : "Selecionar pôster"}
                                   </span>
                                   <Upload className="h-4 w-4 text-primary" />
                                   <input
@@ -679,7 +679,7 @@ export function PanelPortfolioDrawer({
                         type="button"
                       >
                         <Plus className="h-4 w-4" />
-                        Adicionar video
+                        Adicionar vídeo
                       </button>
                     </div>
                   </div>
@@ -690,9 +690,9 @@ export function PanelPortfolioDrawer({
             {activeTab === "meta" ? (
               <section className="space-y-6">
                 <PanelFormSection
-                  description="Controles editoriais e datas de publicacao do portfolio."
+                  description="Controles editoriais e datas de publicação do portfólio."
                   icon={<CalendarClock className="h-4 w-4" />}
-                  title="Publicacao"
+                  title="Publicação"
                 >
                   <div className="mt-5 grid gap-4 md:grid-cols-3">
                     <AppSelect
@@ -721,7 +721,7 @@ export function PanelPortfolioDrawer({
                 </PanelFormSection>
 
                 <PanelFormSection
-                  description="Referencias internas retornadas pela API para auditoria e rastreabilidade."
+                  description="Referências internas retornadas pela API para auditoria e rastreabilidade."
                   icon={<FileText className="h-4 w-4" />}
                   title="Registro"
                 >

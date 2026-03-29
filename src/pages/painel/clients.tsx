@@ -153,7 +153,7 @@ export default function ClientsPage() {
       const message =
         error instanceof Error
           ? error.message
-          : "Nao foi possivel carregar os clientes.";
+          : "Não foi possível carregar os clientes.";
 
       setItems([]);
       setTotalPages(1);
@@ -193,11 +193,11 @@ export default function ClientsPage() {
         }
 
         toast.error({
-          title: "Nao foi possivel abrir o cliente",
+          title: "Não foi possível abrir o cliente",
           description:
             error instanceof Error
               ? error.message
-              : "O painel nao conseguiu carregar os detalhes desse cliente.",
+              : "O painel não conseguiu carregar os detalhes deste cliente.",
         });
       } finally {
         if (isMounted) {
@@ -282,7 +282,7 @@ export default function ClientsPage() {
     if (!selectedClient.name.trim() || !selectedClient.slug.trim()) {
       setDrawerActiveTab("main");
       toast.error({
-        title: "Campos obrigatorios",
+        title: "Campos obrigatórios",
         description: "Nome e slug precisam ser preenchidos.",
       });
       return;
@@ -291,7 +291,7 @@ export default function ClientsPage() {
     if (!selectedClient.logoFile && !selectedClient.logoUrl?.trim()) {
       setDrawerActiveTab("main");
       toast.error({
-        title: "Logo obrigatoria",
+        title: "Logo obrigatória",
         description: "Envie uma logo para o cliente antes de salvar.",
       });
       return;
@@ -353,13 +353,13 @@ export default function ClientsPage() {
 
       toast.success({
         title: "Cliente atualizado",
-        description: "As alteracoes do cliente foram salvas com sucesso.",
+        description: "As alterações do cliente foram salvas com sucesso.",
       });
     } catch (error) {
       const message =
         error instanceof Error
           ? error.message
-          : "Nao foi possivel concluir essa operacao agora.";
+          : "Não foi possível concluir esta operação agora.";
 
       setDrawerActiveTab(getDrawerTabFromErrorMessage(message));
       toast.error({
@@ -405,7 +405,7 @@ export default function ClientsPage() {
       }
 
       toast.success({
-        title: "Cliente excluido",
+        title: "Cliente excluído",
         description: "O cliente foi removido com sucesso.",
       });
 
@@ -421,7 +421,7 @@ export default function ClientsPage() {
         description:
           error instanceof Error
             ? error.message
-            : "Nao foi possivel excluir esse cliente agora.",
+            : "Não foi possível excluir este cliente agora.",
       });
     } finally {
       setIsDeleting(false);
@@ -445,11 +445,11 @@ export default function ClientsPage() {
       });
     } catch (error) {
       toast.error({
-        title: "Falha ao atualizar publicacao",
+        title: "Falha ao atualizar publicação",
         description:
           error instanceof Error
             ? error.message
-            : "Nao foi possivel atualizar esse cliente.",
+            : "Não foi possível atualizar este cliente.",
       });
     }
   }, [drawerMode, selectedClientId, toast, token]);
@@ -475,7 +475,7 @@ export default function ClientsPage() {
         description:
           error instanceof Error
             ? error.message
-            : "Nao foi possivel atualizar esse cliente.",
+            : "Não foi possível atualizar este cliente.",
       });
     }
   }, [drawerMode, selectedClientId, toast, token]);
@@ -498,7 +498,7 @@ export default function ClientsPage() {
             { label: "Painel", to: "/painel/dashboard" },
             { label: "Clientes" },
           ]}
-          description="Organize a vitrine de marcas atendidas com controle de publicacao, destaque e logo."
+          description="Organize a vitrine de marcas atendidas com controle de publicação, destaque e logotipo."
           title="Clientes"
         />
 
@@ -593,14 +593,14 @@ export default function ClientsPage() {
         confirmLabel={isDeleting ? "Excluindo..." : "Excluir cliente"}
         description={
           clientToDelete
-            ? `Essa acao remove o cliente ${clientToDelete.name} da area administrativa.`
+            ? `Essa ação remove o cliente ${clientToDelete.name} da área administrativa.`
             : ""
         }
         isLoading={isDeleting}
         onClose={() => setClientToDelete(null)}
         onConfirm={() => void handleDeleteClient()}
         open={Boolean(clientToDelete)}
-        title="Confirmar exclusao"
+        title="Confirmar exclusão"
       />
     </>
   );

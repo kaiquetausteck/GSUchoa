@@ -215,7 +215,7 @@ async function requestJson(path: string, token: string, init: RequestInit = {}) 
     });
   } catch {
     throw new PanelClientsApiError(
-      `Nao foi possivel conectar com a API em ${PANEL_API_BASE_URL}. Verifique se o backend esta ativo.`,
+      `Não foi possível conectar com a API em ${PANEL_API_BASE_URL}. Verifique se o backend está ativo.`,
     );
   }
 
@@ -379,7 +379,7 @@ export async function listPanelClients(token: string, filters: PanelClientListFi
 
   if (!response.ok) {
     throw new PanelClientsApiError(
-      extractMessage(payload, "Nao foi possivel carregar a listagem de clientes."),
+      extractMessage(payload, "Não foi possível carregar a listagem de clientes."),
       response.status,
     );
   }
@@ -392,7 +392,7 @@ export async function getPanelClientById(token: string, id: string) {
 
   if (!response.ok) {
     throw new PanelClientsApiError(
-      extractMessage(payload, "Nao foi possivel carregar esse cliente."),
+      extractMessage(payload, "Não foi possível carregar esse cliente."),
       response.status,
     );
   }
@@ -403,7 +403,7 @@ export async function getPanelClientById(token: string, id: string) {
 
   if (!item) {
     throw new PanelClientsApiError(
-      "A API respondeu ao cliente, mas o formato nao foi reconhecido.",
+      "A API respondeu ao cliente, mas o formato não foi reconhecido.",
     );
   }
 
@@ -418,7 +418,7 @@ export async function createPanelClient(token: string, input: PanelClientUpsertI
 
   if (!response.ok) {
     throw new PanelClientsApiError(
-      extractMessage(payload, "Nao foi possivel criar esse cliente."),
+      extractMessage(payload, "Não foi possível criar esse cliente."),
       response.status,
     );
   }
@@ -429,7 +429,7 @@ export async function createPanelClient(token: string, input: PanelClientUpsertI
 
   if (!item) {
     throw new PanelClientsApiError(
-      "A API respondeu ao create, mas o cliente retornado nao foi reconhecido.",
+      "A API respondeu à criação, mas o cliente retornado não foi reconhecido.",
     );
   }
 
@@ -444,7 +444,7 @@ export async function updatePanelClient(token: string, id: string, input: PanelC
 
   if (!response.ok) {
     throw new PanelClientsApiError(
-      extractMessage(payload, "Nao foi possivel salvar esse cliente."),
+      extractMessage(payload, "Não foi possível salvar esse cliente."),
       response.status,
     );
   }
@@ -455,7 +455,7 @@ export async function updatePanelClient(token: string, id: string, input: PanelC
 
   if (!item) {
     throw new PanelClientsApiError(
-      "A API respondeu ao update, mas o cliente retornado nao foi reconhecido.",
+      "A API respondeu à atualização, mas o cliente retornado não foi reconhecido.",
     );
   }
 
@@ -469,7 +469,7 @@ export async function deletePanelClient(token: string, id: string) {
 
   if (!response.ok && response.status !== 204) {
     throw new PanelClientsApiError(
-      extractMessage(payload, "Nao foi possivel excluir esse cliente."),
+      extractMessage(payload, "Não foi possível excluir esse cliente."),
       response.status,
     );
   }
@@ -486,7 +486,7 @@ export async function setPanelClientPublished(token: string, id: string, isPubli
 
   if (!response.ok) {
     throw new PanelClientsApiError(
-      extractMessage(payload, "Nao foi possivel atualizar a publicacao desse cliente."),
+      extractMessage(payload, "Não foi possível atualizar a publicação desse cliente."),
       response.status,
     );
   }
@@ -497,7 +497,7 @@ export async function setPanelClientPublished(token: string, id: string, isPubli
 
   if (!item) {
     throw new PanelClientsApiError(
-      "A API respondeu ao publish, mas o cliente retornado nao foi reconhecido.",
+      "A API respondeu à publicação, mas o cliente retornado não foi reconhecido.",
     );
   }
 
@@ -512,7 +512,7 @@ export async function setPanelClientFeatured(token: string, id: string, featured
 
   if (!response.ok) {
     throw new PanelClientsApiError(
-      extractMessage(payload, "Nao foi possivel atualizar o destaque desse cliente."),
+      extractMessage(payload, "Não foi possível atualizar o destaque desse cliente."),
       response.status,
     );
   }
@@ -523,7 +523,7 @@ export async function setPanelClientFeatured(token: string, id: string, featured
 
   if (!item) {
     throw new PanelClientsApiError(
-      "A API respondeu ao destaque, mas o cliente retornado nao foi reconhecido.",
+      "A API respondeu ao destaque, mas o cliente retornado não foi reconhecido.",
     );
   }
 

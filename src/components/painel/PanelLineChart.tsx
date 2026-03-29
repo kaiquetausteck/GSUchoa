@@ -85,7 +85,7 @@ export function PanelLineChart({
     return (
       <div className="flex min-h-[18rem] items-center justify-center rounded-[1.5rem] border border-dashed border-outline-variant/20">
         <p className="text-sm text-on-surface-variant">
-          Ainda nao ha pontos suficientes para renderizar o grafico.
+          Ainda não há pontos suficientes para exibir o gráfico.
         </p>
       </div>
     );
@@ -95,10 +95,10 @@ export function PanelLineChart({
     return (
       <div className="flex min-h-[18rem] flex-col items-center justify-center rounded-[1.5rem] border border-dashed border-outline-variant/20 px-6 text-center">
         <p className="text-base font-semibold text-on-surface">
-          Nenhuma atividade registrada no periodo selecionado.
+          Nenhuma atividade registrada no período selecionado.
         </p>
         <p className="mt-2 max-w-md text-sm leading-relaxed text-on-surface-variant">
-          Assim que houver movimentacao no painel, a linha do tempo passa a mostrar a evolucao diaria dos modulos.
+          Assim que houver movimentação no painel, a linha do tempo passa a mostrar a evolução diária dos módulos.
         </p>
       </div>
     );
@@ -122,7 +122,7 @@ export function PanelLineChart({
 
       <div className="panel-card-muted rounded-[1.5rem] border p-4">
         <svg
-          aria-label="Grafico de linha do dashboard"
+          aria-label="Gráfico de linha do dashboard"
           className="h-auto w-full"
           role="img"
           viewBox={`0 0 ${CHART_WIDTH} ${CHART_HEIGHT}`}

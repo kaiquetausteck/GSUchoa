@@ -27,7 +27,7 @@ export function ConfirmDialog({
         <>
           <motion.button
             animate={{ opacity: 1 }}
-            aria-label="Fechar confirmacao"
+            aria-label="Fechar confirmação"
             className="fixed inset-0 z-[80] bg-black/40 backdrop-blur-[2px]"
             exit={{ opacity: 0 }}
             initial={{ opacity: 0 }}
@@ -43,7 +43,7 @@ export function ConfirmDialog({
             transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
           >
             <p className="text-xs font-bold uppercase tracking-[0.32em] text-primary">
-              Confirmacao
+              Confirmação
             </p>
             <h2 className="mt-3 text-2xl font-black tracking-tight text-on-surface">{title}</h2>
             <p className="mt-3 text-sm leading-relaxed text-on-surface-variant">{description}</p>

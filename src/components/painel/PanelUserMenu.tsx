@@ -40,7 +40,7 @@ export function PanelUserMenu({
   }, []);
 
   const displayName = user?.name || "Administrador";
-  const displayRole = user?.role || "Area restrita";
+  const displayRole = user?.role || "Área restrita";
   const displayEmail = user?.email || "Sem e-mail";
 
   return (
@@ -107,7 +107,7 @@ export function PanelUserMenu({
             type="button"
           >
             <UserCircle2 className="h-4 w-4 text-primary" />
-            Meus Dados
+            Meus dados
           </button>
           <button
             className="flex w-full items-center gap-3 rounded-[1rem] px-3 py-3 text-left text-sm font-medium text-on-surface transition-colors hover:bg-surface-container-high"

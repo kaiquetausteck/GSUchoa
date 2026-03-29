@@ -89,7 +89,7 @@ export function PanelTestimonialsTable({
               <th className="px-6 py-4 font-semibold">Status</th>
               <th className="px-6 py-4 font-semibold">Ordem</th>
               <th className="px-6 py-4 font-semibold">Atualizado em</th>
-              <th className="px-6 py-4 text-right font-semibold">Acoes</th>
+              <th className="px-6 py-4 text-right font-semibold">Ações</th>
             </tr>
           </thead>
           <tbody>

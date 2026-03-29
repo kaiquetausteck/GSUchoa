@@ -156,7 +156,7 @@ async function requestJson(path: string) {
     });
   } catch {
     throw new PublicClientsApiError(
-      `Nao foi possivel conectar com a API em ${SITE_API_BASE_URL}. Verifique se o backend esta ativo.`,
+      `Não foi possível conectar à API em ${SITE_API_BASE_URL}. Verifique se o backend está ativo.`,
     );
   }
 
@@ -226,7 +226,7 @@ export async function listPublicClients(filters?: { featured?: boolean }) {
 
   if (!response.ok) {
     throw new PublicClientsApiError(
-      extractMessage(payload, "Nao foi possivel carregar os clientes publicados."),
+      extractMessage(payload, "Não foi possível carregar os clientes publicados."),
       response.status,
     );
   }
@@ -239,7 +239,7 @@ export async function listFeaturedPublicClients() {
 
   if (!response.ok) {
     throw new PublicClientsApiError(
-      extractMessage(payload, "Nao foi possivel carregar os clientes em destaque."),
+      extractMessage(payload, "Não foi possível carregar os clientes em destaque."),
       response.status,
     );
   }
@@ -252,7 +252,7 @@ export async function getPublicClientBySlug(slug: string) {
 
   if (!response.ok) {
     throw new PublicClientsApiError(
-      extractMessage(payload, "Nao foi possivel carregar esse cliente."),
+      extractMessage(payload, "Não foi possível carregar este cliente."),
       response.status,
     );
   }
@@ -263,7 +263,7 @@ export async function getPublicClientBySlug(slug: string) {
 
   if (!item) {
     throw new PublicClientsApiError(
-      "A API respondeu ao cliente, mas o formato nao foi reconhecido.",
+      "A API respondeu ao cliente, mas o formato não foi reconhecido.",
     );
   }
 

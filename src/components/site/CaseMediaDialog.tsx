@@ -185,7 +185,7 @@ export function CaseMediaDialog({
             <div className="flex items-start justify-between gap-4 px-4 pb-4 pt-4 md:px-6 md:pb-5 md:pt-5">
               <div className="min-w-0">
                 <p className="text-xs font-bold uppercase tracking-[0.3em] text-primary">
-                  {isImage ? "Preview da imagem" : "Preview do video"}
+                  {isImage ? "Prévia da imagem" : "Prévia do vídeo"}
                 </p>
                 <h2 className="mt-2 truncate text-lg font-bold text-white md:text-2xl">
                   {media.alt}
@@ -201,7 +201,7 @@ export function CaseMediaDialog({
                 {isImage ? (
                   <>
                     <button
-                      aria-label="Diminuir zoom"
+                      aria-label="Reduzir zoom"
                       className="inline-flex h-10 w-10 items-center justify-center rounded-2xl border border-white/10 bg-white/8 text-white transition-colors hover:border-primary/40 hover:bg-white/12"
                       onClick={() => updateScale(scale - SCALE_STEP)}
                       type="button"
@@ -209,7 +209,7 @@ export function CaseMediaDialog({
                       <Minus className="h-4 w-4" />
                     </button>
                     <button
-                      aria-label="Resetar zoom"
+                      aria-label="Restaurar zoom"
                       className="inline-flex h-10 w-10 items-center justify-center rounded-2xl border border-white/10 bg-white/8 text-white transition-colors hover:border-primary/40 hover:bg-white/12"
                       onClick={() => {
                         setScale(MIN_SCALE);
@@ -221,7 +221,7 @@ export function CaseMediaDialog({
                       <RotateCcw className="h-4 w-4" />
                     </button>
                     <button
-                      aria-label="Aumentar zoom"
+                      aria-label="Ampliar zoom"
                       className="inline-flex h-10 w-10 items-center justify-center rounded-2xl border border-white/10 bg-white/8 text-white transition-colors hover:border-primary/40 hover:bg-white/12"
                       onClick={() => updateScale(scale + SCALE_STEP)}
                       type="button"
@@ -271,7 +271,7 @@ export function CaseMediaDialog({
                       poster={media.poster ?? undefined}
                       src={media.src}
                     >
-                      Seu navegador nao suporta a reproducao deste video.
+                      Seu navegador não suporta a reprodução deste vídeo.
                     </video>
                   </div>
                 )}
@@ -281,12 +281,12 @@ export function CaseMediaDialog({
             <div className="flex justify-center px-4 pb-4 md:px-6 md:pb-6">
               {isImage ? (
                 <div className="pointer-events-none rounded-full border border-white/10 bg-black/55 px-4 py-2 text-xs font-medium text-white/72">
-                  Role para zoom e arraste para navegar
+                  Use o scroll para dar zoom e arraste para navegar
                 </div>
               ) : (
                 <div className="pointer-events-none flex items-center gap-2 rounded-full border border-white/10 bg-black/55 px-4 py-2 text-xs font-medium text-white/72">
                   <PlayCircle className="h-4 w-4 text-primary" />
-                  Player do case
+                  Vídeo do case
                 </div>
               )}
             </div>

@@ -243,12 +243,12 @@ export default function PortfolioPage() {
       const message =
         error instanceof Error
           ? error.message
-          : "Nao foi possivel carregar os portfolios.";
+          : "Não foi possível carregar os portfólios.";
 
       setItems([]);
       setTotalPages(1);
       toast.error({
-        title: "Falha ao carregar portfolios",
+        title: "Falha ao carregar portfólios",
         description: message,
       });
     } finally {
@@ -314,11 +314,11 @@ export default function PortfolioPage() {
         }
 
         toast.error({
-          title: "Nao foi possivel abrir o portfolio",
+          title: "Não foi possível abrir o portfólio",
           description:
             error instanceof Error
               ? error.message
-              : "O painel nao conseguiu carregar os detalhes desse portfolio.",
+              : "O painel não conseguiu carregar os detalhes deste portfólio.",
         });
       } finally {
         if (isMounted) {
@@ -470,7 +470,7 @@ export default function PortfolioPage() {
     ) {
       setDrawerActiveTab("main");
       toast.error({
-        title: "Campos obrigatorios",
+        title: "Campos obrigatórios",
         description: "Nome, slug, cliente, ano e setor precisam ser preenchidos.",
       });
       return;
@@ -480,7 +480,7 @@ export default function PortfolioPage() {
       setDrawerActiveTab("content");
       toast.error({
         title: "Narrativa incompleta",
-        description: "Overview e obrigatorio para estruturar o case.",
+        description: "A visão geral é obrigatória para estruturar o case.",
       });
       return;
     }
@@ -488,8 +488,8 @@ export default function PortfolioPage() {
     if (!selectedPortfolio.thumbnailFile && !selectedPortfolio.thumbnailUrl?.trim()) {
       setDrawerActiveTab("main");
       toast.error({
-        title: "Thumbnail obrigatoria",
-        description: "Envie uma thumbnail para o portfolio antes de salvar.",
+        title: "Thumbnail obrigatória",
+        description: "Envie uma thumbnail para o portfólio antes de salvar.",
       });
       return;
     }
@@ -498,7 +498,7 @@ export default function PortfolioPage() {
       setDrawerActiveTab("media");
       toast.error({
         title: "Galeria vazia",
-        description: "Adicione pelo menos uma imagem ou video ao portfolio.",
+        description: "Adicione pelo menos uma imagem ou vídeo ao portfólio.",
       });
       return;
     }
@@ -506,8 +506,8 @@ export default function PortfolioPage() {
     if (media.some((item) => !item.alt || (!item.file && !item.src))) {
       setDrawerActiveTab("media");
       toast.error({
-        title: "Midia incompleta",
-        description: "Toda midia precisa ter alt e um arquivo ou URL existente.",
+        title: "Mídia incompleta",
+        description: "Toda mídia precisa ter texto alternativo e um arquivo ou URL preenchido.",
       });
       return;
     }
@@ -515,8 +515,8 @@ export default function PortfolioPage() {
     if (story.some((item) => !item.title || !item.text)) {
       setDrawerActiveTab("content");
       toast.error({
-        title: "Story incompleta",
-        description: "Preencha titulo e texto em todos os blocos de historia adicionados.",
+        title: "História incompleta",
+        description: "Preencha título e texto em todos os blocos de história adicionados.",
       });
       return;
     }
@@ -564,7 +564,7 @@ export default function PortfolioPage() {
         const created = await createPanelPortfolio(token, input);
 
         toast.success({
-          title: "Portfolio criado",
+          title: "Portfólio criado",
           description: "O novo case foi registrado com sucesso no painel.",
         });
 
@@ -598,18 +598,18 @@ export default function PortfolioPage() {
       );
 
       toast.success({
-        title: "Portfolio atualizado",
-        description: "As alteracoes do case foram salvas com sucesso.",
+        title: "Portfólio atualizado",
+        description: "As alterações do case foram salvas com sucesso.",
       });
     } catch (error) {
       const message =
         error instanceof Error
           ? error.message
-          : "Nao foi possivel concluir essa operacao agora.";
+          : "Não foi possível concluir esta operação agora.";
 
       setDrawerActiveTab(getDrawerTabFromErrorMessage(message));
       toast.error({
-        title: drawerMode === "create" ? "Falha ao criar portfolio" : "Falha ao salvar portfolio",
+        title: drawerMode === "create" ? "Falha ao criar portfólio" : "Falha ao salvar portfólio",
         description: message,
       });
     } finally {
@@ -651,7 +651,7 @@ export default function PortfolioPage() {
       }
 
       toast.success({
-        title: "Portfolio excluido",
+        title: "Portfólio excluído",
         description: "O case foi removido com sucesso.",
       });
 
@@ -663,11 +663,11 @@ export default function PortfolioPage() {
       void loadPortfolio();
     } catch (error) {
       toast.error({
-        title: "Falha ao excluir portfolio",
+        title: "Falha ao excluir portfólio",
         description:
           error instanceof Error
             ? error.message
-            : "Nao foi possivel excluir esse portfolio agora.",
+            : "Não foi possível excluir este portfólio agora.",
       });
     } finally {
       setIsDeleting(false);
@@ -686,16 +686,16 @@ export default function PortfolioPage() {
         setSelectedPortfolio(createPortfolioDraft(updated));
       }
       toast.success({
-        title: updated.isPublished ? "Portfolio publicado" : "Portfolio movido para rascunho",
+        title: updated.isPublished ? "Portfólio publicado" : "Portfólio movido para rascunho",
         description: `${updated.name} foi atualizado com sucesso.`,
       });
     } catch (error) {
       toast.error({
-        title: "Falha ao atualizar publicacao",
+        title: "Falha ao atualizar publicação",
         description:
           error instanceof Error
             ? error.message
-            : "Nao foi possivel atualizar esse portfolio.",
+            : "Não foi possível atualizar este portfólio.",
       });
     }
   }, [drawerMode, selectedPortfolioId, toast, token]);
@@ -712,7 +712,7 @@ export default function PortfolioPage() {
         setSelectedPortfolio(createPortfolioDraft(updated));
       }
       toast.success({
-        title: updated.featured ? "Portfolio em destaque" : "Destaque removido",
+        title: updated.featured ? "Portfólio em destaque" : "Destaque removido",
         description: `${updated.name} foi atualizado com sucesso.`,
       });
     } catch (error) {
@@ -721,7 +721,7 @@ export default function PortfolioPage() {
         description:
           error instanceof Error
             ? error.message
-            : "Nao foi possivel atualizar esse portfolio.",
+            : "Não foi possível atualizar este portfólio.",
       });
     }
   }, [drawerMode, selectedPortfolioId, toast, token]);
@@ -737,15 +737,15 @@ export default function PortfolioPage() {
               type="button"
             >
               <FolderPlus className="h-4 w-4" />
-              Adicionar portfolio
+              Adicionar portfólio
             </button>
           )}
           breadcrumbs={[
             { label: "Painel", to: "/painel/dashboard" },
-            { label: "Portfolio" },
+            { label: "Portfólio" },
           ]}
-          description="Organize os cases do site com controle editorial, midia e status de publicacao."
-          title="Portfolio"
+          description="Organize os cases do site com controle editorial, mídia e status de publicação."
+          title="Portfólio"
         />
 
         <PanelPortfolioFiltersBar
@@ -900,17 +900,17 @@ export default function PortfolioPage() {
       />
 
       <ConfirmDialog
-        confirmLabel={isDeleting ? "Excluindo..." : "Excluir portfolio"}
+        confirmLabel={isDeleting ? "Excluindo..." : "Excluir portfólio"}
         description={
           portfolioToDelete
-            ? `Essa acao remove o case ${portfolioToDelete.name} da area administrativa.`
+            ? `Essa ação remove o case ${portfolioToDelete.name} da área administrativa.`
             : ""
         }
         isLoading={isDeleting}
         onClose={() => setPortfolioToDelete(null)}
         onConfirm={() => void handleDeletePortfolio()}
         open={Boolean(portfolioToDelete)}
-        title="Confirmar exclusao"
+        title="Confirmar exclusão"
       />
     </>
   );

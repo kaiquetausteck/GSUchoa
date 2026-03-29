@@ -1,6 +1,8 @@
 import {
+  Funnel,
   FolderKanban,
   Image,
+  Inbox,
   LayoutDashboard,
   Link2,
   MessageSquareQuote,
@@ -40,30 +42,56 @@ export const PANEL_NAV_PRIMARY_ITEMS: PanelNavItem[] = [
   },
   {
     key: "usuarios",
-    label: "Usuarios",
+    label: "Usuários",
     segment: "usuarios",
     to: "/painel/usuarios",
     icon: Users,
     implemented: true,
-    title: "Usuarios",
-    description: "Gestao de perfis, acesso, papeis e administradores do sistema.",
+    title: "Usuários",
+    description: "Gestão de perfis, acessos, papéis e administradores do sistema.",
   },
 ];
 
 export const PANEL_NAV_GROUPS: PanelNavGroup[] = [
+  {
+    key: "contacts",
+    label: "Contatos",
+    items: [
+      {
+        key: "contatos",
+        label: "Todos os contatos",
+        segment: "contatos",
+        to: "/painel/contatos",
+        icon: Inbox,
+        implemented: true,
+        title: "Todos os contatos",
+        description: "Listagem completa de leads, incluindo arquivados, filtros, histórico e operação diária.",
+      },
+      {
+        key: "contatos-funil",
+        label: "Funil",
+        segment: "contatos/funil",
+        to: "/painel/contatos/funil",
+        icon: Funnel,
+        implemented: true,
+        title: "Funil de contatos",
+        description: "Visão Kanban dos leads ativos por etapa, com movimentação rápida entre status.",
+      },
+    ],
+  },
   {
     key: "site-management",
     label: "Gerenciamento",
     items: [
       {
         key: "portfolio",
-        label: "Portfolio",
+        label: "Portfólio",
         segment: "portfolio",
         to: "/painel/portfolio",
         icon: FolderKanban,
         implemented: true,
-        title: "Portfolio",
-        description: "Organizacao dos cases, projetos entregues e destaques da marca.",
+        title: "Portfólio",
+        description: "Organização dos cases, projetos entregues e destaques da marca.",
       },
       {
         key: "depoimentos",
@@ -83,7 +111,7 @@ export const PANEL_NAV_GROUPS: PanelNavGroup[] = [
         icon: UsersRound,
         implemented: true,
         title: "Clientes",
-        description: "Acompanhamento de contas, contratos, status e relacionamento.",
+        description: "Gestão das marcas atendidas, com controle de status, destaques e relacionamento.",
       },
     ],
   },
@@ -98,25 +126,25 @@ export const PANEL_NAV_GROUPS: PanelNavGroup[] = [
         to: "/painel/social-media",
         icon: Image,
         title: "Social Media",
-        description: "Calendario, publicacoes, criativos e organizacao do conteudo social.",
+        description: "Calendário, publicações, criativos e organização do conteúdo social.",
       },
       {
         key: "trafego-pago",
-        label: "Trafego Pago",
+        label: "Tráfego pago",
         segment: "trafego-pago",
         to: "/painel/trafego-pago",
         icon: Target,
-        title: "Trafego Pago",
-        description: "Visao de campanhas, canais, investimento e performance paga.",
+        title: "Tráfego pago",
+        description: "Visão de campanhas, canais, investimento e performance paga.",
       },
       {
         key: "contas-integracao",
-        label: "Contas Integracao",
+        label: "Contas e integrações",
         segment: "contas-integracao",
         to: "/painel/contas-integracao",
         icon: Link2,
-        title: "Contas Integracao",
-        description: "Conexoes, credenciais e integracoes usadas pelos modulos de resultado.",
+        title: "Contas e integrações",
+        description: "Conexões, credenciais e integrações usadas pelos módulos de resultado.",
       },
     ],
   },
@@ -128,5 +156,7 @@ export const PANEL_NAV_ITEMS: PanelNavItem[] = [
 ];
 
 export function getPanelNavItemByPath(pathname: string) {
-  return PANEL_NAV_ITEMS.find((item) => pathname.startsWith(item.to));
+  return [...PANEL_NAV_ITEMS]
+    .sort((firstItem, secondItem) => secondItem.to.length - firstItem.to.length)
+    .find((item) => pathname.startsWith(item.to));
 }

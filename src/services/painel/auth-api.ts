@@ -167,7 +167,7 @@ function normalizeUser(payload: unknown): PanelUser | null {
 
   return {
     id: getFirstString([source.id, source._id, source.uuid, source.userId]) ?? email ?? name ?? "panel-user",
-    name: name ?? email ?? "Usuario",
+    name: name ?? email ?? "Usuário",
     email: email ?? "",
     role: getFirstString([source.role, source.profile, source.type, source.permission]) ?? "Administrador",
     avatarUrl: resolveApiAssetUrl(
@@ -191,7 +191,7 @@ async function requestJson(path: string, init: RequestInit = {}) {
     });
   } catch {
     throw new PanelApiError(
-      `Nao foi possivel conectar com a API em ${PANEL_API_BASE_URL}. Verifique se o backend esta ativo.`,
+      `Não foi possível conectar com a API em ${PANEL_API_BASE_URL}. Verifique se o backend está ativo.`,
     );
   }
 
@@ -219,7 +219,7 @@ export async function loginPanelUser(email: string, password: string) {
 
     if (!response.ok) {
       throw new PanelApiError(
-        extractMessage(payload, "Nao foi possivel iniciar a sessao no painel."),
+        extractMessage(payload, "Não foi possível iniciar a sessão no painel."),
         response.status,
       );
     }
@@ -227,7 +227,7 @@ export async function loginPanelUser(email: string, password: string) {
     const token = extractToken(payload);
 
     if (!token) {
-      throw new PanelApiError("A API respondeu ao login, mas nao retornou um token valido.", response.status);
+      throw new PanelApiError("A API respondeu ao login, mas não retornou um token válido.", response.status);
     }
 
     return {
@@ -251,7 +251,7 @@ export async function fetchPanelMe(token: string) {
 
   if (!response.ok) {
     throw new PanelApiError(
-      extractMessage(payload, "Nao foi possivel carregar os dados do usuario."),
+      extractMessage(payload, "Não foi possível carregar os dados do usuário."),
       response.status,
     );
   }
@@ -260,7 +260,7 @@ export async function fetchPanelMe(token: string) {
 
   if (!user) {
     throw new PanelApiError(
-      `A API respondeu ao endpoint ${PANEL_ME_PATH}, mas o formato do usuario nao foi reconhecido.`,
+      `A API respondeu ao endpoint ${PANEL_ME_PATH}, mas o formato do usuário não foi reconhecido.`,
       response.status,
     );
   }

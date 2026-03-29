@@ -14,7 +14,7 @@ export function CtaSection({
   onNavigate: (sectionId: SectionId) => void;
 }) {
   return (
-    <RevealSection className="bg-surface py-32">
+    <RevealSection className="site-section bg-surface">
       <div className="mx-auto max-w-7xl px-6 text-center md:px-8">
         <div className="relative mx-auto max-w-4xl overflow-hidden rounded-[3rem] border border-outline-variant/20 bg-gradient-to-br from-surface-container-low to-surface p-16">
           <div className="absolute inset-0 bg-primary/5 opacity-50 blur-[80px]" />
@@ -27,8 +27,8 @@ export function CtaSection({
               sua marca?
             </h2>
             <p className="mx-auto mb-12 max-w-2xl text-xl text-on-surface-variant">
-              Agende uma consultoria estrategica gratuita e descubra como podemos levar
-              seu faturamento para o proximo nivel.
+              Agende uma consultoria estratégica gratuita e descubra como podemos levar
+              seu faturamento ao próximo nível.
             </p>
             <div className="flex flex-col justify-center gap-6 sm:flex-row">
               <SectionLink
@@ -37,7 +37,7 @@ export function CtaSection({
                 sectionId="contato"
               >
                 <Calendar className="h-5 w-5" />
-                Agendar Reuniao
+                Agendar reunião
               </SectionLink>
               <SectionLink
                 className="flex items-center justify-center gap-3 rounded-2xl bg-[#25D366] px-10 py-5 text-lg font-bold text-white transition-all hover:opacity-90 active:scale-95"
@@ -45,7 +45,7 @@ export function CtaSection({
                 sectionId="contato"
               >
                 <MessageSquare className="h-5 w-5" />
-                WhatsApp Direto
+                WhatsApp direto
               </SectionLink>
             </div>
           </div>

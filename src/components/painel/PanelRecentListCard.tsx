@@ -66,7 +66,7 @@ export function PanelRecentListCard({
         <div className="flex min-h-[13rem] items-center justify-center rounded-[1.5rem] border border-dashed border-outline-variant/20 px-6 text-center">
           <div>
             <p className="text-base font-semibold text-on-surface">
-              Ainda nao ha registros recentes.
+              Ainda não há registros recentes.
             </p>
             <p className="mt-2 text-sm leading-relaxed text-on-surface-variant">
               {emptyDescription}
