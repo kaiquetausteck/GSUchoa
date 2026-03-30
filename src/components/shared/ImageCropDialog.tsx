@@ -1,3 +1,4 @@
+import { createPortal } from "react-dom";
 import { ZoomIn } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import {
@@ -169,14 +170,14 @@ export function ImageCropDialog({
     onConfirm(croppedFile);
   };
 
-  return (
+  const content = (
     <AnimatePresence>
       {open && sourceFile && imageUrl ? (
         <>
           <motion.button
             animate={{ opacity: 1 }}
             aria-label="Fechar recorte"
-            className="fixed inset-0 z-[100] bg-black/45 backdrop-blur-[3px]"
+            className="fixed inset-0 z-[240] bg-black/45 backdrop-blur-[3px]"
             exit={{ opacity: 0 }}
             initial={{ opacity: 0 }}
             onClick={onClose}
@@ -185,7 +186,7 @@ export function ImageCropDialog({
 
           <motion.div
             animate={{ opacity: 1, scale: 1, y: 0 }}
-            className="panel-popover fixed left-1/2 top-1/2 z-[110] w-[calc(100%-2rem)] max-w-3xl -translate-x-1/2 -translate-y-1/2 rounded-[2rem] border p-6 md:p-7"
+            className="panel-popover fixed left-1/2 top-1/2 z-[250] w-[calc(100%-2rem)] max-w-3xl -translate-x-1/2 -translate-y-1/2 rounded-[2rem] border p-6 md:p-7"
             exit={{ opacity: 0, scale: 0.96, y: 14 }}
             initial={{ opacity: 0, scale: 0.96, y: 14 }}
             transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
@@ -281,4 +282,10 @@ export function ImageCropDialog({
       ) : null}
     </AnimatePresence>
   );
+
+  if (typeof document === "undefined") {
+    return null;
+  }
+
+  return createPortal(content, document.body);
 }

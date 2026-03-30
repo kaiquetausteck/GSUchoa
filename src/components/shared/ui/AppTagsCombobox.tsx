@@ -132,7 +132,7 @@ export function AppTagsCombobox({
         <Popover.Portal>
           <Popover.Content
             align="start"
-            className="z-[120] w-[var(--radix-popover-trigger-width)] min-w-[18rem]"
+            className="z-[180] w-[var(--radix-popover-trigger-width)] min-w-[18rem]"
             sideOffset={10}
           >
             <Command className="panel-popover overflow-hidden rounded-[1.5rem] border">
