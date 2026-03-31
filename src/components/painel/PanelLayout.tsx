@@ -28,7 +28,28 @@ const PANEL_PAGE_TITLES: Record<string, string> = {
   "/painel/clientes": "Clientes do Painel",
   "/painel/portfolio": "Portfólio do Painel",
   "/painel/depoimentos": "Depoimentos do Painel",
+  "/painel/trafego-pago/meta": "Tráfego Pago • Meta",
+  "/painel/contas-integracao/meta": "Contas e Integrações • Meta",
 };
+
+function getPanelPageTitle(pathname: string) {
+  if (
+    pathname.startsWith("/painel/trafego-pago/meta/") &&
+    pathname.endsWith("/dashboard")
+  ) {
+    return "Dashboard da Conta • Meta";
+  }
+
+  if (pathname.startsWith("/painel/trafego-pago/meta")) {
+    return "Tráfego Pago • Meta";
+  }
+
+  if (pathname.startsWith("/painel/contas-integracao/")) {
+    return "Contas e Integrações";
+  }
+
+  return PANEL_PAGE_TITLES[pathname] ?? "Painel Administrativo";
+}
 
 export function PanelLayout() {
   const navigate = useNavigate();
@@ -47,7 +68,7 @@ export function PanelLayout() {
   const [profileDraft, setProfileDraft] = useState<PanelUserDraft | null>(null);
   const [isProfileLoading, setIsProfileLoading] = useState(false);
   const [isProfileSaving, setIsProfileSaving] = useState(false);
-  const panelTitle = PANEL_PAGE_TITLES[location.pathname] ?? "Painel Administrativo";
+  const panelTitle = getPanelPageTitle(location.pathname);
 
   useEffect(() => {
     setMobileSidebarOpen(false);
@@ -214,6 +235,7 @@ export function PanelLayout() {
             mobileOpen={mobileSidebarOpen}
             onCloseMobile={() => setMobileSidebarOpen(false)}
             onGoToSite={() => navigate("/")}
+            onOpenApiSettings={() => navigate("/painel/contas-integracao/meta")}
             onLogout={handleLogout}
             onOpenProfile={handleOpenProfileDrawer}
             user={user}

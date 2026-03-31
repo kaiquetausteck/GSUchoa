@@ -2,6 +2,7 @@ import {
   ArrowUpRight,
   ChevronDown,
   LogOut,
+  Settings2,
   UserCircle2,
 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
@@ -12,12 +13,14 @@ import { PanelUserAvatar } from "./PanelUserAvatar";
 export function PanelUserMenu({
   collapsed = false,
   onGoToSite,
+  onOpenApiSettings,
   onOpenProfile,
   user,
   onLogout,
 }: {
   collapsed?: boolean;
   onGoToSite: () => void;
+  onOpenApiSettings: () => void;
   onOpenProfile: () => void;
   user: PanelUser | null;
   onLogout: () => void | Promise<void>;
@@ -108,6 +111,17 @@ export function PanelUserMenu({
           >
             <UserCircle2 className="h-4 w-4 text-primary" />
             Meus dados
+          </button>
+          <button
+            className="flex w-full items-center gap-3 rounded-[1rem] px-3 py-3 text-left text-sm font-medium text-on-surface transition-colors hover:bg-surface-container-high"
+            onClick={() => {
+              setOpen(false);
+              onOpenApiSettings();
+            }}
+            type="button"
+          >
+            <Settings2 className="h-4 w-4 text-primary" />
+            Contas e integrações
           </button>
           <button
             className="flex w-full items-center gap-3 rounded-[1rem] px-3 py-3 text-left text-sm font-medium text-on-surface transition-colors hover:bg-surface-container-high"

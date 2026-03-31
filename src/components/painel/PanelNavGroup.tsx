@@ -30,6 +30,7 @@ export function PanelNavGroup({ collapsed, group }: PanelNavGroupProps) {
       <div className="space-y-2">
         {group.items.map((item) => (
           <PanelNavLink
+            activeMatch={item.activeMatch}
             collapsed
             icon={item.icon}
             key={item.key}
@@ -66,6 +67,7 @@ export function PanelNavGroup({ collapsed, group }: PanelNavGroupProps) {
           <div className="space-y-1 pl-2">
             {group.items.map((item) => (
               <PanelNavLink
+                activeMatch={item.activeMatch}
                 collapsed={false}
                 icon={item.icon}
                 key={item.key}

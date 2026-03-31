@@ -8,6 +8,7 @@ type PanelLineChartSeries = {
 
 type PanelLineChartProps = {
   labels: string[];
+  loading?: boolean;
   range: PanelDashboardRange;
   series: PanelLineChartSeries[];
 };
@@ -70,6 +71,7 @@ function getTickIndexes(total: number) {
 
 export function PanelLineChart({
   labels,
+  loading = false,
   range,
   series,
 }: PanelLineChartProps) {
@@ -80,6 +82,25 @@ export function PanelLineChart({
   const gridValues = Array.from({ length: 4 }, (_, index) => {
     return Math.round((maxValue / 4) * (4 - index));
   });
+
+  if (loading) {
+    return (
+      <div className="space-y-5">
+        <div className="flex flex-wrap items-center gap-4">
+          {Array.from({ length: 2 }).map((_, index) => (
+            <div className="flex items-center gap-2" key={index}>
+              <span className="panel-skeleton h-2.5 w-2.5 rounded-full" />
+              <span className="panel-skeleton h-3 w-20 rounded-full" />
+            </div>
+          ))}
+        </div>
+
+        <div className="rounded-[1.7rem] border border-outline-variant/10 bg-surface-container-low/55 p-4">
+          <div className="panel-skeleton h-[18rem] rounded-[1.35rem]" />
+        </div>
+      </div>
+    );
+  }
 
   if (!labels.length || !series.length) {
     return (
@@ -98,7 +119,7 @@ export function PanelLineChart({
           Nenhuma atividade registrada no período selecionado.
         </p>
         <p className="mt-2 max-w-md text-sm leading-relaxed text-on-surface-variant">
-          Assim que houver movimentação no painel, a linha do tempo passa a mostrar a evolução diária dos módulos.
+          Assim que a API retornar dados para o recorte atual, a linha do tempo passa a exibir a evolução diária do período.
         </p>
       </div>
     );
@@ -120,7 +141,7 @@ export function PanelLineChart({
         ))}
       </div>
 
-      <div className="panel-card-muted rounded-[1.5rem] border p-4">
+      <div className="rounded-[1.7rem] border border-outline-variant/10 bg-surface-container-low/55 p-4 transition-colors duration-300 group-hover:bg-surface-container-low/70">
         <svg
           aria-label="Gráfico de linha do dashboard"
           className="h-auto w-full"

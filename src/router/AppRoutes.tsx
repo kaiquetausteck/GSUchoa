@@ -3,11 +3,15 @@ import { Navigate, Route, Routes } from "react-router-dom";
 import { PanelLayout } from "../components/painel/PanelLayout";
 import { PANEL_NAV_ITEMS } from "../config/painel/navigation";
 import { SITE_SECTION_ROUTES } from "../hooks/site/useSectionAnchors";
+import MetaCallbackPage from "../pages/auth/MetaCallbackPage";
 import DashboardPage from "../pages/painel";
+import AccountsIntegrationsPage from "../pages/painel/accounts-integrations";
 import ContactsPage from "../pages/painel/contacts";
 import ClientsPage from "../pages/painel/clients";
 import LoginPage from "../pages/painel/login";
 import ModulePage from "../pages/painel/module";
+import PaidMediaMetaAccountDashboardPage from "../pages/painel/paid-media-meta-client-dashboard";
+import PaidMediaMetaPage from "../pages/painel/paid-media-meta";
 import PortfolioPage from "../pages/painel/portfolio";
 import TestimonialsPage from "../pages/painel/testimonials";
 import UsersPage from "../pages/painel/users";
@@ -47,6 +51,12 @@ export function AppRoutes() {
             <Route element={<UsersPage />} path="usuarios" />
             <Route element={<ContactsPage />} path="contatos" />
             <Route element={<ContactsPage />} path="contatos/funil" />
+            <Route element={<Navigate replace to="/painel/contas-integracao/meta" />} path="configuracoes/api" />
+            <Route element={<Navigate replace to="/painel/trafego-pago/meta" />} path="trafego-pago" />
+            <Route element={<PaidMediaMetaPage />} path="trafego-pago/meta" />
+            <Route element={<PaidMediaMetaAccountDashboardPage />} path="trafego-pago/meta/:adAccountId/dashboard" />
+            <Route element={<Navigate replace to="/painel/contas-integracao/meta" />} path="contas-integracao" />
+            <Route element={<AccountsIntegrationsPage />} path="contas-integracao/meta" />
             <Route element={<ClientsPage />} path="clientes" />
             <Route element={<PortfolioPage />} path="portfolio" />
             <Route element={<TestimonialsPage />} path="depoimentos" />
@@ -75,6 +85,11 @@ export function AppRoutes() {
             />
           </Route>
         </Route>
+      </Route>
+
+      <Route element={<RequirePanelAuth />}>
+        <Route path="auth/meta/callback" element={<MetaCallbackPage />} />
+        <Route path="configuracoes/api" element={<Navigate replace to="/painel/contas-integracao/meta" />} />
       </Route>
 
       <Route path="*" element={<Navigate replace to="/" />} />

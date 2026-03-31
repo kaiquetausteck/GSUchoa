@@ -15,6 +15,7 @@ type PanelSidebarProps = {
   mobileOpen: boolean;
   onCloseMobile: () => void;
   onGoToSite: () => void;
+  onOpenApiSettings: () => void;
   onLogout: () => void | Promise<void>;
   onOpenProfile: () => void;
   user: PanelUser | null;
@@ -25,6 +26,7 @@ export function PanelSidebar({
   mobileOpen,
   onCloseMobile,
   onGoToSite,
+  onOpenApiSettings,
   onLogout,
   onOpenProfile,
   user,
@@ -63,6 +65,7 @@ export function PanelSidebar({
             <div className="space-y-2">
               {PANEL_NAV_PRIMARY_ITEMS.map((item) => (
                 <PanelNavLink
+                  activeMatch={item.activeMatch}
                   collapsed={collapsed}
                   icon={item.icon}
                   key={item.key}
@@ -82,6 +85,7 @@ export function PanelSidebar({
           <PanelUserMenu
             collapsed={collapsed}
             onGoToSite={onGoToSite}
+            onOpenApiSettings={onOpenApiSettings}
             onLogout={onLogout}
             onOpenProfile={onOpenProfile}
             user={user}

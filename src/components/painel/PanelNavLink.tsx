@@ -1,29 +1,34 @@
 import type { LucideIcon } from "lucide-react";
-import { NavLink } from "react-router-dom";
+import { NavLink, useLocation } from "react-router-dom";
 
 export function PanelNavLink({
+  activeMatch = "exact",
   to,
   label,
   icon: Icon,
   collapsed = false,
   nested = false,
 }: {
+  activeMatch?: "exact" | "prefix";
   to: string;
   label: string;
   icon: LucideIcon;
   collapsed?: boolean;
   nested?: boolean;
 }) {
+  const location = useLocation();
+  const isPrefixMatch = activeMatch === "prefix" && location.pathname.startsWith(to);
+
   return (
     <NavLink
       className={({ isActive }) =>
         `panel-nav-link flex items-center rounded-2xl border text-sm font-medium transition-all ${
-          isActive
+          isActive || isPrefixMatch
             ? "panel-nav-link-active border-primary/70 bg-primary text-white shadow-[0_16px_32px_rgba(34,98,240,0.26)]"
             : "border-transparent text-on-surface-variant hover:text-on-surface"
         } ${collapsed ? "justify-center px-3 py-3" : nested ? "gap-3 px-4 py-2.5" : "gap-3 px-4 py-3"}`
       }
-      end
+      end={activeMatch !== "prefix"}
       title={collapsed ? label : undefined}
       to={to}
     >

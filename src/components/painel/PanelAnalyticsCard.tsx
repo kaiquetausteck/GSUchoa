@@ -18,11 +18,11 @@ export function PanelAnalyticsCard({
   title,
 }: PanelAnalyticsCardProps) {
   return (
-    <section className={`panel-card rounded-[2rem] border p-6 md:p-7 ${className ?? ""}`}>
+    <section className={`panel-premium-card group rounded-[2rem] border p-6 md:p-7 ${className ?? ""}`}>
       <div className="flex flex-col gap-4 border-b border-outline-variant/10 pb-5 md:flex-row md:items-start md:justify-between">
         <div className="min-w-0">
           {eyebrow ? (
-            <p className="text-[10px] font-bold uppercase tracking-[0.32em] text-primary">
+            <p className="text-[10px] font-bold uppercase tracking-[0.32em] text-primary/95">
               {eyebrow}
             </p>
           ) : null}
