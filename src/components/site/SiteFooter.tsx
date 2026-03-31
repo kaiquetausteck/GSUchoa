@@ -1,4 +1,5 @@
 import { motion } from "motion/react";
+import { Link } from "react-router-dom";
 
 import logoWordmark from "../../assets/shared/brand/logo-wordmark.png";
 import { type SectionId } from "../../hooks/site/useSectionAnchors";
@@ -40,16 +41,44 @@ export function SiteFooter({
         </div>
 
         <div className="flex flex-wrap justify-center gap-8">
-          {["Privacidade", "Termos de Uso", "LinkedIn", "Instagram"].map((link) => (
-            <SectionLink
-              key={link}
-              className="text-xs uppercase tracking-widest text-on-surface-variant transition-colors hover:text-primary"
-              onNavigate={onNavigate}
-              sectionId="inicio"
-            >
-              {link}
-            </SectionLink>
-          ))}
+          <SectionLink
+            className="text-xs uppercase tracking-widest text-on-surface-variant transition-colors hover:text-primary"
+            onNavigate={onNavigate}
+            sectionId="inicio"
+          >
+            Início
+          </SectionLink>
+          <Link
+            className="text-xs uppercase tracking-widest text-on-surface-variant transition-colors hover:text-primary"
+            to="/cases"
+          >
+            Cases
+          </Link>
+          <Link
+            className="text-xs uppercase tracking-widest text-on-surface-variant transition-colors hover:text-primary"
+            to="/clientes"
+          >
+            Clientes
+          </Link>
+          <Link
+            className="text-xs uppercase tracking-widest text-on-surface-variant transition-colors hover:text-primary"
+            to="/depoimentos"
+          >
+            Depoimentos
+          </Link>
+          <a
+            className="text-xs uppercase tracking-widest text-on-surface-variant transition-colors hover:text-primary"
+            href="/politica-de-privacidade.html"
+          >
+            Privacidade
+          </a>
+          <SectionLink
+            className="text-xs uppercase tracking-widest text-on-surface-variant transition-colors hover:text-primary"
+            onNavigate={onNavigate}
+            sectionId="contato"
+          >
+            Contato
+          </SectionLink>
         </div>
       </div>
     </motion.footer>

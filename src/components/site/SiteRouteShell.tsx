@@ -173,6 +173,12 @@ export function SiteRouteShell({
             <Link className="text-xs uppercase tracking-widest text-on-surface-variant transition-colors hover:text-primary" to="/depoimentos">
               Depoimentos
             </Link>
+            <a
+              className="text-xs uppercase tracking-widest text-on-surface-variant transition-colors hover:text-primary"
+              href="/politica-de-privacidade.html"
+            >
+              Privacidade
+            </a>
             <Link className="text-xs uppercase tracking-widest text-on-surface-variant transition-colors hover:text-primary" to="/#contato">
               Contato
             </Link>

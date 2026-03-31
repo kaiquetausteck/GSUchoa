@@ -45,7 +45,7 @@ export function getPanelLoginDraft(): PanelLoginDraft {
 
     return {
       email: parsedDraft.email ?? "",
-      password: parsedDraft.password ?? "",
+      password: "",
     };
   } catch {
     return { email: "", password: "" };
@@ -57,7 +57,12 @@ export function setPanelLoginDraft(draft: PanelLoginDraft) {
     return;
   }
 
-  window.localStorage.setItem(PANEL_LOGIN_DRAFT_STORAGE_KEY, JSON.stringify(draft));
+  window.localStorage.setItem(
+    PANEL_LOGIN_DRAFT_STORAGE_KEY,
+    JSON.stringify({
+      email: draft.email,
+    }),
+  );
 }
 
 export function clearPanelLoginDraft() {

@@ -20,6 +20,7 @@ import ClientsPagePublic from "../pages/site/clients";
 import CaseDetailsPage from "../pages/site/cases/details";
 import CasesPage from "../pages/site/cases";
 import SitePage from "../pages/site";
+import PrivacyPolicyPage from "../pages/site/privacy-policy";
 import TestimonialDetailsPage from "../pages/site/testimonials/details";
 import TestimonialsPagePublic from "../pages/site/testimonials";
 import { RequirePanelAuth } from "./guards/RequirePanelAuth";
@@ -34,6 +35,11 @@ export function AppRoutes() {
       <Route path="/cases/:slug" element={<CaseDetailsPage />} />
       <Route path="/depoimentos" element={<TestimonialsPagePublic />} />
       <Route path="/depoimentos/:id" element={<TestimonialDetailsPage />} />
+      <Route path="/politica-de-privacidade" element={<PrivacyPolicyPage />} />
+      <Route path="/privacy" element={<Navigate replace to="/politica-de-privacidade" />} />
+      <Route path="/privacy-policy" element={<Navigate replace to="/politica-de-privacidade" />} />
+      <Route path="/exclusao-de-dados" element={<Navigate replace to="/politica-de-privacidade#exclusao-de-dados" />} />
+      <Route path="/data-deletion" element={<Navigate replace to="/politica-de-privacidade#exclusao-de-dados" />} />
       {SITE_SECTION_ROUTES.filter((route) => route.legacyPath).map((route) => (
         <Route
           key={route.id}
