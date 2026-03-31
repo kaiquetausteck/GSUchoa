@@ -256,6 +256,18 @@ function formatPdfTickLabel(rawDate: string, range: "12m" | "30d" | "7d") {
   }).format(date);
 }
 
+function getPdfTimelineSeriesHelper(label: string, currency: string) {
+  if (label === "Investimento") {
+    return `Linha azul com o valor investido no período (${currency}).`;
+  }
+
+  if (label === "Resultados") {
+    return "Linha roxa com a quantidade de resultados retornada pela Meta.";
+  }
+
+  return "Série exportada com base nos filtros ativos do dashboard.";
+}
+
 function buildPdfLinePath(values: number[], maxValue: number) {
   if (values.length === 0) {
     return "";
@@ -496,6 +508,11 @@ function buildDashboardPdfHtml({
             box-sizing: border-box;
           }
 
+          html {
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+          }
+
           body {
             margin: 0;
             font-family: Inter, ui-sans-serif, system-ui, sans-serif;
@@ -692,18 +709,41 @@ function buildDashboardPdfHtml({
 
           .pdf-legend-item {
             display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            color: #5e6878;
-            font-size: 12px;
-            font-weight: 600;
+            align-items: flex-start;
+            gap: 10px;
+            min-width: 0;
+            padding: 10px 12px;
+            border: 1px solid #d7dfeb;
+            border-radius: 16px;
+            background: #ffffff;
           }
 
-          .pdf-legend-dot {
-            width: 10px;
-            height: 10px;
-            border-radius: 999px;
+          .pdf-legend-swatch {
             flex: none;
+            display: block;
+            width: 34px;
+            height: 12px;
+            margin-top: 2px;
+          }
+
+          .pdf-legend-copy {
+            display: flex;
+            min-width: 0;
+            flex-direction: column;
+            gap: 3px;
+          }
+
+          .pdf-legend-label {
+            color: #141821;
+            font-size: 12px;
+            font-weight: 700;
+            line-height: 1.25;
+          }
+
+          .pdf-legend-helper {
+            color: #5e6878;
+            font-size: 11px;
+            line-height: 1.4;
           }
 
           .pdf-chart-shell {
@@ -718,6 +758,13 @@ function buildDashboardPdfHtml({
             display: block;
             width: 100%;
             height: auto;
+          }
+
+          .pdf-chart-note {
+            margin: 12px 0 0;
+            color: #5e6878;
+            font-size: 11px;
+            line-height: 1.5;
           }
 
           .pdf-empty-state {
@@ -855,8 +902,16 @@ function buildDashboardPdfHtml({
           }
 
           @media print {
+            html,
             body {
+              -webkit-print-color-adjust: exact;
+              print-color-adjust: exact;
               background: #ffffff;
+            }
+
+            * {
+              -webkit-print-color-adjust: exact;
+              print-color-adjust: exact;
             }
 
             .pdf-section,
@@ -949,8 +1004,29 @@ function buildDashboardPdfHtml({
                 ${timelineSeries
                   .map((item) => `
                     <div class="pdf-legend-item">
-                      <span class="pdf-legend-dot" style="background:${item.color}"></span>
-                      ${escapeHtml(item.label)}
+                      <svg class="pdf-legend-swatch" viewBox="0 0 34 12" aria-hidden="true">
+                        <line
+                          x1="2"
+                          y1="6"
+                          x2="32"
+                          y2="6"
+                          stroke="${item.color}"
+                          stroke-width="2.5"
+                          stroke-linecap="round"
+                        />
+                        <circle
+                          cx="17"
+                          cy="6"
+                          r="3.5"
+                          fill="${item.color}"
+                          stroke="#ffffff"
+                          stroke-width="1.2"
+                        />
+                      </svg>
+                      <div class="pdf-legend-copy">
+                        <span class="pdf-legend-label">${escapeHtml(item.label)}</span>
+                        <span class="pdf-legend-helper">${escapeHtml(getPdfTimelineSeriesHelper(item.label, currency))}</span>
+                      </div>
                     </div>
                   `)
                   .join("")}
@@ -959,6 +1035,9 @@ function buildDashboardPdfHtml({
               <div class="pdf-chart-shell">
                 ${chartSvg}
               </div>
+              <p class="pdf-chart-note">
+                Azul representa o investimento financeiro exportado. Roxo representa o volume de resultados no mesmo período.
+              </p>
             </section>
 
             <section class="pdf-section">
