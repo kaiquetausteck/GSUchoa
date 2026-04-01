@@ -1,7 +1,6 @@
 import {
   ArrowUpRight,
   BriefcaseBusiness,
-  Image,
   LayoutDashboard,
   Link2,
   MessageSquareQuote,
@@ -123,16 +122,6 @@ const QUICK_ACTIONS: CommandEntry[] = [
     label: "Abrir depoimentos",
     meta: "Gerenciamento",
     to: "/painel/depoimentos",
-  },
-  {
-    description: "Acompanhe o módulo editorial de social media dentro do agrupamento de resultados.",
-    group: "Ações rápidas",
-    icon: Image,
-    id: "social-media-list",
-    keywords: "social media conteudo redes sociais resultado",
-    label: "Ir para social media",
-    meta: "Resultados",
-    to: "/painel/social-media",
   },
   {
     description: "Acesse a operação de Meta Ads para listar contas, abrir dashboards por conta e analisar os resultados.",

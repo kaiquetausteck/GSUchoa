@@ -10,6 +10,7 @@ import { useSearchParams } from "react-router-dom";
 import { PanelPageHeader } from "../../../components/painel/PanelPageHeader";
 import { Seo } from "../../../components/shared/Seo";
 import { AppTabs } from "../../../components/shared/ui/AppTabs";
+import { GoogleTab } from "./tabs/GoogleTab";
 import { MetaTab } from "./tabs/MetaTab";
 
 const API_SETTINGS_TAB_KEYS = ["meta", "google", "linkedin"] as const;
@@ -116,7 +117,7 @@ export default function ApiSettingsPage() {
             { label: "Painel", to: "/painel/dashboard" },
             { label: "Configurações de API" },
           ]}
-          description="Acompanhe o estado das integrações externas da operação. Nesta etapa, a aba Meta já está conectada ao backend real e pronta para o fluxo OAuth completo."
+          description="Acompanhe o estado das integrações externas da operação. Meta e Google já seguem o fluxo OAuth completo conectado ao backend real."
           title="Configurações de API"
         />
 
@@ -128,10 +129,9 @@ export default function ApiSettingsPage() {
         ) : null}
 
         {activeTab === "google" ? (
-          <ComingSoonCard
-            description="A estrutura da página já está preparada para receber o próximo fluxo OAuth do Google sem criar uma arquitetura paralela ao restante do painel."
-            eyebrow="Integração Google"
-            title="Integração Google em preparação"
+          <GoogleTab
+            callbackConnected={callbackConnected}
+            callbackError={callbackError}
           />
         ) : null}
 

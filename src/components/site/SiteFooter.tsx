@@ -72,6 +72,12 @@ export function SiteFooter({
           >
             Privacidade
           </a>
+          <a
+            className="text-xs uppercase tracking-widest text-on-surface-variant transition-colors hover:text-primary"
+            href="/termos-de-servico.html"
+          >
+            Termos
+          </a>
           <SectionLink
             className="text-xs uppercase tracking-widest text-on-surface-variant transition-colors hover:text-primary"
             onNavigate={onNavigate}

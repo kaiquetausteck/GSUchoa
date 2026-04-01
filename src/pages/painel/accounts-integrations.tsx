@@ -5,6 +5,7 @@ import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { PanelPageHeader } from "../../components/painel/PanelPageHeader";
 import { Seo } from "../../components/shared/Seo";
 import { AppTabs } from "../../components/shared/ui/AppTabs";
+import { GoogleTab } from "../settings/api/tabs/GoogleTab";
 import { MetaTab } from "../settings/api/tabs/MetaTab";
 
 type IntegrationProvider = "google" | "linkedin" | "meta";
@@ -110,10 +111,9 @@ export default function AccountsIntegrationsPage() {
           ) : null}
 
           {activeProvider === "google" ? (
-            <ComingSoonCard
-              description="A integração técnica com Google ficará aqui, separada da área operacional de mídia paga e seguindo o mesmo padrão de autenticação do painel."
-              eyebrow="Integração Google"
-              title="Conexão Google em preparação"
+            <GoogleTab
+              callbackConnected={callbackConnected}
+              callbackError={callbackError}
             />
           ) : null}
 

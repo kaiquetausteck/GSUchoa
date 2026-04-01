@@ -179,6 +179,12 @@ export function SiteRouteShell({
             >
               Privacidade
             </a>
+            <a
+              className="text-xs uppercase tracking-widest text-on-surface-variant transition-colors hover:text-primary"
+              href="/termos-de-servico.html"
+            >
+              Termos
+            </a>
             <Link className="text-xs uppercase tracking-widest text-on-surface-variant transition-colors hover:text-primary" to="/#contato">
               Contato
             </Link>

@@ -3,6 +3,7 @@ import { Navigate, Route, Routes } from "react-router-dom";
 import { PanelLayout } from "../components/painel/PanelLayout";
 import { PANEL_NAV_ITEMS } from "../config/painel/navigation";
 import { SITE_SECTION_ROUTES } from "../hooks/site/useSectionAnchors";
+import GoogleCallbackPage from "../pages/auth/GoogleCallbackPage";
 import MetaCallbackPage from "../pages/auth/MetaCallbackPage";
 import DashboardPage from "../pages/painel";
 import AccountsIntegrationsPage from "../pages/painel/accounts-integrations";
@@ -10,11 +11,11 @@ import ContactsPage from "../pages/painel/contacts";
 import ClientsPage from "../pages/painel/clients";
 import LoginPage from "../pages/painel/login";
 import ModulePage from "../pages/painel/module";
+import PaidMediaGoogleAccountDashboardPage from "../pages/painel/paid-media-google-client-dashboard";
+import PaidMediaGooglePage from "../pages/painel/paid-media-google";
 import PaidMediaMetaAccountDashboardPage from "../pages/painel/paid-media-meta-client-dashboard";
 import PaidMediaMetaPage from "../pages/painel/paid-media-meta";
-import SocialMediaClientDashboardPage from "../pages/painel/social-media-client-dashboard";
 import PortfolioPage from "../pages/painel/portfolio";
-import SocialMediaPage from "../pages/painel/social-media";
 import TestimonialsPage from "../pages/painel/testimonials";
 import UsersPage from "../pages/painel/users";
 import ClientDetailsPage from "../pages/site/clients/details";
@@ -23,6 +24,7 @@ import CaseDetailsPage from "../pages/site/cases/details";
 import CasesPage from "../pages/site/cases";
 import SitePage from "../pages/site";
 import PrivacyPolicyPage from "../pages/site/privacy-policy";
+import TermsOfServicePage from "../pages/site/terms-of-service";
 import TestimonialDetailsPage from "../pages/site/testimonials/details";
 import TestimonialsPagePublic from "../pages/site/testimonials";
 import { RequirePanelAuth } from "./guards/RequirePanelAuth";
@@ -38,8 +40,11 @@ export function AppRoutes() {
       <Route path="/depoimentos" element={<TestimonialsPagePublic />} />
       <Route path="/depoimentos/:id" element={<TestimonialDetailsPage />} />
       <Route path="/politica-de-privacidade" element={<PrivacyPolicyPage />} />
+      <Route path="/termos-de-servico" element={<TermsOfServicePage />} />
       <Route path="/privacy" element={<Navigate replace to="/politica-de-privacidade" />} />
       <Route path="/privacy-policy" element={<Navigate replace to="/politica-de-privacidade" />} />
+      <Route path="/terms" element={<Navigate replace to="/termos-de-servico" />} />
+      <Route path="/terms-of-service" element={<Navigate replace to="/termos-de-servico" />} />
       <Route path="/exclusao-de-dados" element={<Navigate replace to="/politica-de-privacidade#exclusao-de-dados" />} />
       <Route path="/data-deletion" element={<Navigate replace to="/politica-de-privacidade#exclusao-de-dados" />} />
       {SITE_SECTION_ROUTES.filter((route) => route.legacyPath).map((route) => (
@@ -63,10 +68,11 @@ export function AppRoutes() {
             <Route element={<Navigate replace to="/painel/trafego-pago/meta" />} path="trafego-pago" />
             <Route element={<PaidMediaMetaPage />} path="trafego-pago/meta" />
             <Route element={<PaidMediaMetaAccountDashboardPage />} path="trafego-pago/meta/:adAccountId/dashboard" />
+            <Route element={<PaidMediaGooglePage />} path="trafego-pago/google" />
+            <Route element={<PaidMediaGoogleAccountDashboardPage />} path="trafego-pago/google/:customerId/dashboard" />
             <Route element={<Navigate replace to="/painel/contas-integracao/meta" />} path="contas-integracao" />
             <Route element={<AccountsIntegrationsPage />} path="contas-integracao/meta" />
-            <Route element={<SocialMediaPage />} path="social-media" />
-            <Route element={<SocialMediaClientDashboardPage />} path="social-media/:pageId/dashboard" />
+            <Route element={<AccountsIntegrationsPage />} path="contas-integracao/google" />
             <Route element={<ClientsPage />} path="clientes" />
             <Route element={<PortfolioPage />} path="portfolio" />
             <Route element={<TestimonialsPage />} path="depoimentos" />
@@ -98,6 +104,7 @@ export function AppRoutes() {
       </Route>
 
       <Route element={<RequirePanelAuth />}>
+        <Route path="auth/google/callback" element={<GoogleCallbackPage />} />
         <Route path="auth/meta/callback" element={<MetaCallbackPage />} />
         <Route path="configuracoes/api" element={<Navigate replace to="/painel/contas-integracao/meta" />} />
       </Route>
