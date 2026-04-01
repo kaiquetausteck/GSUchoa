@@ -123,11 +123,13 @@ export const PANEL_NAV_GROUPS: PanelNavGroup[] = [
     label: "Resultados",
     items: [
       {
+        activeMatch: "prefix",
         key: "social-media",
         label: "Social Media",
         segment: "social-media",
         to: "/painel/social-media",
         icon: Image,
+        implemented: true,
         title: "Social Media",
         description: "Calendário, publicações, criativos e organização do conteúdo social.",
       },

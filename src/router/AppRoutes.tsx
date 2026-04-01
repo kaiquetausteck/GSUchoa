@@ -12,7 +12,9 @@ import LoginPage from "../pages/painel/login";
 import ModulePage from "../pages/painel/module";
 import PaidMediaMetaAccountDashboardPage from "../pages/painel/paid-media-meta-client-dashboard";
 import PaidMediaMetaPage from "../pages/painel/paid-media-meta";
+import SocialMediaClientDashboardPage from "../pages/painel/social-media-client-dashboard";
 import PortfolioPage from "../pages/painel/portfolio";
+import SocialMediaPage from "../pages/painel/social-media";
 import TestimonialsPage from "../pages/painel/testimonials";
 import UsersPage from "../pages/painel/users";
 import ClientDetailsPage from "../pages/site/clients/details";
@@ -63,6 +65,8 @@ export function AppRoutes() {
             <Route element={<PaidMediaMetaAccountDashboardPage />} path="trafego-pago/meta/:adAccountId/dashboard" />
             <Route element={<Navigate replace to="/painel/contas-integracao/meta" />} path="contas-integracao" />
             <Route element={<AccountsIntegrationsPage />} path="contas-integracao/meta" />
+            <Route element={<SocialMediaPage />} path="social-media" />
+            <Route element={<SocialMediaClientDashboardPage />} path="social-media/:pageId/dashboard" />
             <Route element={<ClientsPage />} path="clientes" />
             <Route element={<PortfolioPage />} path="portfolio" />
             <Route element={<TestimonialsPage />} path="depoimentos" />
