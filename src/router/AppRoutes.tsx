@@ -16,6 +16,8 @@ import PaidMediaGooglePage from "../pages/painel/paid-media-google";
 import PaidMediaMetaAccountDashboardPage from "../pages/painel/paid-media-meta-client-dashboard";
 import PaidMediaMetaPage from "../pages/painel/paid-media-meta";
 import PortfolioPage from "../pages/painel/portfolio";
+import SocialMediaMetaDashboardPage from "../pages/painel/social-media-meta-client-dashboard";
+import SocialMediaMetaPage from "../pages/painel/social-media-meta";
 import TestimonialsPage from "../pages/painel/testimonials";
 import UsersPage from "../pages/painel/users";
 import ClientDetailsPage from "../pages/site/clients/details";
@@ -65,6 +67,9 @@ export function AppRoutes() {
             <Route element={<ContactsPage />} path="contatos" />
             <Route element={<ContactsPage />} path="contatos/funil" />
             <Route element={<Navigate replace to="/painel/contas-integracao/meta" />} path="configuracoes/api" />
+            <Route element={<Navigate replace to="/painel/social-media/meta" />} path="social-media" />
+            <Route element={<SocialMediaMetaPage />} path="social-media/meta" />
+            <Route element={<SocialMediaMetaDashboardPage />} path="social-media/meta/:pageId/dashboard" />
             <Route element={<Navigate replace to="/painel/trafego-pago/meta" />} path="trafego-pago" />
             <Route element={<PaidMediaMetaPage />} path="trafego-pago/meta" />
             <Route element={<PaidMediaMetaAccountDashboardPage />} path="trafego-pago/meta/:adAccountId/dashboard" />

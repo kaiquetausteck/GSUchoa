@@ -30,10 +30,22 @@ const PANEL_PAGE_TITLES: Record<string, string> = {
   "/painel/depoimentos": "Depoimentos do Painel",
   "/painel/trafego-pago/google": "Tráfego Pago • Google",
   "/painel/trafego-pago/meta": "Tráfego Pago • Meta",
+  "/painel/social-media/meta": "Social Media • Meta",
   "/painel/contas-integracao/meta": "Contas e Integrações • Meta",
 };
 
 function getPanelPageTitle(pathname: string) {
+  if (
+    pathname.startsWith("/painel/social-media/meta/") &&
+    pathname.endsWith("/dashboard")
+  ) {
+    return "Dashboard da Página • Meta";
+  }
+
+  if (pathname.startsWith("/painel/social-media/meta")) {
+    return "Social Media • Meta";
+  }
+
   if (
     pathname.startsWith("/painel/trafego-pago/google/") &&
     pathname.endsWith("/dashboard")
