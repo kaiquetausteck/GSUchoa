@@ -69,7 +69,7 @@ export function AppRoutes() {
             <Route element={<Navigate replace to="/painel/contas-integracao/meta" />} path="configuracoes/api" />
             <Route element={<Navigate replace to="/painel/social-media/meta" />} path="social-media" />
             <Route element={<SocialMediaMetaPage />} path="social-media/meta" />
-            <Route element={<SocialMediaMetaDashboardPage />} path="social-media/meta/:pageId/dashboard" />
+            <Route element={<SocialMediaMetaDashboardPage />} path="social-media/meta/:accountId/dashboard" />
             <Route element={<Navigate replace to="/painel/trafego-pago/meta" />} path="trafego-pago" />
             <Route element={<PaidMediaMetaPage />} path="trafego-pago/meta" />
             <Route element={<PaidMediaMetaAccountDashboardPage />} path="trafego-pago/meta/:adAccountId/dashboard" />

@@ -1,0 +1,262 @@
+GSUCHOA
+GUIA DO CLIENTE
+COMO LER O GRAFICO DE LINHA DO TEMPO - META ADS
+
+========================================================================
+
+ESTE MATERIAL FOI FEITO PARA EXPLICAR DE FORMA SIMPLES:
+
+1. quanto foi investido
+2. quantos resultados foram gerados
+3. quais resultados sao esses
+4. como interpretar o grafico no painel
+
+========================================================================
+
+
+PAGINA 1 - O QUE O GRAFICO MOSTRA
+
+O grafico de linha do tempo foi criado para mostrar, dia a dia, a relacao
+entre o valor investido e os resultados gerados pelas campanhas.
+
+NO GRAFICO:
+
+- Linha azul  = investimento diario
+- Linha roxa  = resultados diarios
+
+Em outras palavras:
+
+- a linha azul mostra quanto foi colocado em midia em cada dia
+- a linha roxa mostra o retorno gerado naquele mesmo dia
+
+Assim, o cliente consegue ver se o investimento esta crescendo,
+diminuindo ou se mantendo, e como os resultados acompanham esse movimento.
+
+
+COMO CHEGAMOS NO VALOR DE INVESTIMENTO
+
+O numero de investimento exibido no painel representa a soma do valor
+gasto no periodo selecionado.
+
+Exemplo simples:
+
+- Dia 01 = R$ 120,00
+- Dia 02 = R$ 150,00
+- Dia 03 = R$ 130,00
+
+Investimento total no periodo = R$ 400,00
+
+No grafico:
+
+- cada ponto azul mostra o valor investido naquele dia
+- o total do periodo e a soma de todos esses pontos
+
+
+COMO CHEGAMOS NO NUMERO DE RESULTADOS
+
+O numero de resultados exibido no painel representa a soma dos resultados
+gerados no periodo selecionado.
+
+Exemplo simples:
+
+- Dia 01 = 8 resultados
+- Dia 02 = 11 resultados
+- Dia 03 = 9 resultados
+
+Resultados totais no periodo = 28 resultados
+
+No grafico:
+
+- cada ponto roxo mostra quantos resultados aconteceram naquele dia
+- o total do periodo e a soma de todos esses pontos
+
+
+\f
+PAGINA 2 - O QUE PODE SER CONSIDERADO "RESULTADO"
+
+Nem toda campanha busca o mesmo objetivo.
+
+Por isso, o "resultado" muda de acordo com o tipo de campanha e com o
+objetivo definido para a estrategia.
+
+OS RESULTADOS MAIS COMUNS SAO:
+
+- conversa iniciada no WhatsApp ou Messenger
+- primeira resposta em conversa
+- lead gerado
+- contato preenchido
+- cadastro concluido
+- compra realizada
+- visita qualificada na pagina de destino
+
+Em resumo:
+
+resultado = a acao mais importante que a campanha foi criada para gerar
+
+
+EXEMPLOS PRATICOS
+
+Se a campanha foi feita para gerar mensagens:
+
+- o resultado pode ser conversa iniciada
+- ou primeira resposta
+
+Se a campanha foi feita para captar leads:
+
+- o resultado pode ser lead
+- contato
+- ou cadastro concluido
+
+Se a campanha foi feita para vender:
+
+- o resultado pode ser compra
+
+Se a campanha foi feita para levar pessoas para uma pagina especifica:
+
+- o resultado pode ser visita qualificada na pagina
+
+
+POR QUE ISSO E IMPORTANTE
+
+Porque o numero de resultados nao deve ser lido sozinho.
+
+Ele precisa ser entendido junto com o objetivo da campanha.
+
+Exemplo:
+
+- 40 conversas iniciadas
+  isso mostra potencial de atendimento e oportunidade comercial
+
+- 40 leads
+  isso mostra captacao direta de interessados
+
+- 40 compras
+  isso mostra conversao direta em venda
+
+Ou seja:
+
+o numero pode ser o mesmo, mas o significado de negocio muda bastante.
+
+
+\f
+PAGINA 3 - COMO INTERPRETAR O GRAFICO
+
+O grafico ajuda a responder perguntas como:
+
+- estamos investindo de forma consistente?
+- os resultados acompanharam esse investimento?
+- houve dias com melhor performance?
+- houve dias com mais verba e menos retorno?
+
+
+LEITURA SIMPLES DO GRAFICO
+
+CENARIO 1
+
+Se a linha azul sobe e a linha roxa tambem sobe:
+
+Interpretacao:
+o aumento de investimento veio acompanhado de mais resultado.
+
+
+CENARIO 2
+
+Se a linha azul sobe, mas a linha roxa nao acompanha:
+
+Interpretacao:
+houve aumento de verba, mas o retorno nao cresceu na mesma proporcao.
+Isso normalmente acende um ponto de atencao para otimizar campanha,
+segmentacao, criativos ou oferta.
+
+
+CENARIO 3
+
+Se a linha azul fica controlada e a linha roxa sobe:
+
+Interpretacao:
+houve ganho de eficiencia.
+Ou seja: a campanha entregou mais resultado sem precisar subir tanto o
+investimento.
+
+
+CENARIO 4
+
+Se as duas linhas caem:
+
+Interpretacao:
+houve reducao de investimento e tambem de retorno, ou o periodo teve menor
+volume de entrega.
+
+
+O QUE O CLIENTE DEVE OBSERVAR
+
+Mais importante do que olhar um unico dia e observar o comportamento do
+periodo como um todo.
+
+O objetivo do grafico e mostrar tendencia.
+
+
+\f
+PAGINA 4 - COMO ISSO VIRA UMA LEITURA DE VALOR
+
+No painel, a leitura ideal do cliente e:
+
+1. quanto foi investido
+2. quantos resultados esse investimento gerou
+3. qual foi o tipo de resultado entregue
+4. quanto custou, em media, cada resultado
+
+
+FORMULA SIMPLES DE CUSTO POR RESULTADO
+
+Custo por resultado = investimento total / total de resultados
+
+Exemplo:
+
+- investimento total = R$ 2.400,00
+- resultados = 60
+
+Custo por resultado = R$ 40,00
+
+
+COMO EXPLICAR ISSO EM UMA APRESENTACAO
+
+Exemplo de fala simples:
+
+"Neste periodo investimos R$ 2.400,00 em anuncios.
+Esse investimento gerou 60 resultados.
+Nesse caso, o resultado principal da campanha foi lead gerado.
+Com isso, o custo medio por resultado ficou em R$ 40,00."
+
+
+RESUMO EXECUTIVO
+
+O grafico de linha do tempo serve para mostrar:
+
+- quanto foi investido em cada dia
+- quantos resultados aconteceram em cada dia
+- como o retorno respondeu ao investimento ao longo do periodo
+
+O numero de resultados pode representar:
+
+- conversa
+- lead
+- contato
+- cadastro
+- compra
+- visita qualificada
+
+Tudo depende do objetivo principal da campanha.
+
+
+MENSAGEM FINAL PARA O CLIENTE
+
+Este grafico nao existe apenas para mostrar numeros.
+Ele existe para dar clareza sobre como o investimento se transformou em
+resultado ao longo do tempo.
+
+Quando lemos investimento, volume de resultados e custo por resultado em
+conjunto, fica mais facil entender o valor real da operacao de trafego pago.
+
+
+Fim do documento.

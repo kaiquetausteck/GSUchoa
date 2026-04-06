@@ -39,7 +39,7 @@ function getPanelPageTitle(pathname: string) {
     pathname.startsWith("/painel/social-media/meta/") &&
     pathname.endsWith("/dashboard")
   ) {
-    return "Dashboard da Página • Meta";
+    return "Dashboard da Conta • Meta";
   }
 
   if (pathname.startsWith("/painel/social-media/meta")) {

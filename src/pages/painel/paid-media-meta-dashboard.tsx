@@ -319,16 +319,19 @@ export default function PaidMediaMetaCampaignDashboardPage() {
       {
         color: "#2262f0",
         label: "Investimento",
+        valueFormatter: (value: number) => formatNumber(value, 2),
         values: timeline.data.map((item) => item.spend),
       },
       {
         color: "#2dc7a3",
         label: "Cliques",
+        valueFormatter: (value: number) => formatNumber(value),
         values: timeline.data.map((item) => item.clicks),
       },
       {
         color: "#f59e0b",
         label: "Resultados",
+        valueFormatter: (value: number) => formatNumber(value),
         values: timeline.data.map((item) => item.resultsCount),
       },
     ];

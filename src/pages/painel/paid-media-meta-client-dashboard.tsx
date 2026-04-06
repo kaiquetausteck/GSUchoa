@@ -23,10 +23,15 @@ import {
   type PanelMetaFilterOption,
 } from "../../components/painel/PanelMetaFilterMultiSelect";
 import { PanelMetaDashboardTable } from "../../components/painel/PanelMetaDashboardTable";
+import {
+  PanelMetaObjectiveFunnel,
+  type PanelMetaObjectiveFunnelKpi,
+  type PanelMetaObjectiveFunnelMetric,
+  type PanelMetaObjectiveFunnelStage,
+} from "../../components/painel/PanelMetaObjectiveFunnel";
 import { PanelLineChart } from "../../components/painel/PanelLineChart";
 import { PanelMetricCard } from "../../components/painel/PanelMetricCard";
 import { PanelPageHeader } from "../../components/painel/PanelPageHeader";
-import { PanelProgressList } from "../../components/painel/PanelProgressList";
 import { Seo } from "../../components/shared/Seo";
 import { AppInput } from "../../components/shared/ui/AppInput";
 import {
@@ -68,6 +73,41 @@ type DashboardPeriodPreset = "30d" | "7d" | "custom" | "today";
 type DashboardRequestSnapshot = PanelMetaDashboardQuery & {
   adAccountId: string;
   level: PanelMetaDashboardTableLevel;
+};
+
+type MetaCampaignObjectiveCategory =
+  | "app_promotion"
+  | "awareness"
+  | "engagement"
+  | "leads"
+  | "mixed"
+  | "overview"
+  | "sales"
+  | "traffic"
+  | "unknown";
+
+type MetaObjectiveContext = {
+  category: MetaCampaignObjectiveCategory;
+  label: string;
+  note: string | null;
+};
+
+type ObjectiveAwareFunnelMetricKey = "clicks" | "conversions" | "impressions" | "reach" | "resultsCount";
+
+type ObjectiveAwareFunnelStageTemplate = {
+  helper: string;
+  label: string;
+  metricKey: ObjectiveAwareFunnelMetricKey;
+};
+
+type ObjectiveAwareFunnelModel = {
+  badge: string;
+  description: string;
+  kpis: PanelMetaObjectiveFunnelKpi[];
+  metrics: PanelMetaObjectiveFunnelMetric[];
+  note: string | null;
+  stages: PanelMetaObjectiveFunnelStage[];
+  title: string;
 };
 
 function toDateInputValue(date: Date) {
@@ -132,6 +172,786 @@ function formatNumber(value: number, fractionDigits = 0) {
 
 function formatPercent(value: number) {
   return `${formatNumber(value, 2)}%`;
+}
+
+function calculatePercent(numerator: number, denominator: number) {
+  return denominator > 0 ? (numerator / denominator) * 100 : 0;
+}
+
+function calculateFrequency(impressions: number, reach: number) {
+  return reach > 0 ? impressions / reach : 0;
+}
+
+function normalizeObjectiveValue(value: string | null | undefined) {
+  return (value ?? "")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toUpperCase()
+    .replace(/[^A-Z0-9]+/g, " ")
+    .trim();
+}
+
+function humanizeObjectiveValue(value: string | null | undefined) {
+  const cleaned = (value ?? "")
+    .trim()
+    .replace(/^OUTCOME[_\s-]+/i, "")
+    .replace(/^OBJETIVO[_\s-]+/i, "")
+    .replace(/[_-]+/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+
+  if (!cleaned) {
+    return "Objetivo não identificado";
+  }
+
+  return cleaned
+    .toLowerCase()
+    .split(" ")
+    .map((part) => (part ? `${part[0]!.toUpperCase()}${part.slice(1)}` : ""))
+    .join(" ");
+}
+
+function resolveMetaObjectiveCategory(value: string | null | undefined): MetaCampaignObjectiveCategory {
+  const normalized = normalizeObjectiveValue(value);
+
+  if (!normalized) {
+    return "unknown";
+  }
+
+  if (normalized.includes("APP") || normalized.includes("INSTALL")) {
+    return "app_promotion";
+  }
+
+  if (
+    normalized.includes("LEAD") ||
+    normalized.includes("CADAST") ||
+    normalized.includes("FORM") ||
+    normalized.includes("CONTATO")
+  ) {
+    return "leads";
+  }
+
+  if (
+    normalized.includes("SALE") ||
+    normalized.includes("VENDA") ||
+    normalized.includes("PURCHASE") ||
+    normalized.includes("COMPRA") ||
+    normalized.includes("CATALOG")
+  ) {
+    return "sales";
+  }
+
+  if (
+    normalized.includes("TRAFFIC") ||
+    normalized.includes("TRAFEGO") ||
+    normalized.includes("LANDING") ||
+    normalized.includes("VISIT")
+  ) {
+    return "traffic";
+  }
+
+  if (
+    normalized.includes("ENGAGEMENT") ||
+    normalized.includes("ENGAJ") ||
+    normalized.includes("MESSAGE") ||
+    normalized.includes("VIDEO") ||
+    normalized.includes("INTERACTION")
+  ) {
+    return "engagement";
+  }
+
+  if (
+    normalized.includes("AWARENESS") ||
+    normalized.includes("REACH") ||
+    normalized.includes("ALCANCE") ||
+    normalized.includes("RECONHEC") ||
+    normalized.includes("BRAND")
+  ) {
+    return "awareness";
+  }
+
+  if (normalized.includes("CONVERSION")) {
+    return "sales";
+  }
+
+  return "unknown";
+}
+
+function getMetaObjectiveLabel(category: MetaCampaignObjectiveCategory) {
+  switch (category) {
+    case "app_promotion":
+      return "Promoção de app";
+    case "awareness":
+      return "Reconhecimento";
+    case "engagement":
+      return "Engajamento";
+    case "leads":
+      return "Leads";
+    case "mixed":
+      return "Múltiplos objetivos";
+    case "overview":
+      return "Visão consolidada";
+    case "sales":
+      return "Vendas";
+    case "traffic":
+      return "Tráfego";
+    default:
+      return "Objetivo não mapeado";
+  }
+}
+
+const OBJECTIVE_FUNNEL_STAGE_COLORS = [
+  "linear-gradient(135deg, rgba(56, 189, 248, 0.96) 0%, rgba(37, 99, 235, 0.92) 100%)",
+  "linear-gradient(135deg, rgba(96, 165, 250, 0.96) 0%, rgba(59, 130, 246, 0.92) 100%)",
+  "linear-gradient(135deg, rgba(129, 140, 248, 0.96) 0%, rgba(79, 70, 229, 0.92) 100%)",
+  "linear-gradient(135deg, rgba(45, 212, 191, 0.94) 0%, rgba(14, 116, 144, 0.92) 100%)",
+];
+
+function getObjectiveMetricValue(
+  metricKey: ObjectiveAwareFunnelMetricKey,
+  summary: PanelMetaDashboardSummaryRecord | null,
+  funnel: PanelMetaDashboardFunnelRecord | null,
+) {
+  switch (metricKey) {
+    case "clicks":
+      return funnel?.clicks ?? summary?.clicks ?? 0;
+    case "conversions":
+      return funnel?.conversions ?? 0;
+    case "impressions":
+      return summary?.impressions ?? 0;
+    case "reach":
+      return summary?.reach ?? funnel?.reach ?? 0;
+    case "resultsCount":
+      return funnel?.resultsCount ?? summary?.resultsCount ?? 0;
+    default:
+      return 0;
+  }
+}
+
+function createObjectiveFunnelStages(
+  templates: ObjectiveAwareFunnelStageTemplate[],
+  summary: PanelMetaDashboardSummaryRecord | null,
+  funnel: PanelMetaDashboardFunnelRecord | null,
+) {
+  return templates.map((template, index) => {
+    const rawValue = getObjectiveMetricValue(template.metricKey, summary, funnel);
+
+    return {
+      color: OBJECTIVE_FUNNEL_STAGE_COLORS[index % OBJECTIVE_FUNNEL_STAGE_COLORS.length]!,
+      helper: template.helper,
+      label: template.label,
+      rawValue,
+      value: formatNumber(rawValue),
+    } satisfies PanelMetaObjectiveFunnelStage;
+  });
+}
+
+function buildObjectiveAwareFunnel({
+  funnel,
+  objectiveContext,
+  summary,
+}: {
+  funnel: PanelMetaDashboardFunnelRecord | null;
+  objectiveContext: MetaObjectiveContext;
+  summary: PanelMetaDashboardSummaryRecord | null;
+}): ObjectiveAwareFunnelModel {
+  const impressions = summary?.impressions ?? 0;
+  const reach = summary?.reach ?? funnel?.reach ?? 0;
+  const clicks = funnel?.clicks ?? summary?.clicks ?? 0;
+  const resultsCount = funnel?.resultsCount ?? summary?.resultsCount ?? 0;
+  const conversions = funnel?.conversions ?? 0;
+  const frequency = calculateFrequency(impressions, reach);
+  const spend = summary?.spend ?? 0;
+  const cpc = summary?.cpc ?? 0;
+  const cpm = summary?.cpm ?? 0;
+  const costPerResult = summary?.costPerResult ?? 0;
+  const ctr = summary?.ctr ?? 0;
+
+  switch (objectiveContext.category) {
+    case "awareness":
+      return {
+        badge: objectiveContext.label,
+        description:
+          "Leitura do volume de entrega até os sinais gerados pelas campanhas de reconhecimento.",
+        kpis: [
+          { label: "Alcance", value: formatNumber(reach) },
+          { label: "Frequência", value: formatNumber(frequency, 2) },
+          { label: "CPM", value: formatCurrency(cpm) },
+          { label: "Investimento", value: formatCurrency(spend) },
+        ],
+        metrics: [
+          {
+            helper: "Volume médio de impressões por pessoa alcançada.",
+            label: "Frequência média",
+            value: formatNumber(frequency, 2),
+          },
+          {
+            helper: "Percentual de cliques sobre o total de impressões exibidas.",
+            label: "CTR médio",
+            value: formatPercent(ctr),
+          },
+          {
+            helper: "Quanto do alcance virou resposta ativa ao anúncio.",
+            label: "Alcance -> clique",
+            value: formatPercent(calculatePercent(clicks, reach)),
+          },
+        ],
+        note: objectiveContext.note,
+        stages: createObjectiveFunnelStages(
+          [
+            {
+              helper: "Volume total de exibições dos anúncios no período filtrado.",
+              label: "Impressões",
+              metricKey: "impressions",
+            },
+            {
+              helper: "Pessoas únicas impactadas pelo investimento de mídia.",
+              label: "Alcance",
+              metricKey: "reach",
+            },
+            {
+              helper: "Respostas ativas geradas depois da entrega do anúncio.",
+              label: "Cliques",
+              metricKey: "clicks",
+            },
+            {
+              helper: "Resultado principal reportado pela Meta para awareness.",
+              label: "Resultado de awareness",
+              metricKey: "resultsCount",
+            },
+          ],
+          summary,
+          funnel,
+        ),
+        title: "Funil de reconhecimento",
+      };
+    case "engagement":
+      return {
+        badge: objectiveContext.label,
+        description:
+          "Leitura da entrega até os engajamentos e respostas geradas pelas campanhas sociais.",
+        kpis: [
+          { label: "Engajamentos", value: formatNumber(resultsCount) },
+          { label: "Custo/resultado", value: formatCurrency(costPerResult) },
+          { label: "Frequência", value: formatNumber(frequency, 2) },
+          { label: "Investimento", value: formatCurrency(spend) },
+        ],
+        metrics: [
+          {
+            helper: "Percentual de cliques sobre o total de impressões exibidas.",
+            label: "CTR médio",
+            value: formatPercent(ctr),
+          },
+          {
+            helper: "Quanto dos cliques virou engajamento principal da campanha.",
+            label: "Clique -> engajamento",
+            value: formatPercent(calculatePercent(resultsCount, clicks)),
+          },
+          {
+            helper: "Evolução do engajamento até uma conversão assistida.",
+            label: "Engajamento -> conversão",
+            value: formatPercent(calculatePercent(conversions, resultsCount)),
+          },
+        ],
+        note: objectiveContext.note,
+        stages: createObjectiveFunnelStages(
+          [
+            {
+              helper: "Volume total de exibições que alimentou o engajamento.",
+              label: "Impressões",
+              metricKey: "impressions",
+            },
+            {
+              helper: "Cliques e interações que saíram da etapa de entrega.",
+              label: "Cliques",
+              metricKey: "clicks",
+            },
+            {
+              helper: "Resultado principal otimizado para engajamento.",
+              label: "Engajamentos",
+              metricKey: "resultsCount",
+            },
+            {
+              helper: "Conversões assistidas depois do engajamento inicial.",
+              label: "Conversões assistidas",
+              metricKey: "conversions",
+            },
+          ],
+          summary,
+          funnel,
+        ),
+        title: "Funil de engajamento",
+      };
+    case "leads":
+      return {
+        badge: objectiveContext.label,
+        description:
+          "Leitura das etapas de entrega até a geração e qualificação dos leads da campanha.",
+        kpis: [
+          { label: "Leads", value: formatNumber(resultsCount) },
+          { label: "Custo por lead", value: formatCurrency(costPerResult) },
+          { label: "Frequência", value: formatNumber(frequency, 2) },
+          { label: "Investimento", value: formatCurrency(spend) },
+        ],
+        metrics: [
+          {
+            helper: "Percentual de cliques sobre o total de impressões exibidas.",
+            label: "CTR médio",
+            value: formatPercent(ctr),
+          },
+          {
+            helper: "Quanto dos cliques virou lead registrado pela Meta.",
+            label: "Clique -> lead",
+            value: formatPercent(calculatePercent(resultsCount, clicks)),
+          },
+          {
+            helper: "Taxa de qualificação dos leads até a conversão final.",
+            label: "Lead -> conversão",
+            value: formatPercent(calculatePercent(conversions, resultsCount)),
+          },
+        ],
+        note: objectiveContext.note,
+        stages: createObjectiveFunnelStages(
+          [
+            {
+              helper: "Entrega total dos anúncios para abrir o topo do funil.",
+              label: "Impressões",
+              metricKey: "impressions",
+            },
+            {
+              helper: "Cliques que avançaram para o ambiente de captura.",
+              label: "Cliques",
+              metricKey: "clicks",
+            },
+            {
+              helper: "Leads gerados no evento principal da campanha.",
+              label: "Leads gerados",
+              metricKey: "resultsCount",
+            },
+            {
+              helper: "Leads que avançaram para uma conversão qualificada.",
+              label: "Conversões qualificadas",
+              metricKey: "conversions",
+            },
+          ],
+          summary,
+          funnel,
+        ),
+        title: "Funil de leads",
+      };
+    case "sales":
+      return {
+        badge: objectiveContext.label,
+        description:
+          "Acompanha a entrega, a resposta do clique e a evolução até as conversões comerciais.",
+        kpis: [
+          { label: "Resultados", value: formatNumber(resultsCount) },
+          { label: "Custo/resultado", value: formatCurrency(costPerResult) },
+          { label: "Frequência", value: formatNumber(frequency, 2) },
+          { label: "Investimento", value: formatCurrency(spend) },
+        ],
+        metrics: [
+          {
+            helper: "Percentual de cliques sobre o total de impressões exibidas.",
+            label: "CTR médio",
+            value: formatPercent(ctr),
+          },
+          {
+            helper: "Quanto dos cliques virou o resultado principal de venda.",
+            label: "Clique -> resultado",
+            value: formatPercent(calculatePercent(resultsCount, clicks)),
+          },
+          {
+            helper: "Evolução dos resultados até a conversão final do funil.",
+            label: "Resultado -> conversão",
+            value: formatPercent(calculatePercent(conversions, resultsCount)),
+          },
+        ],
+        note: objectiveContext.note,
+        stages: createObjectiveFunnelStages(
+          [
+            {
+              helper: "Volume total de entregas que abasteceu o funil de vendas.",
+              label: "Impressões",
+              metricKey: "impressions",
+            },
+            {
+              helper: "Cliques que sinalizaram intenção comercial inicial.",
+              label: "Cliques",
+              metricKey: "clicks",
+            },
+            {
+              helper: "Resultado principal otimizado para venda pela campanha.",
+              label: "Resultados de venda",
+              metricKey: "resultsCount",
+            },
+            {
+              helper: "Conversões comerciais consolidadas no período filtrado.",
+              label: "Conversões",
+              metricKey: "conversions",
+            },
+          ],
+          summary,
+          funnel,
+        ),
+        title: "Funil de vendas",
+      };
+    case "traffic":
+      return {
+        badge: objectiveContext.label,
+        description:
+          "Leitura da entrega até as conversões geradas pelas campanhas orientadas a tráfego.",
+        kpis: [
+          { label: "Cliques", value: formatNumber(clicks) },
+          { label: "Frequência", value: formatNumber(frequency, 2) },
+          { label: "CPC", value: formatCurrency(cpc) },
+          { label: "CPM", value: formatCurrency(cpm) },
+        ],
+        metrics: [
+          {
+            helper: "Percentual de cliques sobre o total de impressões exibidas.",
+            label: "CTR médio",
+            value: formatPercent(ctr),
+          },
+          {
+            helper: "Quanto dos cliques virou o resultado principal de tráfego.",
+            label: "Clique -> resultado",
+            value: formatPercent(calculatePercent(resultsCount, clicks)),
+          },
+          {
+            helper: "Quanto dos resultados continuou avançando até a conversão final.",
+            label: "Resultado -> conversão",
+            value: formatPercent(calculatePercent(conversions, resultsCount)),
+          },
+        ],
+        note: objectiveContext.note,
+        stages: createObjectiveFunnelStages(
+          [
+            {
+              helper: "Volume total de entregas que abasteceu o tráfego da campanha.",
+              label: "Impressões",
+              metricKey: "impressions",
+            },
+            {
+              helper: "Cliques que saíram da entrega para a etapa seguinte.",
+              label: "Cliques",
+              metricKey: "clicks",
+            },
+            {
+              helper: "Resultado principal de tráfego retornado pela Meta.",
+              label: "Resultados de tráfego",
+              metricKey: "resultsCount",
+            },
+            {
+              helper: "Conversões observadas depois do avanço no funil.",
+              label: "Conversões",
+              metricKey: "conversions",
+            },
+          ],
+          summary,
+          funnel,
+        ),
+        title: "Funil de tráfego",
+      };
+    case "app_promotion":
+      return {
+        badge: objectiveContext.label,
+        description:
+          "Leitura do impacto da campanha até os resultados e conversões pós-instalação.",
+        kpis: [
+          { label: "Resultados", value: formatNumber(resultsCount) },
+          { label: "Custo/resultado", value: formatCurrency(costPerResult) },
+          { label: "Frequência", value: formatNumber(frequency, 2) },
+          { label: "Investimento", value: formatCurrency(spend) },
+        ],
+        metrics: [
+          {
+            helper: "Percentual de cliques sobre o total de impressões exibidas.",
+            label: "CTR médio",
+            value: formatPercent(ctr),
+          },
+          {
+            helper: "Quanto dos cliques virou instalação ou resultado principal.",
+            label: "Clique -> resultado",
+            value: formatPercent(calculatePercent(resultsCount, clicks)),
+          },
+          {
+            helper: "Avanço dos resultados até uma conversão pós-instalação.",
+            label: "Resultado -> conversão",
+            value: formatPercent(calculatePercent(conversions, resultsCount)),
+          },
+        ],
+        note: objectiveContext.note,
+        stages: createObjectiveFunnelStages(
+          [
+            {
+              helper: "Volume de entregas que iniciou a jornada de instalação.",
+              label: "Impressões",
+              metricKey: "impressions",
+            },
+            {
+              helper: "Cliques que levaram a uma intenção de instalar ou abrir o app.",
+              label: "Cliques",
+              metricKey: "clicks",
+            },
+            {
+              helper: "Resultado principal de promoção de app reportado pela Meta.",
+              label: "Resultados de app",
+              metricKey: "resultsCount",
+            },
+            {
+              helper: "Conversões posteriores à instalação ou ao clique inicial.",
+              label: "Conversões pós-instalação",
+              metricKey: "conversions",
+            },
+          ],
+          summary,
+          funnel,
+        ),
+        title: "Funil de promoção de app",
+      };
+    case "mixed":
+      return {
+        badge: objectiveContext.label,
+        description:
+          "Visão consolidada com nomenclaturas neutras para acomodar campanhas com objetivos diferentes.",
+        kpis: [
+          { label: "Custo/resultado", value: formatCurrency(costPerResult) },
+          { label: "CPC", value: formatCurrency(cpc) },
+          { label: "CPM", value: formatCurrency(cpm) },
+          { label: "Investimento", value: formatCurrency(spend) },
+        ],
+        metrics: [
+          {
+            helper: "Volume médio de impressões por pessoa alcançada.",
+            label: "Frequência média",
+            value: formatNumber(frequency, 2),
+          },
+          {
+            helper: "Percentual de cliques sobre o total de impressões exibidas.",
+            label: "CTR médio",
+            value: formatPercent(ctr),
+          },
+          {
+            helper: "Quanto dos cliques virou o resultado principal retornado pela Meta.",
+            label: "Clique -> resultado",
+            value: formatPercent(calculatePercent(resultsCount, clicks)),
+          },
+        ],
+        note: objectiveContext.note,
+        stages: createObjectiveFunnelStages(
+          [
+            {
+              helper: "Volume total de entregas do recorte filtrado.",
+              label: "Impressões",
+              metricKey: "impressions",
+            },
+            {
+              helper: "Pessoas únicas impactadas pela operação no período.",
+              label: "Alcance",
+              metricKey: "reach",
+            },
+            {
+              helper: "Cliques e interações diretas geradas pelos anúncios.",
+              label: "Cliques",
+              metricKey: "clicks",
+            },
+            {
+              helper: "Resultado principal consolidado pela Meta para o recorte.",
+              label: "Resultados",
+              metricKey: "resultsCount",
+            },
+          ],
+          summary,
+          funnel,
+        ),
+        title: "Funil Meta multiobjetivo",
+      };
+    case "overview":
+    case "unknown":
+    default:
+      return {
+        badge: objectiveContext.label,
+        description:
+          "Visão geral do recorte atual com etapas neutras para preservar a leitura consolidada do dashboard.",
+        kpis: [
+          { label: "Custo/resultado", value: formatCurrency(costPerResult) },
+          { label: "CPC", value: formatCurrency(cpc) },
+          { label: "CPM", value: formatCurrency(cpm) },
+          { label: "Investimento", value: formatCurrency(spend) },
+        ],
+        metrics: [
+          {
+            helper: "Volume médio de impressões por pessoa alcançada.",
+            label: "Frequência média",
+            value: formatNumber(frequency, 2),
+          },
+          {
+            helper: "Percentual de cliques sobre o total de impressões exibidas.",
+            label: "CTR médio",
+            value: formatPercent(ctr),
+          },
+          {
+            helper: "Quanto dos cliques virou o resultado principal retornado pela Meta.",
+            label: "Clique -> resultado",
+            value: formatPercent(calculatePercent(resultsCount, clicks)),
+          },
+        ],
+        note: objectiveContext.note,
+        stages: createObjectiveFunnelStages(
+          [
+            {
+              helper: "Volume total de entregas do recorte filtrado.",
+              label: "Impressões",
+              metricKey: "impressions",
+            },
+            {
+              helper: "Pessoas únicas impactadas pela operação no período.",
+              label: "Alcance",
+              metricKey: "reach",
+            },
+            {
+              helper: "Cliques e interações diretas geradas pelos anúncios.",
+              label: "Cliques",
+              metricKey: "clicks",
+            },
+            {
+              helper: "Resultado principal consolidado pela Meta para o recorte.",
+              label: "Resultados",
+              metricKey: "resultsCount",
+            },
+          ],
+          summary,
+          funnel,
+        ),
+        title: "Funil Meta consolidado",
+      };
+  }
+}
+
+function resolveObjectiveContext({
+  adOptions,
+  adsetOptions,
+  campaignOptions,
+  selectedAdIds,
+  selectedAdsetIds,
+  selectedCampaignIds,
+}: {
+  adOptions: PanelMetaFiltersAdRecord[];
+  adsetOptions: PanelMetaFiltersAdsetRecord[];
+  campaignOptions: PanelMetaFiltersCampaignRecord[];
+  selectedAdIds: string[];
+  selectedAdsetIds: string[];
+  selectedCampaignIds: string[];
+}): MetaObjectiveContext {
+  const rawObjectives = new Set<string>();
+  const campaignById = new Map(campaignOptions.map((item) => [item.id, item] as const));
+  const campaignByMetaId = new Map(campaignOptions.map((item) => [item.metaCampaignId, item] as const));
+  const adsetById = new Map(adsetOptions.map((item) => [item.id, item] as const));
+  const adById = new Map(adOptions.map((item) => [item.id, item] as const));
+
+  const collectObjective = (objective: string | null | undefined) => {
+    const normalizedObjective = objective?.trim();
+
+    if (normalizedObjective) {
+      rawObjectives.add(normalizedObjective);
+    }
+  };
+
+  selectedCampaignIds.forEach((id) => {
+    collectObjective(campaignById.get(id)?.objective);
+  });
+
+  selectedAdsetIds.forEach((id) => {
+    const metaCampaignId = adsetById.get(id)?.metaCampaignId;
+
+    if (metaCampaignId) {
+      collectObjective(campaignByMetaId.get(metaCampaignId)?.objective);
+    }
+  });
+
+  selectedAdIds.forEach((id) => {
+    const metaCampaignId = adById.get(id)?.metaCampaignId;
+
+    if (metaCampaignId) {
+      collectObjective(campaignByMetaId.get(metaCampaignId)?.objective);
+    }
+  });
+
+  const normalizedObjectives = Array.from(
+    new Set(
+      Array.from(rawObjectives)
+        .map((objective) => resolveMetaObjectiveCategory(objective))
+        .filter((objective): objective is MetaCampaignObjectiveCategory => objective !== "unknown"),
+    ),
+  );
+
+  if (normalizedObjectives.length === 1) {
+    const category = normalizedObjectives[0]!;
+
+    return {
+      category,
+      label: getMetaObjectiveLabel(category),
+      note: null,
+    };
+  }
+
+  if (normalizedObjectives.length > 1) {
+    return {
+      category: "mixed",
+      label: getMetaObjectiveLabel("mixed"),
+      note:
+        "Os filtros atuais misturam campanhas com objetivos diferentes. O funil usa uma leitura neutra para evitar interpretações erradas.",
+    };
+  }
+
+  const hasEntityFilters =
+    selectedCampaignIds.length > 0 || selectedAdsetIds.length > 0 || selectedAdIds.length > 0;
+
+  if (!hasEntityFilters) {
+    const accountObjectives = Array.from(
+      new Set(
+        campaignOptions
+          .map((item) => resolveMetaObjectiveCategory(item.objective))
+          .filter((objective): objective is MetaCampaignObjectiveCategory => objective !== "unknown"),
+      ),
+    );
+
+    if (accountObjectives.length === 1) {
+      const category = accountObjectives[0]!;
+
+      return {
+        category,
+        label: getMetaObjectiveLabel(category),
+        note: null,
+      };
+    }
+
+    return {
+      category: "overview",
+      label: getMetaObjectiveLabel("overview"),
+      note:
+        "Selecione uma campanha específica para renomear as etapas de acordo com o objetivo principal dela.",
+    };
+  }
+
+  if (rawObjectives.size === 1) {
+    const [singleObjective] = Array.from(rawObjectives);
+
+    return {
+      category: "unknown",
+      label: humanizeObjectiveValue(singleObjective),
+      note:
+        "O objetivo selecionado ainda não está mapeado na interface, então o funil foi mantido com nomenclaturas genéricas.",
+    };
+  }
+
+  return {
+    category: "unknown",
+    label: getMetaObjectiveLabel("unknown"),
+    note:
+      "Não foi possível identificar um objetivo único para os filtros atuais, então o funil foi mantido em modo genérico.",
+  };
 }
 
 function formatCompactDate(value: string | null) {
@@ -434,6 +1254,7 @@ function buildDashboardPdfHtml({
   currentPeriodLabel,
   currency,
   filterHighlights,
+  funnelDescription,
   generatedAt,
   lastValidatedAt,
   metrics,
@@ -443,12 +1264,14 @@ function buildDashboardPdfHtml({
   timelineSeries,
   timezone,
   funnelItems,
+  funnelTitle,
 }: {
   accountName: string;
   accountId: string;
   currentPeriodLabel: string;
   currency: string;
   filterHighlights: string[];
+  funnelDescription: string;
   generatedAt: string;
   lastValidatedAt: string;
   metrics: Array<{
@@ -474,13 +1297,8 @@ function buildDashboardPdfHtml({
   timelineLabels: string[];
   timelineSeries: Array<{ color: string; label: string; values: number[] }>;
   timezone: string;
-  funnelItems: Array<{
-    color: string;
-    helper: string;
-    label: string;
-    rawValue: number;
-    value: string;
-  }>;
+  funnelItems: PanelMetaObjectiveFunnelStage[];
+  funnelTitle: string;
 }) {
   const chartRange = resolveChartRange(timelineLabels.length);
   const chartSvg = buildPdfLineChartSvg(timelineLabels, timelineSeries, chartRange);
@@ -1042,9 +1860,9 @@ function buildDashboardPdfHtml({
 
             <section class="pdf-section">
               <div class="pdf-eyebrow">Funil</div>
-              <h2 class="pdf-section-title">Leitura rápida do recorte</h2>
+              <h2 class="pdf-section-title">${escapeHtml(funnelTitle)}</h2>
               <p class="pdf-section-description">
-                Funil consolidado da conta com base nos mesmos filtros do dashboard.
+                ${escapeHtml(funnelDescription)}
               </p>
 
               <div class="pdf-funnel-list">
@@ -1613,11 +2431,13 @@ export default function PaidMediaMetaAccountDashboardPage() {
       {
         color: "#2563eb",
         label: "Investimento",
+        valueFormatter: formatCurrency,
         values: timeline?.data.map((item) => item.spend) ?? [],
       },
       {
         color: "#7c3aed",
         label: "Resultados",
+        valueFormatter: (value: number) => formatNumber(value),
         values: timeline?.data.map((item) => item.resultsCount) ?? [],
       },
     ],
@@ -1700,38 +2520,28 @@ export default function PaidMediaMetaAccountDashboardPage() {
       },
     ];
   }, [summary]);
-  const funnelProgressItems = useMemo(() => {
-    return [
-      {
-        color: "linear-gradient(90deg,#2563eb,#60a5fa)",
-        helper: "Pessoas alcançadas pela conta no período.",
-        label: "Alcance",
-        rawValue: funnel?.reach ?? 0,
-        value: formatNumber(funnel?.reach ?? 0),
-      },
-      {
-        color: "linear-gradient(90deg,#7c3aed,#a78bfa)",
-        helper: "Cliques gerados pelos anúncios filtrados.",
-        label: "Cliques",
-        rawValue: funnel?.clicks ?? 0,
-        value: formatNumber(funnel?.clicks ?? 0),
-      },
-      {
-        color: "linear-gradient(90deg,#10b981,#34d399)",
-        helper: "Resultados consolidados pela API.",
-        label: "Resultados",
-        rawValue: funnel?.resultsCount ?? 0,
-        value: formatNumber(funnel?.resultsCount ?? 0),
-      },
-      {
-        color: "linear-gradient(90deg,#f97316,#fb923c)",
-        helper: "Conversões retornadas pelo backend para o recorte atual.",
-        label: "Conversões",
-        rawValue: funnel?.conversions ?? 0,
-        value: formatNumber(funnel?.conversions ?? 0),
-      },
-    ];
-  }, [funnel]);
+  const objectiveContext = useMemo(
+    () =>
+      resolveObjectiveContext({
+        adOptions,
+        adsetOptions,
+        campaignOptions,
+        selectedAdIds,
+        selectedAdsetIds,
+        selectedCampaignIds,
+      }),
+    [adOptions, adsetOptions, campaignOptions, selectedAdIds, selectedAdsetIds, selectedCampaignIds],
+  );
+  const objectiveFunnel = useMemo(
+    () =>
+      buildObjectiveAwareFunnel({
+        funnel,
+        objectiveContext,
+        summary,
+      }),
+    [funnel, objectiveContext, summary],
+  );
+  const funnelProgressItems = objectiveFunnel.stages;
 
   const showDashboardBlocks =
     Boolean(dashboardRequest) || Boolean(summary || timeline || funnel || tableData);
@@ -1851,7 +2661,11 @@ export default function PaidMediaMetaAccountDashboardPage() {
         currency: activeAccount.currency || "Moeda não informada",
         currentPeriodLabel,
         filterHighlights: activeFilterHighlights,
+        funnelDescription: objectiveFunnel.note
+          ? `${objectiveFunnel.description} ${objectiveFunnel.note}`
+          : objectiveFunnel.description,
         funnelItems: funnelProgressItems,
+        funnelTitle: objectiveFunnel.title,
         generatedAt,
         lastValidatedAt: formatDateTime(statusRecord?.lastValidatedAt ?? null),
         metrics,
@@ -1957,6 +2771,7 @@ export default function PaidMediaMetaAccountDashboardPage() {
     funnel,
     funnelProgressItems,
     isRefreshingContext,
+    objectiveFunnel,
     summary,
     summaryCards,
     tableData,
@@ -2418,7 +3233,7 @@ export default function PaidMediaMetaAccountDashboardPage() {
               ))}
             </section>
 
-            <div className="grid gap-6 2xl:grid-cols-[minmax(0,1.45fr)_minmax(0,0.95fr)]">
+            <div className="grid gap-6">
               <PanelAnalyticsCard
                 description="Evolução diária do investimento e dos resultados da conta Meta no período selecionado."
                 eyebrow="Timeline"
@@ -2433,19 +3248,22 @@ export default function PaidMediaMetaAccountDashboardPage() {
               </PanelAnalyticsCard>
 
               <PanelAnalyticsCard
-                description="Leitura rápida do funil consolidado com base nos filtros atuais."
+                actions={(
+                  <span className="panel-card-muted inline-flex rounded-full border px-3 py-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-on-surface">
+                    {objectiveFunnel.badge}
+                  </span>
+                )}
+                description={objectiveFunnel.description}
                 eyebrow="Funil"
-                title="Funil Meta"
+                title={objectiveFunnel.title}
               >
-                <PanelProgressList
-                  formatValue={(value) => formatNumber(value)}
-                  items={funnelProgressItems.map((item) => ({
-                    color: item.color,
-                    helper: item.helper,
-                    label: item.label,
-                    value: item.rawValue,
-                  }))}
+                <PanelMetaObjectiveFunnel
+                  kpis={objectiveFunnel.kpis}
                   loading={funnelLoading}
+                  metrics={objectiveFunnel.metrics}
+                  note={objectiveFunnel.note}
+                  objectiveLabel={objectiveFunnel.badge}
+                  stages={funnelProgressItems}
                 />
               </PanelAnalyticsCard>
             </div>

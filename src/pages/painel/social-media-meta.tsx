@@ -27,19 +27,9 @@ import {
   type PanelMetaConnectionStatusRecord,
 } from "../../services/painel/meta-api";
 import {
-  listPanelMetaInstagramBusinessAccounts,
-  listPanelMetaSocialInstagramAccounts,
-  listPanelMetaSocialPages,
-  resolvePanelMetaSocialInstagramSources,
-  type PanelMetaInstagramBusinessAccountRecord,
-  type PanelMetaSocialInstagramAccountRecord,
-  type PanelMetaSocialPageRecord,
-  type PanelMetaSocialInstagramSourceRecord,
+  listPanelMetaSocialMediaAccounts,
+  type PanelMetaSocialMediaAccountRecord,
 } from "../../services/painel/social-media-api";
-
-type SocialMediaPageTableItem = PanelMetaSocialPageRecord & {
-  instagramSources: PanelMetaSocialInstagramSourceRecord[];
-};
 
 function StateCard({
   action,
@@ -106,17 +96,32 @@ function StatCard({
   );
 }
 
+function normalizeSearchableText(item: PanelMetaSocialMediaAccountRecord) {
+  return [
+    item.displayName,
+    item.id,
+    item.pageName,
+    item.pageId,
+    item.instagramUsername,
+    item.instagramAccountId,
+    ...item.platforms.flatMap((platform) => [
+      platform.displayName,
+      platform.externalId,
+      platform.username,
+    ]),
+  ]
+    .filter(Boolean)
+    .join(" ")
+    .toLowerCase();
+}
+
 export default function SocialMediaMetaPage() {
   const location = useLocation();
   const navigate = useNavigate();
   const { token } = usePanelAuth();
   const [searchValue, setSearchValue] = useState("");
   const [metaStatus, setMetaStatus] = useState<PanelMetaConnectionStatusRecord | null>(null);
-  const [pages, setPages] = useState<PanelMetaSocialPageRecord[]>([]);
-  const [instagramAccounts, setInstagramAccounts] = useState<PanelMetaSocialInstagramAccountRecord[]>([]);
-  const [instagramBusinessAccounts, setInstagramBusinessAccounts] = useState<
-    PanelMetaInstagramBusinessAccountRecord[]
-  >([]);
+  const [accounts, setAccounts] = useState<PanelMetaSocialMediaAccountRecord[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
 
@@ -133,41 +138,19 @@ export default function SocialMediaMetaPage() {
       setMetaStatus(nextStatus);
 
       if (nextStatus.status !== "CONNECTED") {
-        setPages([]);
-        setInstagramAccounts([]);
-        setInstagramBusinessAccounts([]);
+        setAccounts([]);
         return;
       }
 
-      const [nextPagesResult, nextInstagramAccountsResult, nextInstagramBusinessAccountsResult] =
-        await Promise.allSettled([
-          listPanelMetaSocialPages(token),
-          listPanelMetaSocialInstagramAccounts(token),
-          listPanelMetaInstagramBusinessAccounts(token),
-        ]);
-
-      if (nextPagesResult.status === "rejected") {
-        throw nextPagesResult.reason;
-      }
-
-      setPages(nextPagesResult.value);
-      setInstagramAccounts(
-        nextInstagramAccountsResult.status === "fulfilled" ? nextInstagramAccountsResult.value : [],
-      );
-      setInstagramBusinessAccounts(
-        nextInstagramBusinessAccountsResult.status === "fulfilled"
-          ? nextInstagramBusinessAccountsResult.value
-          : [],
-      );
+      const nextAccounts = await listPanelMetaSocialMediaAccounts(token);
+      setAccounts(nextAccounts);
     } catch (error) {
       setMetaStatus(null);
-      setPages([]);
-      setInstagramAccounts([]);
-      setInstagramBusinessAccounts([]);
+      setAccounts([]);
       setLoadError(
         error instanceof Error
           ? error.message
-          : "Não foi possível carregar as páginas sociais agora.",
+          : "Não foi possível carregar as contas sociais da Meta agora.",
       );
     } finally {
       setIsLoading(false);
@@ -178,53 +161,33 @@ export default function SocialMediaMetaPage() {
     void loadContext();
   }, [loadContext]);
 
-  const items = useMemo<SocialMediaPageTableItem[]>(() => {
-    return pages.map((page) => ({
-      ...page,
-      instagramSources: resolvePanelMetaSocialInstagramSources({
-        instagramAccounts,
-        instagramBusinessAccounts,
-        page,
-      }),
-    }));
-  }, [instagramAccounts, instagramBusinessAccounts, pages]);
-
   const filteredItems = useMemo(() => {
     const normalizedSearch = searchValue.trim().toLowerCase();
 
     if (!normalizedSearch) {
-      return items;
+      return accounts;
     }
 
-    return items.filter((item) =>
-      [
-        item.name,
-        item.pageId,
-        item.category,
-        ...item.instagramSources.flatMap((account) => [
-          account.instagramAccountId,
-          account.username,
-          account.name,
-        ]),
-      ]
-        .filter(Boolean)
-        .some((value) => value!.toLowerCase().includes(normalizedSearch)),
-    );
-  }, [items, searchValue]);
+    return accounts.filter((item) => normalizeSearchableText(item).includes(normalizedSearch));
+  }, [accounts, searchValue]);
 
-  const instagramConnectedCount = useMemo(
-    () => items.filter((item) => item.instagramSources.length > 0 || item.hasInstagramBusinessAccount).length,
-    [items],
+  const combinedCount = useMemo(
+    () => accounts.filter((item) => item.type === "both").length,
+    [accounts],
   );
   const facebookOnlyCount = useMemo(
-    () => items.filter((item) => item.instagramSources.length === 0 && !item.hasInstagramBusinessAccount).length,
-    [items],
+    () => accounts.filter((item) => item.type === "facebook").length,
+    [accounts],
+  );
+  const instagramOnlyCount = useMemo(
+    () => accounts.filter((item) => item.type === "instagram").length,
+    [accounts],
   );
 
   return (
     <>
       <Seo
-        description="Selecione uma página Meta para abrir o módulo social com Facebook e Instagram vinculados."
+        description="Selecione uma conta social Meta consolidada para abrir o dashboard com ranking, comparativos, timeline e conteúdos normalizados."
         noindex
         path={location.pathname}
         structuredData={null}
@@ -239,31 +202,37 @@ export default function SocialMediaMetaPage() {
             { label: "Social media" },
             { label: "Meta" },
           ]}
-          description="Escolha a página do Facebook que deseja operar. A partir dela o painel mostra se existe Instagram vinculado e abre a leitura de posts, reels e demais mídias disponíveis."
+          description="Escolha a conta social consolidada retornada pela integração Meta. A partir dela, o painel abre uma leitura pronta com visão geral, comparativos, melhores conteúdos e biblioteca normalizada."
           title="Social Media • Meta"
         />
 
         <section className="panel-card relative overflow-hidden rounded-[2.2rem] border px-5 py-6 md:px-6 md:py-7">
           <div className="pointer-events-none absolute inset-y-0 right-0 w-[30rem] max-w-full bg-[radial-gradient(circle_at_top_right,rgba(34,98,240,0.16),transparent_58%)]" />
 
-          <div className="relative z-10 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+          <div className="relative z-10 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
             <StatCard
               icon={UsersRound}
-              label="Páginas disponíveis"
+              label="Contas disponíveis"
               toneClassName="border-primary/16 bg-primary/10 text-primary"
-              value={String(items.length)}
+              value={String(accounts.length)}
             />
             <StatCard
-              icon={Camera}
-              label="Com Instagram"
-              toneClassName="border-fuchsia-500/16 bg-fuchsia-500/10 text-fuchsia-500"
-              value={String(instagramConnectedCount)}
+              icon={Globe2}
+              label="Facebook + Instagram"
+              toneClassName="border-emerald-500/16 bg-emerald-500/10 text-emerald-500"
+              value={String(combinedCount)}
             />
             <StatCard
               icon={Globe2}
               label="Somente Facebook"
               toneClassName="border-sky-500/16 bg-sky-500/10 text-sky-500"
               value={String(facebookOnlyCount)}
+            />
+            <StatCard
+              icon={Camera}
+              label="Somente Instagram"
+              toneClassName="border-fuchsia-500/16 bg-fuchsia-500/10 text-fuchsia-500"
+              value={String(instagramOnlyCount)}
             />
           </div>
         </section>
@@ -275,7 +244,7 @@ export default function SocialMediaMetaPage() {
                 className="py-0"
                 leadingIcon={<Search className="h-4 w-4" />}
                 onChange={(event) => setSearchValue(event.target.value)}
-                placeholder="Buscar por página, categoria ou perfil do Instagram"
+                placeholder="Buscar por conta, IDs internos, página ou @username"
                 value={searchValue}
                 wrapperClassName="h-12 rounded-[1.2rem]"
               />
@@ -297,7 +266,7 @@ export default function SocialMediaMetaPage() {
             <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
               <div>
                 <p className="text-sm font-semibold text-on-surface">
-                  Não foi possível carregar as páginas Meta
+                  Não foi possível carregar as contas sociais da Meta
                 </p>
                 <p className="mt-1 text-sm leading-relaxed text-on-surface-variant">{loadError}</p>
               </div>
@@ -325,8 +294,8 @@ export default function SocialMediaMetaPage() {
                 <ArrowRight className="h-4 w-4" />
               </button>
             )}
-            description="A integração Meta ainda não está conectada. Assim que a conexão estiver ativa, as páginas disponíveis aparecerão aqui automaticamente."
-            title="Conecte a Meta para listar as páginas"
+            description="A integração Meta ainda não está conectada. Assim que a conexão estiver ativa, as contas sociais disponíveis aparecerão aqui automaticamente."
+            title="Conecte a Meta para listar as contas sociais"
           />
         ) : null}
 
@@ -352,7 +321,9 @@ export default function SocialMediaMetaPage() {
             isLoading={isLoading}
             items={filteredItems}
             onOpenDashboard={(item) =>
-              navigate(`/painel/social-media/meta/${encodeURIComponent(item.pageId)}/dashboard`)
+              navigate(
+                `/painel/social-media/meta/${encodeURIComponent(item.id)}/dashboard`,
+              )
             }
           />
         ) : null}

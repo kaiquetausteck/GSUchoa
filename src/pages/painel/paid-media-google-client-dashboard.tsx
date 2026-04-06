@@ -706,11 +706,13 @@ export default function PaidMediaGoogleAccountDashboardPage() {
       {
         color: "#2563eb",
         label: "Investimento",
+        valueFormatter: formatCurrency,
         values: timeline?.data.map((item) => item.spend) ?? [],
       },
       {
         color: "#f59e0b",
         label: "Resultados",
+        valueFormatter: (value: number) => formatNumber(value),
         values: timeline?.data.map((item) => item.resultsCount) ?? [],
       },
     ],

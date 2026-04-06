@@ -33,11 +33,12 @@ function getMediaKindIcon(kind: PanelSocialMediaContentRecord["mediaKind"]) {
   switch (kind) {
     case "carousel":
       return <Images className="h-3.5 w-3.5" />;
+    case "image":
+    case "photo":
+      return <ImageIcon className="h-3.5 w-3.5" />;
     case "reel":
     case "video":
       return <Play className="h-3.5 w-3.5" />;
-    case "photo":
-      return <ImageIcon className="h-3.5 w-3.5" />;
     default:
       return <Sparkles className="h-3.5 w-3.5" />;
   }
@@ -45,10 +46,20 @@ function getMediaKindIcon(kind: PanelSocialMediaContentRecord["mediaKind"]) {
 
 function getContentKindLabel(kind: PanelSocialMediaContentRecord["kind"]) {
   switch (kind) {
-    case "reel":
-      return "Reel";
+    case "carousel":
+      return "Carrossel";
+    case "image":
+      return "Imagem";
     case "instagram_post":
       return "Post Instagram";
+    case "post":
+      return "Post";
+    case "reel":
+      return "Reel";
+    case "story":
+      return "Story";
+    case "video":
+      return "Vídeo";
     default:
       return "Post Facebook";
   }

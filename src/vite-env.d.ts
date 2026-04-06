@@ -20,6 +20,8 @@ interface ImportMetaEnv {
   readonly VITE_PANEL_META_INSTAGRAM_COMMENT_REPLY_PATH?: string;
   readonly VITE_PANEL_META_INSTAGRAM_COMMENT_HIDE_PATH?: string;
   readonly VITE_PANEL_META_INSTAGRAM_INSIGHTS_PATH?: string;
+  readonly VITE_PANEL_META_SOCIAL_DASHBOARD_PATH?: string;
+  readonly VITE_PANEL_META_SOCIAL_DEBUG_PATH?: string;
   readonly VITE_PANEL_GOOGLE_STATUS_PATH?: string;
   readonly VITE_PANEL_GOOGLE_CONNECT_PATH?: string;
   readonly VITE_PANEL_GOOGLE_EXCHANGE_PATH?: string;

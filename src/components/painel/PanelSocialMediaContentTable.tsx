@@ -62,10 +62,20 @@ function getPlatformBadgeClassName(value: PanelSocialMediaPlatform) {
 
 function getContentKindLabel(value: PanelSocialMediaContentKind) {
   switch (value) {
-    case "reel":
-      return "Reel";
+    case "carousel":
+      return "Carrossel";
+    case "image":
+      return "Imagem";
     case "instagram_post":
       return "Post Instagram";
+    case "post":
+      return "Post";
+    case "reel":
+      return "Reel";
+    case "story":
+      return "Story";
+    case "video":
+      return "Vídeo";
     default:
       return "Post Facebook";
   }
@@ -75,12 +85,16 @@ function getMediaKindLabel(value: PanelSocialMediaMediaKind) {
   switch (value) {
     case "carousel":
       return "Carrossel";
+    case "image":
+      return "Imagem";
     case "photo":
       return "Foto";
     case "post":
       return "Post";
     case "reel":
       return "Reel";
+    case "story":
+      return "Story";
     case "video":
       return "Vídeo";
     default:
@@ -92,11 +106,12 @@ function getMediaKindIcon(value: PanelSocialMediaMediaKind) {
   switch (value) {
     case "carousel":
       return <Images className="h-3.5 w-3.5" />;
+    case "image":
+    case "photo":
+      return <ImageIcon className="h-3.5 w-3.5" />;
     case "reel":
     case "video":
       return <Play className="h-3.5 w-3.5" />;
-    case "photo":
-      return <ImageIcon className="h-3.5 w-3.5" />;
     default:
       return <Sparkles className="h-3.5 w-3.5" />;
   }
@@ -111,14 +126,14 @@ export function PanelSocialMediaContentTable({
       <div className="flex flex-col gap-4 border-b border-outline-variant/10 pb-5 lg:flex-row lg:items-end lg:justify-between">
         <div className="min-w-0">
           <p className="text-[10px] font-bold uppercase tracking-[0.32em] text-primary">
-            Conteúdo resgatado
+            Conteúdos normalizados
           </p>
           <h2 className="mt-2 text-lg font-bold tracking-tight text-on-surface md:text-xl">
-            Posts, reels e mídias por página
+            Biblioteca social da conta
           </h2>
           <p className="mt-2 max-w-3xl text-sm leading-relaxed text-on-surface-variant">
-            Consulte tudo o que a integração Meta retornou para a página selecionada e abra
-            rapidamente o link original de cada publicação.
+            Consulte o feed consolidado da API com tipos padronizados, ordenação por performance
+            e indicadores orgânicos como likes, comentários, alcance e acesso rápido ao link original de cada publicação.
           </p>
         </div>
 
@@ -194,6 +209,19 @@ export function PanelSocialMediaContentTable({
                             <p className="mt-2 line-clamp-2 text-xs leading-relaxed text-on-surface-variant">
                               {item.excerpt}
                             </p>
+                          ) : null}
+                          {item.metrics && item.metrics.length > 0 ? (
+                            <div className="mt-3 flex flex-wrap gap-2">
+                              {item.metrics.slice(0, 6).map((metric) => (
+                                <span
+                                  className="inline-flex items-center gap-1 rounded-full border border-outline-variant/12 bg-surface px-2.5 py-1 text-[10px] font-semibold text-on-surface-variant"
+                                  key={`${item.id}-${metric.label}`}
+                                >
+                                  <span className="text-on-surface">{metric.value}</span>
+                                  {metric.label}
+                                </span>
+                              ))}
+                            </div>
                           ) : null}
                           <p className="mt-2 truncate text-[11px] text-on-surface-variant/85">
                             {item.sourceId}

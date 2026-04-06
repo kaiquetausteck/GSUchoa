@@ -23,7 +23,7 @@ function normalizeText(value: string) {
 }
 
 export function PanelSocialMediaPostPicker({
-  emptyMessage = "Nenhum post selecionado. O dashboard vai usar os mais recentes.",
+  emptyMessage = "Nenhum post selecionado. O dashboard vai usar os conteúdos ranqueados.",
   label,
   onChange,
   options,

@@ -1,8 +1,11 @@
+import { useMemo, useState } from "react";
+
 import type { PanelDashboardRange } from "../../services/painel/dashboard-api";
 
 type PanelLineChartSeries = {
   color: string;
   label: string;
+  valueFormatter?: (value: number) => string;
   values: number[];
 };
 
@@ -33,6 +36,24 @@ function formatTickLabel(rawDate: string, range: PanelDashboardRange) {
     day: range === "12m" ? undefined : "2-digit",
     month: range === "12m" ? "short" : "2-digit",
   }).format(date);
+}
+
+function formatTooltipDate(rawDate: string) {
+  const date = new Date(rawDate);
+
+  if (Number.isNaN(date.getTime())) {
+    return rawDate;
+  }
+
+  return new Intl.DateTimeFormat("pt-BR", {
+    dateStyle: "full",
+  }).format(date);
+}
+
+function formatTooltipValue(value: number) {
+  return new Intl.NumberFormat("pt-BR", {
+    maximumFractionDigits: 2,
+  }).format(value);
 }
 
 function buildPath(values: number[], maxValue: number) {
@@ -75,13 +96,67 @@ export function PanelLineChart({
   range,
   series,
 }: PanelLineChartProps) {
+  const [activeIndex, setActiveIndex] = useState<number | null>(null);
   const allValues = series.flatMap((item) => item.values);
   const maxValue = Math.max(...allValues, 0);
   const hasData = allValues.some((value) => value > 0);
   const tickIndexes = getTickIndexes(labels.length);
+  const innerWidth = CHART_WIDTH - PADDING.left - PADDING.right;
+  const innerHeight = CHART_HEIGHT - PADDING.top - PADDING.bottom;
+  const denominator = Math.max(labels.length - 1, 1);
   const gridValues = Array.from({ length: 4 }, (_, index) => {
     return Math.round((maxValue / 4) * (4 - index));
   });
+  const pointXPositions = useMemo(
+    () =>
+      labels.map((_, index) => {
+        return PADDING.left + (innerWidth * index) / denominator;
+      }),
+    [denominator, innerWidth, labels],
+  );
+  const hoverSegments = useMemo(
+    () =>
+      labels.map((label, index) => {
+        const currentX = pointXPositions[index] ?? PADDING.left;
+        const previousX = pointXPositions[index - 1];
+        const nextX = pointXPositions[index + 1];
+        const startX = index === 0 ? PADDING.left : (previousX + currentX) / 2;
+        const endX = index === labels.length - 1 ? CHART_WIDTH - PADDING.right : (currentX + nextX) / 2;
+
+        return {
+          key: `${label}-${index}`,
+          width: Math.max(endX - startX, 1),
+          x: startX,
+        };
+      }),
+    [labels, pointXPositions],
+  );
+  const tooltipData = activeIndex === null
+    ? null
+    : {
+        dateLabel: formatTooltipDate(labels[activeIndex] ?? ""),
+        rows: series.map((item) => {
+          const value = item.values[activeIndex] ?? 0;
+
+          return {
+            color: item.color,
+            label: item.label,
+            value: item.valueFormatter ? item.valueFormatter(value) : formatTooltipValue(value),
+          };
+        }),
+        x: pointXPositions[activeIndex] ?? PADDING.left,
+      };
+  const tooltipLeft = tooltipData
+    ? `${Math.min(Math.max(((tooltipData.x - PADDING.left) / Math.max(innerWidth, 1)) * 100, 6), 94)}%`
+    : "50%";
+  const tooltipTransform =
+    activeIndex === null || labels.length <= 1
+      ? "translateX(-50%)"
+      : activeIndex === 0
+        ? "translateX(0)"
+        : activeIndex === labels.length - 1
+          ? "translateX(-100%)"
+          : "translateX(-50%)";
 
   if (loading) {
     return (
@@ -141,7 +216,39 @@ export function PanelLineChart({
         ))}
       </div>
 
-      <div className="rounded-[1.7rem] border border-outline-variant/10 bg-surface-container-low/55 p-4 transition-colors duration-300 group-hover:bg-surface-container-low/70">
+      <div
+        className="relative rounded-[1.7rem] border border-outline-variant/10 bg-surface-container-low/55 p-4 transition-colors duration-300 group-hover:bg-surface-container-low/70"
+        onMouseLeave={() => setActiveIndex(null)}
+      >
+        {tooltipData ? (
+          <div
+            className="pointer-events-none absolute top-3 z-10 min-w-[13rem] max-w-[18rem] rounded-[1.2rem] border border-outline-variant/14 bg-[#111318]/94 px-4 py-3 shadow-[0_24px_48px_rgba(0,0,0,0.28)] backdrop-blur"
+            style={{
+              left: tooltipLeft,
+              transform: tooltipTransform,
+            }}
+          >
+            <p className="text-xs font-semibold capitalize text-on-surface">
+              {tooltipData.dateLabel}
+            </p>
+
+            <div className="mt-3 space-y-2">
+              {tooltipData.rows.map((row) => (
+                <div className="flex items-center justify-between gap-4" key={row.label}>
+                  <div className="flex min-w-0 items-center gap-2">
+                    <span
+                      className="h-2.5 w-2.5 rounded-full"
+                      style={{ backgroundColor: row.color }}
+                    />
+                    <span className="truncate text-xs text-on-surface-variant">{row.label}</span>
+                  </div>
+                  <span className="text-xs font-semibold text-on-surface">{row.value}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        ) : null}
+
         <svg
           aria-label="Gráfico de linha do dashboard"
           className="h-auto w-full"
@@ -149,7 +256,6 @@ export function PanelLineChart({
           viewBox={`0 0 ${CHART_WIDTH} ${CHART_HEIGHT}`}
         >
           {gridValues.map((value) => {
-            const innerHeight = CHART_HEIGHT - PADDING.top - PADDING.bottom;
             const y = PADDING.top + innerHeight - (value / Math.max(maxValue, 1)) * innerHeight;
 
             return (
@@ -176,6 +282,17 @@ export function PanelLineChart({
             );
           })}
 
+          {tooltipData ? (
+            <line
+              stroke="rgba(148, 163, 184, 0.28)"
+              strokeDasharray="5 8"
+              x1={tooltipData.x}
+              x2={tooltipData.x}
+              y1={PADDING.top}
+              y2={CHART_HEIGHT - PADDING.bottom}
+            />
+          ) : null}
+
           {series.map((item) => {
             const path = buildPath(item.values, maxValue);
 
@@ -193,32 +310,40 @@ export function PanelLineChart({
           })}
 
           {series.map((item) => {
-            const innerWidth = CHART_WIDTH - PADDING.left - PADDING.right;
-            const innerHeight = CHART_HEIGHT - PADDING.top - PADDING.bottom;
             const safeMaxValue = Math.max(maxValue, 1);
-            const denominator = Math.max(item.values.length - 1, 1);
+            const seriesDenominator = Math.max(item.values.length - 1, 1);
 
             return item.values.map((value, index) => {
-              const x = PADDING.left + (innerWidth * index) / denominator;
+              const x = PADDING.left + (innerWidth * index) / seriesDenominator;
               const y = PADDING.top + innerHeight - (value / safeMaxValue) * innerHeight;
+              const isActive = activeIndex === index;
+              const isLastPoint = index === item.values.length - 1;
 
               return (
-                <circle
-                  cx={x}
-                  cy={y}
-                  fill={item.color}
-                  key={`${item.label}-${labels[index]}`}
-                  r={index === item.values.length - 1 ? 4.5 : 3}
-                  stroke="rgba(255,255,255,0.8)"
-                  strokeWidth="1.5"
-                />
+                <g key={`${item.label}-${labels[index]}`}>
+                  {isActive ? (
+                    <circle
+                      cx={x}
+                      cy={y}
+                      fill={item.color}
+                      opacity="0.22"
+                      r={11}
+                    />
+                  ) : null}
+                  <circle
+                    cx={x}
+                    cy={y}
+                    fill={item.color}
+                    r={isActive ? 6 : isLastPoint ? 4.5 : 3}
+                    stroke="rgba(255,255,255,0.84)"
+                    strokeWidth={isActive ? "2" : "1.5"}
+                  />
+                </g>
               );
             });
           })}
 
           {tickIndexes.map((index) => {
-            const innerWidth = CHART_WIDTH - PADDING.left - PADDING.right;
-            const denominator = Math.max(labels.length - 1, 1);
             const x = PADDING.left + (innerWidth * index) / denominator;
 
             return (
@@ -235,6 +360,23 @@ export function PanelLineChart({
               </text>
             );
           })}
+
+          {hoverSegments.map((segment, index) => (
+            <rect
+              aria-label={`Exibir detalhes de ${formatTooltipDate(labels[index] ?? "")}`}
+              fill="transparent"
+              height={innerHeight}
+              key={segment.key}
+              onClick={() => setActiveIndex(index)}
+              onFocus={() => setActiveIndex(index)}
+              onMouseEnter={() => setActiveIndex(index)}
+              rx="8"
+              tabIndex={0}
+              width={segment.width}
+              x={segment.x}
+              y={PADDING.top}
+            />
+          ))}
         </svg>
       </div>
     </div>
