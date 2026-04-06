@@ -5,6 +5,7 @@ import {
   CalendarDays,
   Clock3,
   Eye,
+  FileDown,
   FileText,
   Heart,
   RefreshCcw,
@@ -43,6 +44,7 @@ import {
   panelMetaStatusNeedsReconnect,
 } from "../../config/painel/meta-status";
 import { usePanelAuth } from "../../context/painel/PanelAuthContext";
+import { useToast } from "../../context/shared/ToastContext";
 import {
   getPanelMetaConnectionStatus,
   type PanelMetaConnectionStatusRecord,
@@ -681,9 +683,1052 @@ function matchesRouteIdentifier(
   );
 }
 
+function formatDateTime(value: string | null | undefined) {
+  if (!value) {
+    return "Não disponível";
+  }
+
+  const parsedDate = new Date(value);
+
+  if (Number.isNaN(parsedDate.getTime())) {
+    return "Não disponível";
+  }
+
+  return new Intl.DateTimeFormat("pt-BR", {
+    dateStyle: "medium",
+    timeStyle: "short",
+  }).format(parsedDate);
+}
+
+function getGranularityLabel(value: "auto" | "day" | "week") {
+  switch (value) {
+    case "day":
+      return "Diária";
+    case "week":
+      return "Semanal";
+    default:
+      return "Automática";
+  }
+}
+
+function getContentOrderByLabel(value: PanelMetaSocialMediaContentOrderBy) {
+  switch (value) {
+    case "comments":
+      return "Comentários";
+    case "engagement":
+      return "Engajamento";
+    case "engagementRate":
+      return "Taxa de engajamento";
+    case "impressions":
+      return "Impressões";
+    case "likes":
+      return "Curtidas";
+    case "publishedAt":
+      return "Data de publicação";
+    case "reach":
+      return "Alcance";
+    case "saves":
+      return "Salvos";
+    case "shares":
+      return "Compartilhamentos";
+    case "views":
+      return "Visualizações";
+    default:
+      return "Ordenação";
+  }
+}
+
+function getContentOrderDirectionLabel(value: PanelMetaSocialMediaContentOrderDirection) {
+  return value === "asc" ? "Menor para maior" : "Maior para menor";
+}
+
+function escapeHtml(value: string) {
+  return value
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#39;");
+}
+
+const PDF_CHART_WIDTH = 920;
+const PDF_CHART_HEIGHT = 280;
+const PDF_EXPORT_FRAME_ID = "panel-meta-social-dashboard-pdf-export-frame";
+const PDF_CHART_PADDING = {
+  top: 20,
+  right: 24,
+  bottom: 38,
+  left: 24,
+};
+
+function formatPdfTickLabel(rawDate: string, range: PanelDashboardRange) {
+  const date = new Date(rawDate);
+
+  if (Number.isNaN(date.getTime())) {
+    return rawDate;
+  }
+
+  return new Intl.DateTimeFormat("pt-BR", {
+    day: range === "12m" ? undefined : "2-digit",
+    month: range === "12m" ? "short" : "2-digit",
+  }).format(date);
+}
+
+function getPdfTimelineSeriesHelper(label: string) {
+  if (label === "Engajamento") {
+    return "Linha complementar com o total de interações orgânicas retornadas pela API.";
+  }
+
+  return `Linha principal com ${label.toLowerCase()} consolidado no período exportado.`;
+}
+
+function buildPdfLinePath(values: number[], maxValue: number) {
+  if (values.length === 0) {
+    return "";
+  }
+
+  const innerWidth = PDF_CHART_WIDTH - PDF_CHART_PADDING.left - PDF_CHART_PADDING.right;
+  const innerHeight = PDF_CHART_HEIGHT - PDF_CHART_PADDING.top - PDF_CHART_PADDING.bottom;
+  const safeMaxValue = Math.max(maxValue, 1);
+  const denominator = Math.max(values.length - 1, 1);
+
+  return values
+    .map((value, index) => {
+      const x = PDF_CHART_PADDING.left + (innerWidth * index) / denominator;
+      const y = PDF_CHART_PADDING.top + innerHeight - (value / safeMaxValue) * innerHeight;
+      return `${index === 0 ? "M" : "L"} ${x} ${y}`;
+    })
+    .join(" ");
+}
+
+function getPdfTickIndexes(total: number) {
+  if (total <= 6) {
+    return Array.from({ length: total }, (_, index) => index);
+  }
+
+  return Array.from(new Set([
+    0,
+    Math.floor((total - 1) * 0.2),
+    Math.floor((total - 1) * 0.4),
+    Math.floor((total - 1) * 0.6),
+    Math.floor((total - 1) * 0.8),
+    total - 1,
+  ])).sort((first, second) => first - second);
+}
+
+function buildPdfLineChartSvg(
+  labels: string[],
+  series: Array<{ color: string; label: string; values: number[] }>,
+  range: PanelDashboardRange,
+) {
+  if (!labels.length || !series.length) {
+    return `<div class="pdf-empty-state">Ainda não há pontos suficientes para exibir o gráfico.</div>`;
+  }
+
+  const allValues = series.flatMap((item) => item.values);
+  const maxValue = Math.max(...allValues, 0);
+  const hasData = allValues.some((value) => value > 0);
+
+  if (!hasData) {
+    return `<div class="pdf-empty-state">Nenhuma atividade registrada no período selecionado.</div>`;
+  }
+
+  const tickIndexes = getPdfTickIndexes(labels.length);
+  const gridValues = Array.from({ length: 4 }, (_, index) => {
+    return Math.round((maxValue / 4) * (4 - index));
+  });
+
+  const gridLines = gridValues
+    .map((value) => {
+      const innerHeight = PDF_CHART_HEIGHT - PDF_CHART_PADDING.top - PDF_CHART_PADDING.bottom;
+      const y = PDF_CHART_PADDING.top + innerHeight - (value / Math.max(maxValue, 1)) * innerHeight;
+
+      return `
+        <g>
+          <line
+            x1="${PDF_CHART_PADDING.left}"
+            x2="${PDF_CHART_WIDTH - PDF_CHART_PADDING.right}"
+            y1="${y}"
+            y2="${y}"
+            stroke="rgba(94, 104, 120, 0.16)"
+            stroke-dasharray="4 8"
+          />
+          <text
+            x="${PDF_CHART_WIDTH - PDF_CHART_PADDING.right}"
+            y="${Math.max(y - 6, 12)}"
+            fill="#5e6878"
+            font-size="10"
+            text-anchor="end"
+          >
+            ${formatInteger(value)}
+          </text>
+        </g>
+      `;
+    })
+    .join("");
+
+  const seriesPaths = series
+    .map((item) => {
+      const path = buildPdfLinePath(item.values, maxValue);
+
+      return `
+        <path
+          d="${path}"
+          fill="none"
+          stroke="${item.color}"
+          stroke-width="3"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        />
+      `;
+    })
+    .join("");
+
+  const seriesDots = series
+    .map((item) => {
+      const innerWidth = PDF_CHART_WIDTH - PDF_CHART_PADDING.left - PDF_CHART_PADDING.right;
+      const innerHeight = PDF_CHART_HEIGHT - PDF_CHART_PADDING.top - PDF_CHART_PADDING.bottom;
+      const safeMaxValue = Math.max(maxValue, 1);
+      const denominator = Math.max(item.values.length - 1, 1);
+
+      return item.values
+        .map((value, index) => {
+          const x = PDF_CHART_PADDING.left + (innerWidth * index) / denominator;
+          const y = PDF_CHART_PADDING.top + innerHeight - (value / safeMaxValue) * innerHeight;
+
+          return `
+            <circle
+              cx="${x}"
+              cy="${y}"
+              r="${index === item.values.length - 1 ? 4.5 : 3}"
+              fill="${item.color}"
+              stroke="#ffffff"
+              stroke-width="1.5"
+            />
+          `;
+        })
+        .join("");
+    })
+    .join("");
+
+  const tickLabels = tickIndexes
+    .map((index) => {
+      const innerWidth = PDF_CHART_WIDTH - PDF_CHART_PADDING.left - PDF_CHART_PADDING.right;
+      const denominator = Math.max(labels.length - 1, 1);
+      const x = PDF_CHART_PADDING.left + (innerWidth * index) / denominator;
+      const textAnchor = index === 0 ? "start" : index === labels.length - 1 ? "end" : "middle";
+
+      return `
+        <text
+          x="${x}"
+          y="${PDF_CHART_HEIGHT - 10}"
+          fill="#5e6878"
+          font-size="10"
+          text-anchor="${textAnchor}"
+        >
+          ${escapeHtml(formatPdfTickLabel(labels[index] ?? "", range))}
+        </text>
+      `;
+    })
+    .join("");
+
+  return `
+    <svg viewBox="0 0 ${PDF_CHART_WIDTH} ${PDF_CHART_HEIGHT}" class="pdf-line-chart" role="img" aria-label="Gráfico de linha do dashboard social da Meta">
+      ${gridLines}
+      ${seriesPaths}
+      ${seriesDots}
+      ${tickLabels}
+    </svg>
+  `;
+}
+
+function buildSocialDashboardPdfHtml({
+  accountId,
+  accountName,
+  benchmarkLabel,
+  benchmarkValue,
+  chartRange,
+  comparisonItems,
+  contentRows,
+  contentSummaryLabel,
+  currentPeriodLabel,
+  filterHighlights,
+  generatedAt,
+  patternItems,
+  platformLabel,
+  rankingItems,
+  summaryCards,
+  timelineLabels,
+  timelineSeries,
+  timezone,
+}: {
+  accountId: string;
+  accountName: string;
+  benchmarkLabel: string;
+  benchmarkValue: string;
+  chartRange: PanelDashboardRange;
+  comparisonItems: Array<{
+    currentValue: string;
+    deltaToneClassName: "negative" | "neutral" | "positive";
+    deltaValue: string;
+    description: string;
+    label: string;
+    previousValue: string;
+  }>;
+  contentRows: Array<{
+    format: string;
+    metrics: string;
+    platform: string;
+    publishedAt: string;
+    source: string;
+    title: string;
+  }>;
+  contentSummaryLabel: string;
+  currentPeriodLabel: string;
+  filterHighlights: string[];
+  generatedAt: string;
+  patternItems: Array<{
+    description: string;
+    label: string;
+    value: string;
+  }>;
+  platformLabel: string;
+  rankingItems: Array<{
+    classification: string;
+    performanceLabel: string;
+    performanceValue: string;
+    publishedAt: string;
+    sourceLabel: string;
+    title: string;
+  }>;
+  summaryCards: Array<{
+    accent: string;
+    description: string;
+    label: string;
+    meta?: Array<{ label: string; value: string }>;
+    value: string;
+  }>;
+  timelineLabels: string[];
+  timelineSeries: Array<{ color: string; label: string; values: number[] }>;
+  timezone: string;
+}) {
+  const chartSvg = buildPdfLineChartSvg(timelineLabels, timelineSeries, chartRange);
+  const hasContentRows = contentRows.length > 0;
+  const hasRankingItems = rankingItems.length > 0;
+
+  return `
+    <!doctype html>
+    <html lang="pt-BR">
+      <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <title>${escapeHtml(`Social Media Meta • ${accountName}`)}</title>
+        <style>
+          @page {
+            size: A4 landscape;
+            margin: 14mm;
+          }
+
+          :root {
+            color-scheme: light;
+          }
+
+          * {
+            box-sizing: border-box;
+          }
+
+          html {
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+          }
+
+          body {
+            margin: 0;
+            font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+            background: #f4f7fb;
+            color: #141821;
+          }
+
+          .pdf-report {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+          }
+
+          .pdf-section {
+            background: rgba(255, 255, 255, 0.96);
+            border: 1px solid #d7dfeb;
+            border-radius: 24px;
+            padding: 20px 22px;
+            box-shadow: 0 18px 42px rgba(15, 23, 42, 0.06);
+            break-inside: avoid;
+          }
+
+          .pdf-hero {
+            position: relative;
+            overflow: hidden;
+            background:
+              linear-gradient(145deg, rgba(255,255,255,0.98), rgba(239,244,251,0.92)),
+              radial-gradient(circle at top right, rgba(236, 72, 153, 0.14), transparent 34%),
+              radial-gradient(circle at bottom left, rgba(56, 189, 248, 0.14), transparent 38%);
+          }
+
+          .pdf-hero::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background:
+              radial-gradient(circle at top right, rgba(236, 72, 153, 0.1), transparent 32%),
+              radial-gradient(circle at bottom left, rgba(56, 189, 248, 0.1), transparent 36%);
+            pointer-events: none;
+          }
+
+          .pdf-hero > * {
+            position: relative;
+            z-index: 1;
+          }
+
+          .pdf-brand {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 7px 12px;
+            border-radius: 999px;
+            border: 1px solid rgba(236, 72, 153, 0.14);
+            background: rgba(236, 72, 153, 0.08);
+            color: #db2777;
+            font-size: 10px;
+            font-weight: 800;
+            letter-spacing: 0.26em;
+            text-transform: uppercase;
+          }
+
+          .pdf-title {
+            margin: 14px 0 0;
+            font-size: 34px;
+            line-height: 1.05;
+            font-weight: 900;
+            letter-spacing: -0.04em;
+          }
+
+          .pdf-description {
+            margin: 12px 0 0;
+            max-width: 920px;
+            color: #5e6878;
+            font-size: 13px;
+            line-height: 1.6;
+          }
+
+          .pdf-meta-grid {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 12px;
+            margin-top: 18px;
+          }
+
+          .pdf-meta-card {
+            border: 1px solid #d7dfeb;
+            border-radius: 18px;
+            background: rgba(244, 247, 251, 0.88);
+            padding: 14px 16px;
+          }
+
+          .pdf-eyebrow {
+            font-size: 10px;
+            font-weight: 800;
+            letter-spacing: 0.22em;
+            text-transform: uppercase;
+            color: #5e6878;
+          }
+
+          .pdf-meta-value {
+            margin-top: 8px;
+            font-size: 14px;
+            line-height: 1.5;
+            font-weight: 700;
+            color: #141821;
+            word-break: break-word;
+          }
+
+          .pdf-chip-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 16px;
+          }
+
+          .pdf-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 12px;
+            border-radius: 999px;
+            border: 1px solid #d7dfeb;
+            background: #ffffff;
+            color: #141821;
+            font-size: 11px;
+            font-weight: 700;
+          }
+
+          .pdf-section-title {
+            margin: 4px 0 0;
+            font-size: 22px;
+            font-weight: 800;
+            letter-spacing: -0.03em;
+          }
+
+          .pdf-section-description {
+            margin: 8px 0 0;
+            color: #5e6878;
+            font-size: 12px;
+            line-height: 1.55;
+          }
+
+          .pdf-metric-grid {
+            display: grid;
+            grid-template-columns: repeat(5, minmax(0, 1fr));
+            gap: 12px;
+            margin-top: 16px;
+          }
+
+          .pdf-metric-card {
+            border: 1px solid #d7dfeb;
+            border-radius: 20px;
+            background: #ffffff;
+            padding: 16px 18px;
+            break-inside: avoid;
+          }
+
+          .pdf-metric-card::before {
+            content: "";
+            display: block;
+            width: 100%;
+            height: 4px;
+            border-radius: 999px;
+            background: var(--accent-color, #2262f0);
+            margin-bottom: 14px;
+          }
+
+          .pdf-metric-label {
+            font-size: 10px;
+            font-weight: 800;
+            letter-spacing: 0.24em;
+            text-transform: uppercase;
+            color: #5e6878;
+          }
+
+          .pdf-metric-value {
+            margin-top: 10px;
+            font-size: 28px;
+            line-height: 1.05;
+            font-weight: 900;
+            letter-spacing: -0.04em;
+            color: #141821;
+          }
+
+          .pdf-metric-description {
+            margin-top: 10px;
+            color: #5e6878;
+            font-size: 12px;
+            line-height: 1.5;
+          }
+
+          .pdf-metric-meta {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 10px;
+            margin-top: 14px;
+            padding-top: 12px;
+            border-top: 1px solid #e4eaf3;
+          }
+
+          .pdf-analytics-grid {
+            display: grid;
+            grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr);
+            gap: 16px;
+          }
+
+          .pdf-legend {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-top: 14px;
+          }
+
+          .pdf-legend-item {
+            display: inline-flex;
+            align-items: flex-start;
+            gap: 10px;
+            min-width: 0;
+            padding: 10px 12px;
+            border: 1px solid #d7dfeb;
+            border-radius: 16px;
+            background: #ffffff;
+          }
+
+          .pdf-legend-swatch {
+            flex: none;
+            display: block;
+            width: 34px;
+            height: 12px;
+            margin-top: 2px;
+          }
+
+          .pdf-legend-copy {
+            display: flex;
+            min-width: 0;
+            flex-direction: column;
+            gap: 3px;
+          }
+
+          .pdf-legend-label {
+            color: #141821;
+            font-size: 12px;
+            font-weight: 700;
+            line-height: 1.25;
+          }
+
+          .pdf-legend-helper {
+            color: #5e6878;
+            font-size: 11px;
+            line-height: 1.4;
+          }
+
+          .pdf-chart-shell {
+            margin-top: 16px;
+            border: 1px solid #e4eaf3;
+            border-radius: 18px;
+            background: #f8fafc;
+            padding: 14px;
+          }
+
+          .pdf-line-chart {
+            display: block;
+            width: 100%;
+            height: auto;
+          }
+
+          .pdf-chart-note {
+            margin: 12px 0 0;
+            color: #5e6878;
+            font-size: 11px;
+            line-height: 1.5;
+          }
+
+          .pdf-empty-state {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 220px;
+            border: 1px dashed #cbd4e1;
+            border-radius: 18px;
+            background: #f8fafc;
+            color: #5e6878;
+            font-size: 13px;
+            text-align: center;
+            padding: 24px;
+          }
+
+          .pdf-comparison-grid,
+          .pdf-pattern-grid,
+          .pdf-ranking-grid {
+            display: grid;
+            gap: 12px;
+            margin-top: 16px;
+          }
+
+          .pdf-comparison-grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+          }
+
+          .pdf-pattern-grid {
+            grid-template-columns: repeat(5, minmax(0, 1fr));
+          }
+
+          .pdf-ranking-grid {
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+          }
+
+          .pdf-card {
+            border: 1px solid #d7dfeb;
+            border-radius: 18px;
+            background: #ffffff;
+            padding: 14px 16px;
+          }
+
+          .pdf-card-title {
+            margin: 0;
+            font-size: 16px;
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            color: #141821;
+          }
+
+          .pdf-card-copy {
+            margin: 10px 0 0;
+            color: #5e6878;
+            font-size: 11px;
+            line-height: 1.55;
+          }
+
+          .pdf-card-value {
+            margin-top: 10px;
+            font-size: 22px;
+            line-height: 1.05;
+            font-weight: 900;
+            letter-spacing: -0.04em;
+            color: #141821;
+          }
+
+          .pdf-card-subgrid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 10px;
+            margin-top: 14px;
+            padding-top: 12px;
+            border-top: 1px solid #e4eaf3;
+          }
+
+          .pdf-delta-positive {
+            color: #059669;
+          }
+
+          .pdf-delta-negative {
+            color: #e11d48;
+          }
+
+          .pdf-delta-neutral {
+            color: #5e6878;
+          }
+
+          .pdf-table-wrapper {
+            margin-top: 16px;
+            overflow: hidden;
+            border-radius: 20px;
+            border: 1px solid #d7dfeb;
+            background: #ffffff;
+          }
+
+          .pdf-table {
+            width: 100%;
+            border-collapse: collapse;
+          }
+
+          .pdf-table thead {
+            display: table-header-group;
+          }
+
+          .pdf-table th {
+            padding: 12px 14px;
+            border-bottom: 1px solid #e4eaf3;
+            text-align: left;
+            color: #5e6878;
+            font-size: 10px;
+            font-weight: 800;
+            letter-spacing: 0.22em;
+            text-transform: uppercase;
+            background: #f8fafc;
+          }
+
+          .pdf-table td {
+            padding: 14px;
+            border-bottom: 1px solid #edf2f9;
+            color: #141821;
+            font-size: 11px;
+            vertical-align: top;
+          }
+
+          .pdf-table tbody tr:last-child td {
+            border-bottom: none;
+          }
+
+          .pdf-table-secondary {
+            display: block;
+            margin-top: 4px;
+            color: #5e6878;
+            font-size: 10px;
+            line-height: 1.45;
+          }
+
+          @media print {
+            html,
+            body {
+              -webkit-print-color-adjust: exact;
+              print-color-adjust: exact;
+              background: #ffffff;
+            }
+
+            * {
+              -webkit-print-color-adjust: exact;
+              print-color-adjust: exact;
+            }
+
+            .pdf-section,
+            .pdf-card,
+            .pdf-metric-card {
+              box-shadow: none;
+            }
+          }
+        </style>
+      </head>
+      <body>
+        <main class="pdf-report">
+          <section class="pdf-section pdf-hero">
+            <div class="pdf-brand">GSUCHOA • Social Media Meta</div>
+            <h1 class="pdf-title">${escapeHtml(accountName)}</h1>
+            <p class="pdf-description">
+              Relatório exportado com o recorte atual do dashboard social da Meta, incluindo resumo consolidado,
+              evolução temporal, comparativos, padrões de publicação, destaques do período e a biblioteca visível.
+            </p>
+
+            <div class="pdf-meta-grid">
+              <div class="pdf-meta-card">
+                <div class="pdf-eyebrow">Conta unificada</div>
+                <div class="pdf-meta-value">${escapeHtml(accountId)}</div>
+              </div>
+              <div class="pdf-meta-card">
+                <div class="pdf-eyebrow">Plataformas</div>
+                <div class="pdf-meta-value">${escapeHtml(platformLabel)}</div>
+              </div>
+              <div class="pdf-meta-card">
+                <div class="pdf-eyebrow">Período</div>
+                <div class="pdf-meta-value">${escapeHtml(currentPeriodLabel)}</div>
+              </div>
+              <div class="pdf-meta-card">
+                <div class="pdf-eyebrow">Benchmark</div>
+                <div class="pdf-meta-value">${escapeHtml(`${benchmarkLabel} • ${benchmarkValue}`)}</div>
+              </div>
+            </div>
+
+            <div class="pdf-chip-row">
+              ${filterHighlights
+                .map((item) => `<span class="pdf-chip">${escapeHtml(item)}</span>`)
+                .join("")}
+              <span class="pdf-chip">Timezone ${escapeHtml(timezone)}</span>
+              <span class="pdf-chip">Gerado em ${escapeHtml(generatedAt)}</span>
+            </div>
+          </section>
+
+          <section class="pdf-section">
+            <div class="pdf-eyebrow">Totais</div>
+            <h2 class="pdf-section-title">Resumo consolidado</h2>
+            <p class="pdf-section-description">
+              Indicadores principais do período exportado a partir dos dados sociais normalizados da Meta.
+            </p>
+
+            <div class="pdf-metric-grid">
+              ${summaryCards
+                .map((item) => `
+                  <article class="pdf-metric-card" style="--accent-color:${item.accent}">
+                    <div class="pdf-metric-label">${escapeHtml(item.label)}</div>
+                    <div class="pdf-metric-value">${escapeHtml(item.value)}</div>
+                    <p class="pdf-metric-description">${escapeHtml(item.description)}</p>
+                    ${item.meta && item.meta.length > 0
+                      ? `
+                        <div class="pdf-metric-meta">
+                          ${item.meta
+                            .map((metaItem) => `
+                              <div>
+                                <div class="pdf-eyebrow">${escapeHtml(metaItem.label)}</div>
+                                <div class="pdf-meta-value" style="margin-top:6px;font-size:12px;">${escapeHtml(metaItem.value)}</div>
+                              </div>
+                            `)
+                            .join("")}
+                        </div>
+                      `
+                      : ""}
+                  </article>
+                `)
+                .join("")}
+            </div>
+          </section>
+
+          <section class="pdf-analytics-grid">
+            <section class="pdf-section">
+              <div class="pdf-eyebrow">Timeline</div>
+              <h2 class="pdf-section-title">Linha do tempo social</h2>
+              <p class="pdf-section-description">
+                Evolução do principal indicador de distribuição e do engajamento orgânico no período selecionado.
+              </p>
+
+              <div class="pdf-legend">
+                ${timelineSeries
+                  .map((item) => `
+                    <div class="pdf-legend-item">
+                      <svg class="pdf-legend-swatch" viewBox="0 0 34 12" aria-hidden="true">
+                        <line
+                          x1="2"
+                          y1="6"
+                          x2="32"
+                          y2="6"
+                          stroke="${item.color}"
+                          stroke-width="2.5"
+                          stroke-linecap="round"
+                        />
+                        <circle
+                          cx="17"
+                          cy="6"
+                          r="3.5"
+                          fill="${item.color}"
+                          stroke="#ffffff"
+                          stroke-width="1.2"
+                        />
+                      </svg>
+                      <div class="pdf-legend-copy">
+                        <span class="pdf-legend-label">${escapeHtml(item.label)}</span>
+                        <span class="pdf-legend-helper">${escapeHtml(getPdfTimelineSeriesHelper(item.label))}</span>
+                      </div>
+                    </div>
+                  `)
+                  .join("")}
+              </div>
+
+              <div class="pdf-chart-shell">
+                ${chartSvg}
+              </div>
+              <p class="pdf-chart-note">
+                O gráfico replica a leitura do dashboard no momento da exportação, preservando o mesmo período e os mesmos filtros ativos.
+              </p>
+            </section>
+
+            <section class="pdf-section">
+              <div class="pdf-eyebrow">Comparativo</div>
+              <h2 class="pdf-section-title">Período anterior</h2>
+              <p class="pdf-section-description">
+                Comparação direta entre o período atual e a janela imediatamente anterior calculada pela API.
+              </p>
+
+              <div class="pdf-comparison-grid">
+                ${comparisonItems
+                  .map((item) => `
+                    <article class="pdf-card">
+                      <div class="pdf-eyebrow">${escapeHtml(item.label)}</div>
+                      <div class="pdf-card-value">${escapeHtml(item.currentValue)}</div>
+                      <p class="pdf-card-copy">${escapeHtml(item.description)}</p>
+                      <div class="pdf-card-subgrid">
+                        <div>
+                          <div class="pdf-eyebrow">Período anterior</div>
+                          <div class="pdf-meta-value" style="margin-top:6px;font-size:12px;">${escapeHtml(item.previousValue)}</div>
+                        </div>
+                        <div>
+                          <div class="pdf-eyebrow">Delta</div>
+                          <div class="pdf-meta-value pdf-delta-${item.deltaToneClassName}" style="margin-top:6px;font-size:12px;">${escapeHtml(item.deltaValue)}</div>
+                        </div>
+                      </div>
+                    </article>
+                  `)
+                  .join("")}
+              </div>
+            </section>
+          </section>
+
+          <section class="pdf-section">
+            <div class="pdf-eyebrow">Padrões</div>
+            <h2 class="pdf-section-title">Comportamento do conteúdo</h2>
+            <p class="pdf-section-description">
+              Leitura complementar sobre horários, frequência de publicação e ritmo de crescimento orgânico.
+            </p>
+
+            <div class="pdf-pattern-grid">
+              ${patternItems
+                .map((item) => `
+                  <article class="pdf-card">
+                    <div class="pdf-eyebrow">${escapeHtml(item.label)}</div>
+                    <div class="pdf-card-value">${escapeHtml(item.value)}</div>
+                    <p class="pdf-card-copy">${escapeHtml(item.description)}</p>
+                  </article>
+                `)
+                .join("")}
+            </div>
+          </section>
+
+          <section class="pdf-section">
+            <div class="pdf-eyebrow">Destaques</div>
+            <h2 class="pdf-section-title">Ranking do período</h2>
+            <p class="pdf-section-description">
+              Conteúdos com melhor performance conforme o ranking consolidado da API social da Meta.
+            </p>
+
+            ${hasRankingItems
+              ? `
+                <div class="pdf-ranking-grid">
+                  ${rankingItems
+                    .map((item) => `
+                      <article class="pdf-card">
+                        <p class="pdf-card-title">${escapeHtml(item.title)}</p>
+                        <p class="pdf-card-copy">${escapeHtml(`${item.sourceLabel} • ${item.publishedAt}`)}</p>
+                        <div class="pdf-card-value">${escapeHtml(item.performanceValue)}</div>
+                        <div class="pdf-card-subgrid">
+                          <div>
+                            <div class="pdf-eyebrow">Benchmark</div>
+                            <div class="pdf-meta-value" style="margin-top:6px;font-size:12px;">${escapeHtml(item.performanceLabel)}</div>
+                          </div>
+                          <div>
+                            <div class="pdf-eyebrow">Classificação</div>
+                            <div class="pdf-meta-value" style="margin-top:6px;font-size:12px;">${escapeHtml(item.classification)}</div>
+                          </div>
+                        </div>
+                      </article>
+                    `)
+                    .join("")}
+                </div>
+              `
+              : `<div class="pdf-empty-state">Nenhum destaque de ranking foi retornado para o período selecionado.</div>`}
+          </section>
+
+          <section class="pdf-section">
+            <div class="pdf-eyebrow">Biblioteca</div>
+            <h2 class="pdf-section-title">Conteúdos visíveis no dashboard</h2>
+            <p class="pdf-section-description">
+              ${escapeHtml(contentSummaryLabel)}
+            </p>
+
+            ${hasContentRows
+              ? `
+                <div class="pdf-table-wrapper">
+                  <table class="pdf-table">
+                    <thead>
+                      <tr>
+                        <th>Conteúdo</th>
+                        <th>Plataforma</th>
+                        <th>Formato</th>
+                        <th>Publicado em</th>
+                        <th>Origem</th>
+                        <th>Métricas</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      ${contentRows
+                        .map((row) => `
+                          <tr>
+                            <td>${escapeHtml(row.title)}</td>
+                            <td>${escapeHtml(row.platform)}</td>
+                            <td>${escapeHtml(row.format)}</td>
+                            <td>${escapeHtml(row.publishedAt)}</td>
+                            <td>${escapeHtml(row.source)}</td>
+                            <td>
+                              ${escapeHtml(row.metrics)}
+                              <span class="pdf-table-secondary">Biblioteca filtrada do recorte atual.</span>
+                            </td>
+                          </tr>
+                        `)
+                        .join("")}
+                    </tbody>
+                  </table>
+                </div>
+              `
+              : `<div class="pdf-empty-state">Nenhum conteúdo ficou visível com os filtros atuais no momento da exportação.</div>`}
+          </section>
+        </main>
+      </body>
+    </html>
+  `;
+}
+
 export default function SocialMediaMetaDashboardPage() {
   const location = useLocation();
   const navigate = useNavigate();
+  const toast = useToast();
   const { accountId: rawAccountId = "" } = useParams<{ accountId: string }>();
   const { token } = usePanelAuth();
   const { endDate: defaultEndDate, startDate: defaultStartDate } = getDefaultDateRange();
@@ -708,6 +1753,7 @@ export default function SocialMediaMetaDashboardPage() {
   const [isContextLoading, setIsContextLoading] = useState(true);
   const [isDashboardLoading, setIsDashboardLoading] = useState(true);
   const [isContentsLoading, setIsContentsLoading] = useState(true);
+  const [isExportingPdf, setIsExportingPdf] = useState(false);
   const [contextError, setContextError] = useState<string | null>(null);
   const [dashboardError, setDashboardError] = useState<string | null>(null);
   const [contentsError, setContentsError] = useState<string | null>(null);
@@ -985,6 +2031,7 @@ export default function SocialMediaMetaDashboardPage() {
     const overviewClassification = overview?.classification;
     const overviewBenchmark = overview?.performanceBenchmark ?? null;
     const overviewEngagementRate = overviewMetrics?.engagementRate ?? null;
+    const audienceGrowth = dashboard?.audienceGrowth ?? null;
 
     nextCards.push({
       description: "Quantidade total de conteúdos analisados no período selecionado.",
@@ -1064,7 +2111,7 @@ export default function SocialMediaMetaDashboardPage() {
       valueToneClassName: "text-amber-500",
     });
 
-    if (dashboard?.audienceGrowth) {
+    if (audienceGrowth) {
       nextCards.push({
         description: "Ganho líquido de seguidores/audiência orgânica retornado pela API para o período.",
         icon: <UsersRound className="h-5 w-5" />,
@@ -1072,25 +2119,25 @@ export default function SocialMediaMetaDashboardPage() {
         meta: [
           {
             label: "Base inicial",
-            value: formatInteger(dashboard.audienceGrowth.startValue),
+            value: formatInteger(audienceGrowth.startValue),
           },
           {
             label: "Base final",
-            value: formatInteger(dashboard.audienceGrowth.endValue),
+            value: formatInteger(audienceGrowth.endValue),
           },
-          ...(dashboard.audienceGrowth.growthRate !== null
+          ...(audienceGrowth.growthRate !== null
             ? [
                 {
                   label: "Taxa",
-                  value: formatSignedPercentage(dashboard.audienceGrowth.growthRate),
+                  value: formatSignedPercentage(audienceGrowth.growthRate),
                 },
               ]
             : []),
         ],
         numberFormatter: formatSignedInteger,
         toneClassName: "border-emerald-500/18 bg-emerald-500/10 text-emerald-500",
-        value: formatSignedInteger(dashboard.audienceGrowth.delta),
-        valueNumber: dashboard.audienceGrowth.delta,
+        value: formatSignedInteger(audienceGrowth.delta),
+        valueNumber: audienceGrowth.delta,
         valueToneClassName: "text-emerald-500",
       });
     } else {
@@ -1200,12 +2247,351 @@ export default function SocialMediaMetaDashboardPage() {
 
   const activePlatforms = activeAccount?.platforms ?? [];
   const accountPlatformLabel = resolvePlatformLabel(activeAccount);
+  const patternItems = useMemo(() => {
+    const overviewBenchmark = dashboard?.overview.performanceBenchmark ?? null;
+    const bestDayOfWeek = dashboard?.bestDayOfWeek ?? null;
+    const bestHourOfDay = dashboard?.bestHourOfDay ?? null;
+    const audienceGrowth = dashboard?.audienceGrowth ?? null;
+
+    return [
+      {
+        description: bestDayOfWeek
+          ? `${formatInteger(bestDayOfWeek.contentCount)} publicação(ões) com média de ${formatBenchmarkValue(
+              overviewBenchmark,
+              bestDayOfWeek.averagePerformanceValue,
+            )}.`
+          : "A API ainda não retornou um melhor dia da semana para a conta.",
+        label: "Melhor dia",
+        value: bestDayOfWeek?.label ?? "Não identificado",
+      },
+      {
+        description: bestHourOfDay
+          ? `${formatInteger(bestHourOfDay.contentCount)} publicação(ões) com média de ${formatBenchmarkValue(
+              overviewBenchmark,
+              bestHourOfDay.averagePerformanceValue,
+            )}.`
+          : "A API ainda não retornou um melhor horário para a conta.",
+        label: "Melhor horário",
+        value: bestHourOfDay?.label ?? "Não identificado",
+      },
+      {
+        description: audienceGrowth
+          ? `De ${formatInteger(audienceGrowth.startValue)} para ${formatInteger(
+              audienceGrowth.endValue,
+            )} no recorte selecionado${
+              audienceGrowth.growthRate !== null
+                ? `, com variação de ${formatSignedPercentage(audienceGrowth.growthRate)}.`
+                : "."
+            }`
+          : "Sem dado confiável de ganho de seguidores disponível para o período.",
+        label: "Seguidores ganhos",
+        value: audienceGrowth ? formatSignedInteger(audienceGrowth.delta) : "Não disponível",
+      },
+      {
+        description: audienceGrowth
+          ? `Fonte do crescimento orgânico: ${audienceGrowth.source}.`
+          : "A API não informou a origem da série de seguidores para esta conta.",
+        label: "Base final",
+        value: audienceGrowth ? formatInteger(audienceGrowth.endValue) : "Não disponível",
+      },
+      {
+        description:
+          "Distribuição dos conteúdos classificados acima, abaixo ou sem benchmark comparável.",
+        label: "Classificação",
+        value: `${formatInteger(dashboard?.overview.classification.aboveAverage ?? 0)} acima`,
+      },
+    ];
+  }, [dashboard]);
+  const exportFilterHighlights = useMemo(() => {
+    const nextItems = [
+      `Granularidade ${getGranularityLabel(granularity)}`,
+      `Tipo ${contentTypeFilter === "all" ? "Todos" : getContentTypeLabel(contentTypeFilter)}`,
+      `Ordenação ${getContentOrderByLabel(orderBy)} (${getContentOrderDirectionLabel(orderDirection).toLowerCase()})`,
+      `Ranking Top ${rankingLimit}`,
+      `Página ${contents?.meta.page ?? page} de ${contents?.meta.totalPages ?? 1}`,
+    ];
+    const normalizedSearch = deferredSearchValue.trim();
+
+    if (normalizedSearch) {
+      nextItems.push(`Busca "${normalizedSearch}"`);
+    }
+
+    return nextItems;
+  }, [
+    contentTypeFilter,
+    contents?.meta.page,
+    contents?.meta.totalPages,
+    deferredSearchValue,
+    granularity,
+    orderBy,
+    orderDirection,
+    page,
+    rankingLimit,
+  ]);
+  const isRefreshingContext = isContextLoading || isDashboardLoading || isContentsLoading;
+  const canExportPdf =
+    Boolean(activeAccount && dashboard && contents) &&
+    !hasInvalidDateRange &&
+    !isRefreshingContext &&
+    !dashboardError &&
+    !contentsError;
 
   const handleRefresh = useCallback(() => {
     void loadContext();
     void loadDashboard();
     void loadContents();
   }, [loadContext, loadDashboard, loadContents]);
+
+  const handleExportPdf = useCallback(() => {
+    if (hasInvalidDateRange) {
+      toast.error({
+        title: "PDF indisponível",
+        description: "Ajuste o intervalo de datas antes de exportar o dashboard social.",
+      });
+      return;
+    }
+
+    if (!activeAccount || !dashboard || !contents || isRefreshingContext) {
+      toast.error({
+        title: "PDF indisponível",
+        description: "Aguarde o carregamento completo do dashboard social antes de exportar.",
+      });
+      return;
+    }
+
+    setIsExportingPdf(true);
+
+    try {
+      const generatedAt = formatDateTime(new Date().toISOString());
+      const benchmarkLabel = getPerformanceBenchmarkLabel(dashboard.overview.performanceBenchmark);
+      const benchmarkValue = formatBenchmarkValue(
+        dashboard.overview.performanceBenchmark,
+        dashboard.overview.averagePerformanceValue,
+      );
+      const accentByLabel: Record<string, string> = {
+        "Benchmark médio": "#f59e0b",
+        "Conteúdos": "#2262f0",
+        "Engajamento": "#e11d48",
+        "Seguidores ganhos": "#059669",
+        "Taxa de engajamento": "#7c3aed",
+      };
+      accentByLabel[primaryVolumeMetric.label] = primaryVolumeMetric.color;
+
+      const summaryCardsForPdf = overviewCards.map((item) => ({
+        accent: accentByLabel[item.label] ?? "#2262f0",
+        description: item.description,
+        label: item.label,
+        meta: item.meta,
+        value: item.value,
+      }));
+
+      const comparisonItems = comparisonCards.map((item) => {
+        const deltaReference = item.metric.deltaPercentage ?? item.metric.delta ?? 0;
+
+        return {
+          currentValue:
+            item.metric.current === null ? "Sem dado" : item.valueFormatter(item.metric.current),
+          deltaToneClassName:
+            deltaReference > 0
+              ? "positive"
+              : deltaReference < 0
+                ? "negative"
+                : "neutral",
+          deltaValue:
+            item.metric.deltaPercentage !== null
+              ? formatSignedPercentage(item.metric.deltaPercentage)
+              : item.metric.delta !== null
+                ? formatSignedValue(item.metric.delta, item.valueFormatter)
+                : "Sem variação",
+          description: item.description,
+          label: item.label,
+          previousValue:
+            item.metric.previous === null ? "Sem base" : item.valueFormatter(item.metric.previous),
+        } as const;
+      });
+
+      const rankingItems = rankingRecords.slice(0, rankingLimit).map((item) => {
+        const benchmarkMetric =
+          item.metrics?.find((metric) => metric.label === benchmarkLabel) ??
+          item.metrics?.find((metric) => metric.label === "Taxa") ??
+          item.metrics?.find((metric) => metric.label === "Engajamento") ??
+          item.metrics?.[0];
+        const classificationMetric = item.metrics?.find((metric) => metric.label === "Classificação");
+
+        return {
+          classification: classificationMetric?.value ?? "Sem classificação",
+          performanceLabel: benchmarkMetric?.label ?? benchmarkLabel,
+          performanceValue: benchmarkMetric?.value ?? "Não disponível",
+          publishedAt: formatDateTime(item.publishedAt),
+          sourceLabel: item.sourceLabel,
+          title: item.title,
+        };
+      });
+
+      const contentRows = filteredContentRecords.map((item) => ({
+        format: item.rawType || getContentTypeLabel(item.kind === "instagram_post" || item.kind === "facebook_post" ? "post" : item.kind),
+        metrics:
+          item.metrics && item.metrics.length > 0
+            ? item.metrics
+                .slice(0, 4)
+                .map((metric) => `${metric.label}: ${metric.value}`)
+                .join(" • ")
+            : "Sem métricas complementares",
+        platform: item.platform === "instagram" ? "Instagram" : "Facebook",
+        publishedAt: formatDateTime(item.publishedAt),
+        source: item.sourceLabel,
+        title: item.title,
+      }));
+
+      const contentSummaryLabel =
+        contents.meta.total > 0
+          ? `A exportação inclui ${formatInteger(filteredContentRecords.length)} item(ns) visíveis na página ${contents.meta.page} de ${contents.meta.totalPages}, dentro de um total de ${formatInteger(contents.meta.total)} retornado pela API.`
+          : "A biblioteca não retornou conteúdos para o recorte atual.";
+      const platformSummary =
+        activePlatforms.length > 0
+          ? activePlatforms
+              .map((platform) =>
+                platform.platform === "instagram"
+                  ? platform.username
+                    ? `Instagram @${platform.username}`
+                    : "Instagram"
+                  : platform.displayName || "Facebook",
+              )
+              .join(" • ")
+          : accountPlatformLabel;
+      const html = buildSocialDashboardPdfHtml({
+        accountId: activeAccount.id,
+        accountName: activeAccount.displayName,
+        benchmarkLabel,
+        benchmarkValue,
+        chartRange,
+        comparisonItems,
+        contentRows,
+        contentSummaryLabel,
+        currentPeriodLabel: formatDateRangeLabel(dashboard.startDate, dashboard.endDate),
+        filterHighlights: exportFilterHighlights,
+        generatedAt,
+        patternItems,
+        platformLabel: platformSummary,
+        rankingItems,
+        summaryCards: summaryCardsForPdf,
+        timelineLabels: timeSeriesLabels,
+        timelineSeries: lineChartSeries,
+        timezone: dashboard.timezone || resolvedTimezone,
+      });
+
+      document.getElementById(PDF_EXPORT_FRAME_ID)?.remove();
+
+      const frame = document.createElement("iframe");
+      frame.id = PDF_EXPORT_FRAME_ID;
+      frame.setAttribute("aria-hidden", "true");
+      frame.style.position = "fixed";
+      frame.style.right = "0";
+      frame.style.bottom = "0";
+      frame.style.width = "1px";
+      frame.style.height = "1px";
+      frame.style.opacity = "0";
+      frame.style.pointerEvents = "none";
+      frame.style.border = "0";
+
+      let cleanupTimeoutId: number | null = null;
+
+      const cleanup = () => {
+        if (cleanupTimeoutId) {
+          window.clearTimeout(cleanupTimeoutId);
+        }
+
+        frame.onload = null;
+        frame.onerror = null;
+        frame.remove();
+      };
+
+      frame.onload = () => {
+        const frameWindow = frame.contentWindow;
+
+        if (!frameWindow) {
+          cleanup();
+          setIsExportingPdf(false);
+          toast.error({
+            title: "Não foi possível gerar o PDF",
+            description: "O navegador não conseguiu preparar a visualização para impressão.",
+          });
+          return;
+        }
+
+        frameWindow.onafterprint = () => {
+          cleanup();
+        };
+
+        cleanupTimeoutId = window.setTimeout(() => {
+          cleanup();
+        }, 60000);
+
+        window.setTimeout(() => {
+          try {
+            frameWindow.focus();
+            frameWindow.print();
+          } catch (error) {
+            cleanup();
+            toast.error({
+              title: "Falha ao abrir a impressão",
+              description:
+                error instanceof Error
+                  ? error.message
+                  : "Não foi possível iniciar a impressão do relatório social.",
+            });
+          } finally {
+            setIsExportingPdf(false);
+          }
+        }, 250);
+      };
+
+      frame.onerror = () => {
+        cleanup();
+        setIsExportingPdf(false);
+        toast.error({
+          title: "Falha ao preparar o PDF",
+          description: "Não foi possível montar o relatório para impressão.",
+        });
+      };
+
+      document.body.appendChild(frame);
+      frame.srcdoc = html;
+    } catch (error) {
+      document.getElementById(PDF_EXPORT_FRAME_ID)?.remove();
+      setIsExportingPdf(false);
+      toast.error({
+        title: "Falha ao gerar o PDF",
+        description:
+          error instanceof Error
+            ? error.message
+            : "Não foi possível montar o relatório do dashboard social agora.",
+      });
+    }
+  }, [
+    accountPlatformLabel,
+    activeAccount,
+    activePlatforms,
+    canExportPdf,
+    chartRange,
+    comparisonCards,
+    contents,
+    exportFilterHighlights,
+    filteredContentRecords,
+    hasInvalidDateRange,
+    isRefreshingContext,
+    lineChartSeries,
+    overviewCards,
+    patternItems,
+    primaryVolumeMetric.color,
+    primaryVolumeMetric.label,
+    rankingLimit,
+    rankingRecords,
+    resolvedTimezone,
+    timeSeriesLabels,
+    toast,
+    dashboard,
+  ]);
 
   if (isContextLoading && !metaStatus) {
     return (
@@ -1324,6 +2710,15 @@ export default function SocialMediaMetaDashboardPage() {
           actions={(
             <>
               {metaStatus ? <MetaStatusBadge status={metaStatus.status} /> : null}
+              <button
+                className="inline-flex h-11 items-center justify-center gap-2 rounded-2xl border border-rose-500/18 bg-rose-500/10 px-4 text-sm font-semibold text-rose-500 transition-colors hover:border-rose-500/30 hover:bg-rose-500/14 disabled:cursor-not-allowed disabled:opacity-55"
+                disabled={!canExportPdf || isExportingPdf}
+                onClick={handleExportPdf}
+                type="button"
+              >
+                <FileDown className="h-4 w-4" />
+                {isExportingPdf ? "Preparando PDF..." : "Exportar PDF"}
+              </button>
               <button
                 className="panel-card-muted inline-flex h-11 items-center justify-center gap-2 rounded-2xl border px-4 text-sm font-semibold text-on-surface transition-colors hover:border-primary/30 hover:text-primary"
                 onClick={handleRefresh}
