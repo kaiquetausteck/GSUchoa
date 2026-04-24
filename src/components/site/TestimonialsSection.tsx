@@ -72,7 +72,7 @@ export function TestimonialsSection() {
               Resultados percebidos
             </p>
             <h2 className="text-5xl font-black leading-none tracking-tight md:text-6xl">
-              Relatos de quem viu a marca ganhar <span className="text-gradient">mais força, mais clareza e mais resultado.</span>
+              Relatos de quem viu a marca ganhar <span className="text-gradient">mais força, clareza e resultado.</span>
             </h2>
           </div>
           <div className="max-w-xl">
