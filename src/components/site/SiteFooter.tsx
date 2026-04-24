@@ -36,7 +36,7 @@ export function SiteFooter({
             />
           </SectionLink>
           <p className="text-xs uppercase tracking-widest text-on-surface-variant opacity-60">
-            © 2026 GSUCHOA. Estratégia digital de alta performance.
+            © 2026 GSUCHOA. Comunicação & Publicidade Estratégica.
           </p>
         </div>
 

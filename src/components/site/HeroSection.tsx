@@ -11,7 +11,7 @@ import { TypewriterLine, TypewriterParagraph } from "./TypewriterText";
 const EASE_OUT = [0.22, 1, 0.36, 1] as const;
 const HERO_STATS = [
   { label: "Projetos", value: 250, prefix: "+" },
-  { label: "Clientes", value: 50, prefix: "+" },
+  { label: "Marcas atendidas", value: 50, prefix: "+" },
   { label: "Anos de experiência", value: 10, prefix: "+" },
 ];
 
@@ -21,10 +21,10 @@ export function HeroSection({
   onNavigate: (sectionId: SectionId) => void;
 }) {
   const heroDescriptionText =
-    "Design, conteúdo e tráfego que geram resultado, e não apenas estética. Estruturamos ecossistemas digitais para marcas que buscam autoridade e crescimento.";
+    "A GSUCHOA é uma empresa de comunicação e publicidade estratégica. Unimos branding, conteúdo, design e performance para fortalecer a percepção da marca, gerar demanda qualificada e sustentar crescimento com consistência.";
 
-  const titleLineOne = useTypewriter("Transformamos", true, 18);
-  const titleLineTwo = useTypewriter("estratégia em", titleLineOne.complete, 16);
+  const titleLineOne = useTypewriter("Unimos estratégia", true, 18);
+  const titleLineTwo = useTypewriter("e comunicação em", titleLineOne.complete, 16);
   const titleLineThree = useTypewriter("crescimento real", titleLineTwo.complete, 14);
   const description = useTypewriter(heroDescriptionText, titleLineThree.complete, 7);
   const showHeroBottom = description.complete;
@@ -46,7 +46,7 @@ export function HeroSection({
           >
             <span className="h-2 w-2 animate-pulse rounded-full bg-primary" />
             <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-on-surface-variant">
-              Marketing de Elite
+              Comunicação e publicidade estratégica
             </span>
           </motion.div>
 
@@ -82,14 +82,14 @@ export function HeroSection({
                 onNavigate={onNavigate}
                 sectionId="contato"
               >
-                Falar com um especialista
+                Fale com nossa equipe
               </SectionLink>
               <SectionLink
                 className="hero-secondary-button rounded-xl border px-10 py-5 text-center text-lg font-bold active:scale-95"
                 onNavigate={onNavigate}
                 sectionId="cases"
               >
-                Ver projetos
+                Conheça nossos cases
               </SectionLink>
             </div>
 

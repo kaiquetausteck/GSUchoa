@@ -239,14 +239,17 @@ export function ContactSection() {
           >
             <div>
               <h2 className="mb-6 text-xs font-bold uppercase tracking-[0.4em] text-primary">
-                Conecte-se conosco
+                Vamos falar sobre o seu objetivo
               </h2>
               <h3 className="mb-8 text-5xl font-black leading-none tracking-tighter md:text-6xl">
-                Vamos arquitetar o seu <span className="text-gradient">próximo nível</span>
+                Sua empresa está pronta para o <span className="text-gradient">próximo nível?</span>
               </h3>
               <p className="max-w-lg text-xl font-light leading-relaxed text-on-surface-variant">
-                Nossa equipe de especialistas está pronta para analisar seus gargalos e
-                desenhar uma estratégia de crescimento previsível.
+                Cada marca chega até nós com um objetivo diferente. Mais vendas, mais
+                autoridade, uma presença mais forte ou uma comunicação mais profissional. Nosso
+                papel é entender esse cenário e construir a melhor estratégia para fazer esse
+                objetivo acontecer, com comunicação, publicidade e execução alinhadas ao
+                resultado que você busca.
               </p>
             </div>
 

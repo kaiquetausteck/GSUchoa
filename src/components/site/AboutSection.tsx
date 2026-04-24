@@ -38,22 +38,28 @@ export function AboutSection({
           whileInView={{ opacity: 1, x: 0 }}
         >
           <h2 className="mb-6 text-xs font-bold uppercase tracking-[0.3em] text-primary">
-            Manifesto GSUCHOA
+            Nossa forma de trabalho
           </h2>
           <h3 className="mb-8 text-5xl font-black leading-tight tracking-tight">
-            Não somos apenas uma agência. Somos parceiros de crescimento.
+            Tudo que criamos começa no objetivo do cliente.
           </h3>
           <div className="space-y-6 text-lg leading-relaxed text-on-surface-variant">
             <p>
-              O mercado está saturado de estética sem propósito. Na GSUCHOA, acreditamos
-              que o design deve servir à estratégia, e não o contrário. Entendemos os
-              gargalos do seu negócio antes de abrir o Photoshop ou o Gerenciador de Anúncios.
+              Na GSUCHOA, cada projeto começa com uma pergunta simples: onde essa marca quer
+              chegar?
             </p>
             <p>
-              Nossa missão é transformar a complexidade do marketing digital em uma máquina
-              previsível de aquisição e autoridade. Atuamos no ponto em que a criatividade encontra os
-              dados, gerando soluções que não apenas parecem boas, mas performam
-              excepcionalmente.
+              Nosso trabalho é entender o objetivo do cliente e desenhar a melhor estratégia
+              para alcançar esse resultado. Se a meta for vender mais, nossas ações precisam
+              gerar vendas. Se for ganhar autoridade, tudo precisa fortalecer a percepção da
+              marca. Se for elevar a qualidade do audiovisual, cada detalhe da produção precisa
+              fazer a marca parecer maior, mais forte e mais profissional.
+            </p>
+            <p>
+              Independentemente do serviço, a lógica é a mesma: usar comunicação,
+              publicidade, estratégia e execução para aproximar o cliente do resultado que ele
+              quer alcançar. A gente não trabalha pensando só na entrega. A gente trabalha
+              pensando no sucesso do cliente.
             </p>
           </div>
           <div className="mt-10">
@@ -62,7 +68,7 @@ export function AboutSection({
               onNavigate={onNavigate}
               sectionId="processo"
             >
-              Conheça nossa cultura
+              Conheça nossa metodologia
               <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-2" />
             </SectionLink>
           </div>

@@ -6,6 +6,7 @@ import { PanelPageHeader } from "../../components/painel/PanelPageHeader";
 import { Seo } from "../../components/shared/Seo";
 import { AppTabs } from "../../components/shared/ui/AppTabs";
 import { GoogleTab } from "../settings/api/tabs/GoogleTab";
+import { LinkedInTab } from "../settings/api/tabs/LinkedInTab";
 import { MetaTab } from "../settings/api/tabs/MetaTab";
 
 type IntegrationProvider = "google" | "linkedin" | "meta";
@@ -118,10 +119,9 @@ export default function AccountsIntegrationsPage() {
           ) : null}
 
           {activeProvider === "linkedin" ? (
-            <ComingSoonCard
-              description="A futura integração com LinkedIn ficará concentrada nesta área técnica, preservando a operação diária em módulos próprios."
-              eyebrow="Integração LinkedIn"
-              title="Conexão LinkedIn em preparação"
+            <LinkedInTab
+              callbackConnected={callbackConnected}
+              callbackError={callbackError}
             />
           ) : null}
         </div>

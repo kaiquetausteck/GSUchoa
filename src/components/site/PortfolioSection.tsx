@@ -64,7 +64,7 @@ export function PortfolioSection({
         <div className="mb-24 flex flex-col items-start justify-between gap-8 md:flex-row md:items-end">
           <div>
             <h2 className="mb-6 text-xs font-bold uppercase tracking-[0.3em] text-primary">
-              Nosso portfólio
+              Nossos clientes
             </h2>
             <p className="text-5xl font-black leading-none tracking-tight">Cases de sucesso</p>
           </div>

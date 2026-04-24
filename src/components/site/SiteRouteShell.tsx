@@ -68,7 +68,7 @@ export function SiteRouteShell({
               className="rounded-lg bg-primary px-6 py-2.5 text-sm font-bold tracking-tight text-white transition-all duration-300 hover:opacity-90 active:scale-95"
               to="/#contato"
             >
-              Falar com um especialista
+              Fale com nossa equipe
             </Link>
           </div>
 
@@ -133,7 +133,7 @@ export function SiteRouteShell({
               onClick={() => setMobileOpen(false)}
               to="/#contato"
             >
-              Falar com um especialista
+              Fale com nossa equipe
             </Link>
           </div>
         </div>
@@ -156,7 +156,7 @@ export function SiteRouteShell({
               />
             </Link>
             <p className="text-xs uppercase tracking-widest text-on-surface-variant opacity-60">
-              © 2026 GSUCHOA. Estratégia digital de alta performance.
+              © 2026 GSUCHOA. Comunicação & Publicidade Estratégica.
             </p>
           </div>
 

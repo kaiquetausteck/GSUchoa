@@ -11,6 +11,7 @@ import { PanelPageHeader } from "../../../components/painel/PanelPageHeader";
 import { Seo } from "../../../components/shared/Seo";
 import { AppTabs } from "../../../components/shared/ui/AppTabs";
 import { GoogleTab } from "./tabs/GoogleTab";
+import { LinkedInTab } from "./tabs/LinkedInTab";
 import { MetaTab } from "./tabs/MetaTab";
 
 const API_SETTINGS_TAB_KEYS = ["meta", "google", "linkedin"] as const;
@@ -136,10 +137,9 @@ export default function ApiSettingsPage() {
         ) : null}
 
         {activeTab === "linkedin" ? (
-          <ComingSoonCard
-            description="A aba LinkedIn permanece reservada para a próxima etapa das integrações externas, mantendo o mesmo padrão visual e de autenticação do painel."
-            eyebrow="Integração LinkedIn"
-            title="Integração LinkedIn em preparação"
+          <LinkedInTab
+            callbackConnected={callbackConnected}
+            callbackError={callbackError}
           />
         ) : null}
       </div>

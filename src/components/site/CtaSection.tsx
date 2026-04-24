@@ -23,12 +23,11 @@ export function CtaSection({
           </div>
           <div className="relative z-10">
             <h2 className="mb-8 text-5xl font-black tracking-tighter md:text-6xl">
-              Pronto para escalar <br />
-              sua marca?
+              O próximo nível da sua marca começa agora.
             </h2>
             <p className="mx-auto mb-12 max-w-2xl text-xl text-on-surface-variant">
-              Agende uma consultoria estratégica gratuita e descubra como podemos levar
-              seu faturamento ao próximo nível.
+              Agende uma reunião e descubra o que sua marca precisa para crescer com mais
+              clareza, autoridade e resultado.
             </p>
             <div className="flex flex-col justify-center gap-6 sm:flex-row">
               <SectionLink

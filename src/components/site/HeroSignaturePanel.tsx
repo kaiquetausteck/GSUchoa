@@ -4,7 +4,7 @@ import { LogoIconAnimated } from "../shared/LogoIconAnimated";
 
 const LOOP_EASE = [0.37, 0, 0.63, 1] as const;
 
-const HIGHLIGHTS = ["Design", "Crescimento", "Sistemas"];
+const HIGHLIGHTS = ["Branding", "Autoridade", "Performance", "Crescimento"];
 
 export function HeroSignaturePanel() {
   return (
@@ -33,12 +33,11 @@ export function HeroSignaturePanel() {
             NÚCLEO GSUCHOA
           </span>
           <p className="hero-signature-copy-strong mt-3 text-sm font-semibold leading-relaxed">
-            Design, estratégia e tecnologia em sinergia.
+            Branding, conteúdo e performance integrados para posicionar marcas e acelerar resultados.
           </p>
         </div>
 
         <div className="relative flex flex-1 items-center justify-center py-8">
-          <div className="hero-signature-energy-line pointer-events-none absolute inset-x-5 top-1/2 h-px -translate-y-1/2" />
           <motion.div
             animate={{ opacity: [0.42, 0.88, 0.42], scale: [0.9, 1.08, 0.9] }}
             className="hero-signature-core-glow pointer-events-none absolute h-36 w-36 rounded-full blur-3xl"

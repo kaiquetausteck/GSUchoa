@@ -4,6 +4,7 @@ import { PanelLayout } from "../components/painel/PanelLayout";
 import { PANEL_NAV_ITEMS } from "../config/painel/navigation";
 import { SITE_SECTION_ROUTES } from "../hooks/site/useSectionAnchors";
 import GoogleCallbackPage from "../pages/auth/GoogleCallbackPage";
+import LinkedInCallbackPage from "../pages/auth/LinkedInCallbackPage";
 import MetaCallbackPage from "../pages/auth/MetaCallbackPage";
 import DashboardPage from "../pages/painel";
 import AccountsIntegrationsPage from "../pages/painel/accounts-integrations";
@@ -16,6 +17,8 @@ import PaidMediaGooglePage from "../pages/painel/paid-media-google";
 import PaidMediaMetaAccountDashboardPage from "../pages/painel/paid-media-meta-client-dashboard";
 import PaidMediaMetaPage from "../pages/painel/paid-media-meta";
 import PortfolioPage from "../pages/painel/portfolio";
+import SocialMediaLinkedInDashboardPage from "../pages/painel/social-media-linkedin-client-dashboard";
+import SocialMediaLinkedInPage from "../pages/painel/social-media-linkedin";
 import SocialMediaMetaDashboardPage from "../pages/painel/social-media-meta-client-dashboard";
 import SocialMediaMetaPage from "../pages/painel/social-media-meta";
 import TestimonialsPage from "../pages/painel/testimonials";
@@ -70,6 +73,8 @@ export function AppRoutes() {
             <Route element={<Navigate replace to="/painel/social-media/meta" />} path="social-media" />
             <Route element={<SocialMediaMetaPage />} path="social-media/meta" />
             <Route element={<SocialMediaMetaDashboardPage />} path="social-media/meta/:accountId/dashboard" />
+            <Route element={<SocialMediaLinkedInPage />} path="social-media/linkedin" />
+            <Route element={<SocialMediaLinkedInDashboardPage />} path="social-media/linkedin/:accountId/dashboard" />
             <Route element={<Navigate replace to="/painel/trafego-pago/meta" />} path="trafego-pago" />
             <Route element={<PaidMediaMetaPage />} path="trafego-pago/meta" />
             <Route element={<PaidMediaMetaAccountDashboardPage />} path="trafego-pago/meta/:adAccountId/dashboard" />
@@ -78,6 +83,7 @@ export function AppRoutes() {
             <Route element={<Navigate replace to="/painel/contas-integracao/meta" />} path="contas-integracao" />
             <Route element={<AccountsIntegrationsPage />} path="contas-integracao/meta" />
             <Route element={<AccountsIntegrationsPage />} path="contas-integracao/google" />
+            <Route element={<AccountsIntegrationsPage />} path="contas-integracao/linkedin" />
             <Route element={<ClientsPage />} path="clientes" />
             <Route element={<PortfolioPage />} path="portfolio" />
             <Route element={<TestimonialsPage />} path="depoimentos" />
@@ -110,6 +116,7 @@ export function AppRoutes() {
 
       <Route element={<RequirePanelAuth />}>
         <Route path="auth/google/callback" element={<GoogleCallbackPage />} />
+        <Route path="auth/linkedin/callback" element={<LinkedInCallbackPage />} />
         <Route path="auth/meta/callback" element={<MetaCallbackPage />} />
         <Route path="configuracoes/api" element={<Navigate replace to="/painel/contas-integracao/meta" />} />
       </Route>

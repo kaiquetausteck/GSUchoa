@@ -69,16 +69,18 @@ export function TestimonialsSection() {
         <div className="mb-20 flex flex-col gap-8 md:flex-row md:items-end md:justify-between">
           <div className="max-w-3xl">
             <p className="mb-6 text-xs font-bold uppercase tracking-[0.35em] text-primary">
-              Vozes da Escala
+              Resultados percebidos
             </p>
             <h2 className="text-5xl font-black leading-none tracking-tight md:text-6xl">
-              Relatos de quem viu a marca ganhar <span className="text-gradient">densidade e resultado.</span>
+              Relatos de quem viu a marca ganhar <span className="text-gradient">mais força, mais clareza e mais resultado.</span>
             </h2>
           </div>
           <div className="max-w-xl">
             <p className="text-lg leading-relaxed text-on-surface-variant">
-              Quando estratégia, design e performance passam a atuar em conjunto, a percepção da
-              empresa muda por dentro e por fora. Esses relatos mostram esse ponto de virada.
+              Cada cliente chega até a GSUCHOA com um objetivo diferente. Esses relatos mostram
+              o que acontece quando comunicação, publicidade, estratégia e execução passam a
+              trabalhar na direção certa: a marca se fortalece, a percepção muda e o resultado
+              começa a aparecer.
             </p>
             <Link
               className="mt-6 inline-flex items-center gap-2 text-sm font-bold text-primary"

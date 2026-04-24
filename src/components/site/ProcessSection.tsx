@@ -9,22 +9,22 @@ const PROCESS_STEPS = [
   {
     step: 1,
     title: "Diagnóstico",
-    desc: "Mapeamos suas métricas atuais e identificamos os gargalos de crescimento.",
+    desc: "Começamos entendendo o momento da marca, os desafios do negócio e o objetivo que precisa ser alcançado.",
   },
   {
     step: 2,
     title: "Estratégia",
-    desc: "Desenhamos um ecossistema sob medida, com foco em ROI e posicionamento.",
+    desc: "A partir dessa leitura, desenhamos a melhor estratégia para aproximar a marca do resultado que ela busca.",
   },
   {
     step: 3,
     title: "Execução",
-    desc: "Colocamos a engrenagem para rodar com design e tráfego de alta performance.",
+    desc: "Transformamos a estratégia em ação com comunicação, conteúdo, design, mídia e presença digital alinhados ao plano.",
   },
   {
     step: 4,
     title: "Escala",
-    desc: "Otimizamos os resultados para expandir o faturamento de forma previsível.",
+    desc: "Otimizamos, ajustamos e evoluímos a operação para fortalecer os resultados e sustentar o crescimento.",
     active: true,
   },
 ];
@@ -34,7 +34,7 @@ export function ProcessSection() {
     <RevealSection className="site-section bg-surface" id="processo">
       <div className="mx-auto max-w-7xl px-6 md:px-8">
         <h2 className="mb-24 text-center text-xs font-bold uppercase tracking-[0.3em] text-primary">
-          O Caminho para a Escala
+          O caminho para o resultado
         </h2>
 
         <div className="relative grid gap-12 md:grid-cols-4">

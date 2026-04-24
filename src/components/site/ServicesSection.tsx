@@ -14,26 +14,31 @@ const SERVICES = [
   {
     icon: <MousePointer2 />,
     title: "Aquisição de clientes",
-    desc: "Tráfego pago e funis de conversão otimizados para maximizar o ROI. Transformamos desconhecidos em clientes fiéis.",
-    items: ["Mídia de performance", "Funis de vendas"],
+    desc: "Se o objetivo é vender mais, estruturamos mídia, oferta e funil para transformar atenção em oportunidade e oportunidade em cliente.",
+    items: ["Tráfego pago", "Funis de conversão"],
   },
   {
     icon: <Diamond />,
     title: "Posicionamento de marca",
-    desc: "Branding e identidade visual que comunicam autoridade desde o primeiro contato. Sua marca deixa de ser apenas mais uma no feed.",
+    desc: "Se o objetivo é fortalecer a percepção da empresa, construímos uma marca mais clara, mais forte e mais profissional em cada ponto de contato.",
     items: ["Estratégia de marca", "Identidade visual"],
   },
   {
     icon: <TrendingUp />,
-    title: "Conteúdo de alta performance",
-    desc: "Vídeos e conteúdo para redes sociais que capturam atenção e despertam desejo de compra.",
-    items: ["Vídeos curtos", "Sistemas de conteúdo"],
+    title: "Conteúdo estratégico",
+    desc: "Se o objetivo é ganhar autoridade, desejo e presença, criamos conteúdos que comunicam melhor, valorizam a marca e aumentam sua força no mercado.",
+    items: ["Conteúdo para redes sociais", "Audiovisual estratégico"],
   },
   {
     icon: <Network />,
     title: "Presença digital",
-    desc: "Landing pages e sites de alta conversão. Uma experiência fluida que vende todos os dias.",
-    items: ["LPs de alto ticket", "Ecossistemas institucionais"],
+    desc: "Se o objetivo é fortalecer a forma como a marca se apresenta no ambiente digital, estruturamos sua presença com mais clareza, consistência e profissionalismo, das redes sociais aos sites e páginas estratégicas.",
+    items: [
+      "Gestão de redes sociais",
+      "Planejamento de conteúdo",
+      "Landing pages",
+      "Sites institucionais",
+    ],
   },
 ];
 
@@ -46,7 +51,7 @@ export function ServicesSection() {
             Nosso Ecossistema
           </h2>
           <p className="text-5xl font-black tracking-tighter">
-            Serviços pensados para <span className="text-gradient">alta performance</span>
+            Soluções pensadas para o <span className="text-gradient">objetivo do cliente.</span>
           </p>
         </div>
 

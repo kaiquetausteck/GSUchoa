@@ -20,15 +20,16 @@ export function ResultsSection() {
         <div className="mb-24 grid items-center gap-16 lg:grid-cols-2">
           <div className="max-w-2xl">
             <h2 className="mb-6 text-xs font-bold uppercase tracking-[0.4em] text-primary">
-              Resultados que Escalam
+              Resultados que escalam marcas
             </h2>
             <p className="mb-8 text-4xl font-black leading-[1.1] tracking-tight md:text-5xl">
-              Estratégias validadas por números que{" "}
-              <span className="text-gradient">colocam marcas à frente do mercado.</span>
+              Estratégias comprovadas por resultados que{" "}
+              <span className="text-gradient">ampliam autoridade e crescimento.</span>
             </p>
             <p className="text-lg font-light leading-relaxed text-on-surface-variant">
-              Não entregamos métricas de vaidade. Construímos máquinas de vendas
-              sustentáveis com foco total em rentabilidade.
+              Não construímos comunicação para impressionar por alguns segundos. Construímos
+              sistemas estratégicos que fortalecem marcas, aumentam a relevância no mercado e
+              criam oportunidades reais de crescimento.
             </p>
           </div>
 
@@ -69,13 +70,13 @@ export function ResultsSection() {
         <div className="border-t border-outline-variant/10 pt-16">
           <div className="mb-12 flex flex-col items-center justify-between gap-4 text-center md:flex-row md:text-left">
             <p className="text-[10px] font-bold uppercase tracking-[0.5em] text-on-surface-variant/40">
-              Empresas que confiam na GSUCHOA
+              Empresas que crescem com a GSUCHOA
             </p>
             <Link
               className="inline-flex items-center gap-2 text-sm font-bold text-primary"
               to="/clientes"
             >
-              Ver todos os clientes
+              Conheça as empresas
             </Link>
           </div>
           <motion.div
