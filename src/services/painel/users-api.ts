@@ -18,6 +18,13 @@ export type PanelUserRecord = {
   isActive: boolean;
   status: PanelUserStatus;
   avatarUrl: string | null;
+  panelRoles: Array<{
+    id: string;
+    name: string;
+    slug: string;
+    pageKeys: string[];
+  }>;
+  panelPageKeys: string[];
   createdAt: string | null;
   updatedAt: string | null;
 };
@@ -25,6 +32,7 @@ export type PanelUserRecord = {
 export type PanelUsersFilters = {
   page: number;
   perPage: number;
+  role?: string;
   search?: string;
   status?: "all" | PanelUserStatus;
 };
@@ -43,6 +51,7 @@ export type UpdatePanelUserInput = {
   email: string;
   password?: string;
   avatarFile?: File | null;
+  panelRoleIds?: string[];
 };
 
 export type CreatePanelUserInput = {
@@ -51,6 +60,7 @@ export type CreatePanelUserInput = {
   password: string;
   avatarUrl?: string;
   avatarFile?: File | null;
+  panelRoleIds?: string[];
 };
 
 type JsonRecord = Record<string, unknown>;
@@ -259,6 +269,22 @@ function normalizePanelUserRecord(payload: unknown): PanelUserRecord | null {
         getFirstString([payload.avatar_url, payload.image, payload.photo, payload.picture]),
       ) ??
       null,
+    panelRoles: Array.isArray(payload.panelRoles)
+      ? payload.panelRoles
+          .filter(isRecord)
+          .map((role) => ({
+            id: getFirstString([role.id]) ?? "",
+            name: getFirstString([role.name]) ?? "Cargo",
+            slug: getFirstString([role.slug]) ?? "",
+            pageKeys: Array.isArray(role.pageKeys)
+              ? role.pageKeys.filter((item): item is string => typeof item === "string")
+              : [],
+          }))
+          .filter((role) => role.id)
+      : [],
+    panelPageKeys: Array.isArray(payload.panelPageKeys)
+      ? payload.panelPageKeys.filter((item): item is string => typeof item === "string")
+      : [],
     createdAt: getFirstString([payload.createdAt, payload.created_at, payload.insertedAt]) ?? null,
     updatedAt: getFirstString([payload.updatedAt, payload.updated_at, payload.lastAccessAt, payload.last_access_at]) ?? null,
   };
@@ -355,7 +381,10 @@ export async function listPanelUsers(token: string, filters: PanelUsersFilters) 
   const searchParams = new URLSearchParams();
   searchParams.set("page", String(filters.page));
   searchParams.set("limit", String(filters.perPage));
-  searchParams.set("role", "admin");
+
+  if (filters.role) {
+    searchParams.set("role", filters.role);
+  }
 
   if (filters.search) {
     searchParams.set("search", filters.search);
@@ -428,6 +457,10 @@ export async function updatePanelUser(token: string, input: UpdatePanelUserInput
     formData.set("avatar", input.avatarFile);
   }
 
+  if (input.panelRoleIds) {
+    formData.set("panelRoleIds", JSON.stringify(input.panelRoleIds));
+  }
+
   const { response, payload } = await requestJson(buildPathWithId(PANEL_USER_UPDATE_PATH, input.id), token, {
     method: "PATCH",
     body: formData,
@@ -461,6 +494,10 @@ export async function createPanelUser(token: string, input: CreatePanelUserInput
 
   if (input.avatarFile) {
     formData.set("avatar", input.avatarFile);
+  }
+
+  if (input.panelRoleIds) {
+    formData.set("panelRoleIds", JSON.stringify(input.panelRoleIds));
   }
 
   if (input.avatarUrl?.trim()) {

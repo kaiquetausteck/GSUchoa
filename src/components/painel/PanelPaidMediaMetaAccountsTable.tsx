@@ -1,5 +1,6 @@
 import { ArrowUpRight, Clock3, Wallet } from "lucide-react";
 
+import { PanelResourceAccessUsers } from "./PanelResourceAccessUsers";
 import type { PanelMetaAdAccountRecord } from "../../services/painel/meta-api";
 
 type PanelPaidMediaMetaAccountsTableProps = {
@@ -57,6 +58,7 @@ export function PanelPaidMediaMetaAccountsTable({
               <th className="px-6 py-4 font-semibold">Moeda</th>
               <th className="px-6 py-4 font-semibold">Fuso</th>
               <th className="px-6 py-4 font-semibold">Status da conta</th>
+              <th className="px-6 py-4 font-semibold">Acessos</th>
               <th className="px-6 py-4 text-right font-semibold">Dashboard</th>
             </tr>
           </thead>
@@ -90,6 +92,9 @@ export function PanelPaidMediaMetaAccountsTable({
                   <span className="inline-flex rounded-full border border-outline-variant/16 bg-surface-container-low px-3 py-1 text-xs font-semibold text-on-surface-variant">
                     {formatAccountStatus(item.accountStatus)}
                   </span>
+                </td>
+                <td className="px-6 py-5">
+                  <PanelResourceAccessUsers users={item.accessUsers} />
                 </td>
                 <td className="px-6 py-5 text-right">
                   <button

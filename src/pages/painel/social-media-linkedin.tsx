@@ -16,6 +16,7 @@ import { useCallback, useEffect, useMemo, useState, type ReactNode } from "react
 import { useLocation, useNavigate } from "react-router-dom";
 
 import { PanelPageHeader } from "../../components/painel/PanelPageHeader";
+import { PanelResourceAccessUsers } from "../../components/painel/PanelResourceAccessUsers";
 import { Seo } from "../../components/shared/Seo";
 import { AppInput } from "../../components/shared/ui/AppInput";
 import {
@@ -155,6 +156,7 @@ function OrganizationTable({
               <th className="px-6 py-4 font-semibold">Organization</th>
               <th className="px-6 py-4 font-semibold">Capacidades</th>
               <th className="px-6 py-4 font-semibold">Perfil</th>
+              <th className="px-6 py-4 font-semibold">Acessos</th>
               <th className="px-6 py-4 text-right font-semibold">Abrir</th>
             </tr>
           </thead>
@@ -237,6 +239,10 @@ function OrganizationTable({
                       </a>
                     ) : null}
                   </div>
+                </td>
+
+                <td className="px-6 py-5">
+                  <PanelResourceAccessUsers users={item.accessUsers} />
                 </td>
 
                 <td className="px-6 py-5 text-right">

@@ -1,10 +1,11 @@
 import { Navigate, Outlet, useLocation } from "react-router-dom";
 
+import { PANEL_NAV_ITEMS, getPanelNavItemByPath } from "../../config/painel/navigation";
 import { usePanelAuth } from "../../context/painel/PanelAuthContext";
 
 export function RequirePanelAuth() {
   const location = useLocation();
-  const { isAuthenticated, isBooting } = usePanelAuth();
+  const { isAuthenticated, isBooting, user } = usePanelAuth();
 
   if (isBooting) {
     return (
@@ -32,6 +33,16 @@ export function RequirePanelAuth() {
         to="/painel/login"
       />
     );
+  }
+
+  const matchedItem = getPanelNavItemByPath(location.pathname);
+  const pageKeys = user?.panelPageKeys ?? [];
+  const hasConfiguredPermission = pageKeys.length > 0 && !pageKeys.includes("*");
+
+  if (matchedItem && hasConfiguredPermission && !pageKeys.includes(matchedItem.key)) {
+    const fallback = PANEL_NAV_ITEMS.find((item) => pageKeys.includes(item.key));
+
+    return <Navigate replace to={fallback?.to ?? "/painel/login"} />;
   }
 
   return <Outlet />;

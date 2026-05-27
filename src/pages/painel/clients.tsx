@@ -1,7 +1,7 @@
 import { Building2 } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 
-import { PanelClientsDrawer, type PanelClientDraft, type PanelClientsDrawerMode, type PanelClientsDrawerTab } from "../../components/painel/PanelClientsDrawer";
+import { PanelClientsDrawer, type PanelClientAccessResourceDraft, type PanelClientDraft, type PanelClientsDrawerMode, type PanelClientsDrawerTab } from "../../components/painel/PanelClientsDrawer";
 import { PanelClientsFiltersBar } from "../../components/painel/PanelClientsFiltersBar";
 import { PanelClientsTable } from "../../components/painel/PanelClientsTable";
 import { PanelPageHeader } from "../../components/painel/PanelPageHeader";
@@ -22,6 +22,11 @@ import {
   type PanelClientSummaryRecord,
   updatePanelClient,
 } from "../../services/painel/clients-api";
+import { listPanelGoogleAdsCustomers } from "../../services/painel/google-api";
+import { listPanelLinkedInSocialAccounts } from "../../services/painel/linkedin-api";
+import { listPanelMetaAdAccounts } from "../../services/painel/meta-api";
+import { listPanelMetaSocialMediaAccounts } from "../../services/painel/social-media-api";
+import { listPanelUsers, type PanelUserRecord } from "../../services/painel/users-api";
 
 function slugify(value: string) {
   return value
@@ -52,14 +57,43 @@ function createClientDraft(detail: PanelClientDetailRecord): PanelClientDraft {
     deletedAt: detail.deletedAt,
     description: detail.description ?? "",
     featured: detail.featured,
+    googleEnabled: detail.googleEnabled,
     id: detail.id,
     isPublished: detail.isPublished,
+    linkedinEnabled: detail.linkedinEnabled,
     logoFile: null,
     logoUrl: detail.logoUrl,
+    metaEnabled: detail.metaEnabled,
     name: detail.name,
+    paidMediaEnabled: detail.paidMediaEnabled,
+    permissions: detail.permissions.map((permission) => ({
+      userId: permission.userId,
+      resources: permission.resources.map((resource) => ({
+        module: resource.module,
+        platform: resource.platform,
+        externalId: resource.externalId,
+        name: resource.name,
+        pictureUrl: resource.pictureUrl,
+        metadata: resource.metadata && typeof resource.metadata === "object" && !Array.isArray(resource.metadata)
+          ? resource.metadata as Record<string, unknown>
+          : null,
+      })),
+    })),
+    resources: detail.resources.map((resource) => ({
+      module: resource.module,
+      platform: resource.platform,
+      externalId: resource.externalId,
+      name: resource.name,
+      pictureUrl: resource.pictureUrl,
+      metadata: resource.metadata && typeof resource.metadata === "object" && !Array.isArray(resource.metadata)
+        ? resource.metadata as Record<string, unknown>
+        : null,
+    })),
     publishedAt: formatDateTimeLocal(detail.publishedAt),
     slug: detail.slug,
     sortOrder: detail.sortOrder,
+    socialMediaEnabled: detail.socialMediaEnabled,
+    status: detail.status,
     updatedAt: detail.updatedAt,
     website: detail.website ?? "",
   };
@@ -71,14 +105,22 @@ function createEmptyClientDraft(): PanelClientDraft {
     deletedAt: null,
     description: "",
     featured: false,
+    googleEnabled: false,
     id: "",
     isPublished: false,
+    linkedinEnabled: false,
     logoFile: null,
     logoUrl: null,
+    metaEnabled: false,
     name: "",
+    paidMediaEnabled: false,
+    permissions: [],
+    resources: [],
     publishedAt: "",
     slug: "",
     sortOrder: 0,
+    socialMediaEnabled: false,
+    status: "active",
     updatedAt: null,
     website: "",
   };
@@ -97,6 +139,26 @@ function getDrawerTabFromErrorMessage(message: string): PanelClientsDrawerTab {
   }
 
   if (
+    normalizedMessage.includes("usuario") ||
+    normalizedMessage.includes("usuário") ||
+    normalizedMessage.includes("permiss")
+  ) {
+    return "permissions";
+  }
+
+  if (
+    normalizedMessage.includes("status") ||
+    normalizedMessage.includes("social") ||
+    normalizedMessage.includes("trafego") ||
+    normalizedMessage.includes("tráfego") ||
+    normalizedMessage.includes("meta") ||
+    normalizedMessage.includes("google") ||
+    normalizedMessage.includes("linkedin")
+  ) {
+    return "integrations";
+  }
+
+  if (
     normalizedMessage.includes("descricao") ||
     normalizedMessage.includes("description")
   ) {
@@ -111,6 +173,8 @@ export default function ClientsPage() {
   const { token } = usePanelAuth();
 
   const [items, setItems] = useState<PanelClientSummaryRecord[]>([]);
+  const [availableUsers, setAvailableUsers] = useState<PanelUserRecord[]>([]);
+  const [accessResources, setAccessResources] = useState<PanelClientAccessResourceDraft[]>([]);
   const [drawerActiveTab, setDrawerActiveTab] = useState<PanelClientsDrawerTab>("main");
   const [drawerMode, setDrawerMode] = useState<PanelClientsDrawerMode | null>(null);
   const [selectedClientId, setSelectedClientId] = useState<string | null>(null);
@@ -125,6 +189,8 @@ export default function ClientsPage() {
   const [totalPages, setTotalPages] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
   const [isDrawerLoading, setIsDrawerLoading] = useState(false);
+  const [isUsersLoading, setIsUsersLoading] = useState(false);
+  const [isAccessResourcesLoading, setIsAccessResourcesLoading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
 
@@ -169,6 +235,143 @@ export default function ClientsPage() {
   useEffect(() => {
     void loadClients();
   }, [loadClients]);
+
+  useEffect(() => {
+    if (!token) {
+      return;
+    }
+
+    let isMounted = true;
+    setIsUsersLoading(true);
+
+    void (async () => {
+      try {
+        const response = await listPanelUsers(token, {
+          page: 1,
+          perPage: 100,
+          status: "active",
+        });
+
+        if (isMounted) {
+          setAvailableUsers(response.items);
+        }
+      } catch (error) {
+        if (isMounted) {
+          setAvailableUsers([]);
+          toast.error({
+            title: "Funcionários indisponíveis",
+            description:
+              error instanceof Error
+                ? error.message
+                : "Não foi possível carregar usuários para permissões.",
+          });
+        }
+      } finally {
+        if (isMounted) {
+          setIsUsersLoading(false);
+        }
+      }
+    })();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [toast, token]);
+
+  useEffect(() => {
+    if (!token) {
+      return;
+    }
+
+    let isMounted = true;
+    setIsAccessResourcesLoading(true);
+
+    void (async () => {
+      const [metaAdsResult, googleResult, metaSocialResult, linkedinResult] = await Promise.allSettled([
+        listPanelMetaAdAccounts(token),
+        listPanelGoogleAdsCustomers(token),
+        listPanelMetaSocialMediaAccounts(token),
+        listPanelLinkedInSocialAccounts(token),
+      ]);
+
+      if (!isMounted) {
+        return;
+      }
+
+      const resources: PanelClientAccessResourceDraft[] = [];
+
+      if (metaAdsResult.status === "fulfilled") {
+        resources.push(...metaAdsResult.value.map((account) => ({
+          module: "paid_media" as const,
+          platform: "META" as const,
+          externalId: account.adAccountId,
+          name: account.name,
+          pictureUrl: null,
+          metadata: {
+            accountStatus: account.accountStatus,
+            currency: account.currency,
+            timezoneName: account.timezoneName,
+          },
+        })));
+      }
+
+      if (googleResult.status === "fulfilled") {
+        resources.push(...googleResult.value.map((account) => ({
+          module: "paid_media" as const,
+          platform: "GOOGLE" as const,
+          externalId: account.customerId,
+          name: account.descriptiveName,
+          pictureUrl: null,
+          metadata: {
+            currencyCode: account.currencyCode,
+            manager: account.manager,
+            status: account.status,
+            timeZone: account.timeZone,
+          },
+        })));
+      }
+
+      if (metaSocialResult.status === "fulfilled") {
+        resources.push(...metaSocialResult.value.map((account) => ({
+          module: "social_media" as const,
+          platform: "META" as const,
+          externalId: account.id,
+          name: account.displayName,
+          pictureUrl: account.avatarUrl,
+          metadata: {
+            pageId: account.pageId,
+            pageName: account.pageName,
+            instagramAccountId: account.instagramAccountId,
+            instagramUsername: account.instagramUsername,
+            type: account.type,
+          },
+        })));
+      }
+
+      if (linkedinResult.status === "fulfilled") {
+        resources.push(...linkedinResult.value.map((account) => ({
+          module: "social_media" as const,
+          platform: "LINKEDIN" as const,
+          externalId: account.organizationId,
+          name: account.displayName,
+          pictureUrl: account.avatarUrl,
+          metadata: {
+            organizationUrn: account.organizationUrn,
+            profileUrl: account.profileUrl,
+            role: account.role,
+            vanityName: account.vanityName,
+          },
+        })));
+      }
+
+      setAccessResources(resources);
+      setIsAccessResourcesLoading(false);
+    })();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [token]);
 
   useEffect(() => {
     if (!selectedClientId || !token || drawerMode !== "edit") {
@@ -228,13 +431,19 @@ export default function ClientsPage() {
       ...createEmptyClientDraft(),
       description: item.description ?? "",
       featured: item.featured,
+      googleEnabled: item.googleEnabled,
       id: item.id,
       isPublished: item.isPublished,
+      linkedinEnabled: item.linkedinEnabled,
       logoUrl: item.logoUrl,
+      metaEnabled: item.metaEnabled,
       name: item.name,
+      paidMediaEnabled: item.paidMediaEnabled,
       publishedAt: formatDateTimeLocal(item.publishedAt),
       slug: item.slug,
       sortOrder: item.sortOrder,
+      socialMediaEnabled: item.socialMediaEnabled,
+      status: item.status,
       website: item.website ?? "",
     });
   }, []);
@@ -274,6 +483,97 @@ export default function ClientsPage() {
     });
   }, []);
 
+  const handlePermissionUserToggle = useCallback((userId: string, enabled: boolean) => {
+    setSelectedClient((current) => {
+      if (!current) {
+        return current;
+      }
+
+      const existingPermission = current.permissions.find((permission) => permission.userId === userId);
+
+      if (!enabled) {
+        return {
+          ...current,
+          permissions: current.permissions.filter((permission) => permission.userId !== userId),
+        };
+      }
+
+      if (existingPermission) {
+        return current;
+      }
+
+      return {
+        ...current,
+        permissions: [
+          ...current.permissions,
+          {
+            userId,
+            resources: [],
+          },
+        ],
+      };
+    });
+  }, []);
+
+  const handleIntegrationResourceToggle = useCallback((resource: PanelClientAccessResourceDraft, enabled: boolean) => {
+    setSelectedClient((current) => {
+      if (!current) {
+        return current;
+      }
+
+      const isSameResource = (item: PanelClientAccessResourceDraft) =>
+        item.module === resource.module &&
+        item.platform === resource.platform &&
+        item.externalId === resource.externalId;
+      const resources = current.resources.filter((item) => !isSameResource(item));
+
+      return {
+        ...current,
+        resources: enabled ? [...resources, resource] : resources,
+        permissions: current.permissions.map((permission) => ({
+          ...permission,
+          resources: permission.resources.filter((item) => !isSameResource(item)),
+        })),
+      };
+    });
+  }, []);
+
+  const handlePermissionResourceToggle = useCallback((
+    userId: string,
+    resource: PanelClientAccessResourceDraft,
+    enabled: boolean,
+  ) => {
+    setSelectedClient((current) => {
+      if (!current) {
+        return current;
+      }
+
+      const permissions = current.permissions.some((permission) => permission.userId === userId)
+        ? current.permissions
+        : [...current.permissions, { userId, resources: [] }];
+
+      return {
+        ...current,
+        permissions: permissions.map((permission) => {
+          if (permission.userId !== userId) {
+            return permission;
+          }
+
+          const resources = permission.resources.filter((item) =>
+            !(item.module === resource.module &&
+              item.platform === resource.platform &&
+              item.externalId === resource.externalId),
+          );
+
+          return {
+            ...permission,
+            resources: enabled ? [...resources, resource] : resources,
+          };
+        }),
+      };
+    });
+  }, []);
+
   const handleSaveClient = useCallback(async () => {
     if (!token || !selectedClient || !drawerMode) {
       return;
@@ -288,29 +588,47 @@ export default function ClientsPage() {
       return;
     }
 
-    if (!selectedClient.logoFile && !selectedClient.logoUrl?.trim()) {
-      setDrawerActiveTab("main");
-      toast.error({
-        title: "Logo obrigatória",
-        description: "Envie uma logo para o cliente antes de salvar.",
-      });
-      return;
-    }
-
     setIsSaving(true);
 
     try {
+      const selectedResources = selectedClient.resources;
+      const hasResource = (predicate: (resource: PanelClientAccessResourceDraft) => boolean) =>
+        selectedResources.some(predicate);
+      const isLinkedResource = (resource: PanelClientAccessResourceDraft) =>
+        selectedResources.some((item) =>
+          item.module === resource.module &&
+          item.platform === resource.platform &&
+          item.externalId === resource.externalId,
+        );
       const input = {
         description: selectedClient.description || null,
         featured: selectedClient.featured,
+        googleEnabled: hasResource((resource) => resource.platform === "GOOGLE"),
         isPublished: selectedClient.isPublished,
+        linkedinEnabled: hasResource((resource) => resource.platform === "LINKEDIN"),
         logoFile: selectedClient.logoFile,
+        metaEnabled: hasResource((resource) => resource.platform === "META"),
         name: selectedClient.name,
+        paidMediaEnabled: hasResource((resource) => resource.module === "paid_media"),
+        removeLogo: !selectedClient.logoFile && !selectedClient.logoUrl,
+        permissions: selectedClient.permissions.map((permission) => ({
+          userId: permission.userId,
+          canEdit: true,
+          canViewSocialMedia: permission.resources.some((resource) => resource.module === "social_media" && isLinkedResource(resource)),
+          canViewPaidMedia: permission.resources.some((resource) => resource.module === "paid_media" && isLinkedResource(resource)),
+          canViewMeta: permission.resources.some((resource) => resource.platform === "META" && isLinkedResource(resource)),
+          canViewGoogle: permission.resources.some((resource) => resource.platform === "GOOGLE" && isLinkedResource(resource)),
+          canViewLinkedin: permission.resources.some((resource) => resource.platform === "LINKEDIN" && isLinkedResource(resource)),
+          resources: permission.resources.filter(isLinkedResource),
+        })),
         publishedAt: selectedClient.publishedAt
           ? new Date(selectedClient.publishedAt).toISOString()
           : null,
         slug: selectedClient.slug,
         sortOrder: selectedClient.sortOrder,
+        socialMediaEnabled: hasResource((resource) => resource.module === "social_media"),
+        resources: selectedClient.resources,
+        status: selectedClient.status,
         website: selectedClient.website || null,
       };
 
@@ -498,7 +816,7 @@ export default function ClientsPage() {
             { label: "Painel", to: "/painel/dashboard" },
             { label: "Clientes" },
           ]}
-          description="Organize a vitrine de marcas atendidas com controle de publicação, destaque e logotipo."
+          description="Gerencie clientes, serviços ativos, publicação no site e permissões por funcionário."
           title="Clientes"
         />
 
@@ -564,14 +882,18 @@ export default function ClientsPage() {
       </div>
 
       <PanelClientsDrawer
+        accessResources={accessResources}
         activeTab={drawerActiveTab}
+        availableUsers={availableUsers}
         client={selectedClient}
         isLoading={isDrawerLoading}
         isSaving={isSaving}
+        isUsersLoading={isUsersLoading || isAccessResourcesLoading}
         mode={drawerMode ?? "edit"}
         onActiveTabChange={setDrawerActiveTab}
         onChange={handleDraftFieldChange}
         onClose={handleCloseDrawer}
+        onIntegrationResourceToggle={handleIntegrationResourceToggle}
         onLogoChange={(file) => {
           setSelectedClient((current) => {
             if (!current) {
@@ -585,6 +907,8 @@ export default function ClientsPage() {
             };
           });
         }}
+        onPermissionResourceToggle={handlePermissionResourceToggle}
+        onPermissionUserToggle={handlePermissionUserToggle}
         onSave={() => void handleSaveClient()}
         open={drawerMode !== null}
       />

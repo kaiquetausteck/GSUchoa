@@ -7,7 +7,9 @@ import GoogleCallbackPage from "../pages/auth/GoogleCallbackPage";
 import LinkedInCallbackPage from "../pages/auth/LinkedInCallbackPage";
 import MetaCallbackPage from "../pages/auth/MetaCallbackPage";
 import DashboardPage from "../pages/painel";
+import ClientReportEditorPage from "../pages/painel/client-report-editor";
 import AccountsIntegrationsPage from "../pages/painel/accounts-integrations";
+import ClientReportsPage from "../pages/painel/client-reports";
 import ContactsPage from "../pages/painel/contacts";
 import ClientsPage from "../pages/painel/clients";
 import LoginPage from "../pages/painel/login";
@@ -16,6 +18,7 @@ import PaidMediaGoogleAccountDashboardPage from "../pages/painel/paid-media-goog
 import PaidMediaGooglePage from "../pages/painel/paid-media-google";
 import PaidMediaMetaAccountDashboardPage from "../pages/painel/paid-media-meta-client-dashboard";
 import PaidMediaMetaPage from "../pages/painel/paid-media-meta";
+import PanelRolesPage from "../pages/painel/panel-roles";
 import PortfolioPage from "../pages/painel/portfolio";
 import SocialMediaLinkedInDashboardPage from "../pages/painel/social-media-linkedin-client-dashboard";
 import SocialMediaLinkedInPage from "../pages/painel/social-media-linkedin";
@@ -32,6 +35,8 @@ import PrivacyPolicyPage from "../pages/site/privacy-policy";
 import TermsOfServicePage from "../pages/site/terms-of-service";
 import TestimonialDetailsPage from "../pages/site/testimonials/details";
 import TestimonialsPagePublic from "../pages/site/testimonials";
+import PublicClientReportDetailsPage from "../pages/site/client-reports/details";
+import PublicClientReportsPage from "../pages/site/client-reports";
 import { RequirePanelAuth } from "./guards/RequirePanelAuth";
 
 export function AppRoutes() {
@@ -44,6 +49,8 @@ export function AppRoutes() {
       <Route path="/cases/:slug" element={<CaseDetailsPage />} />
       <Route path="/depoimentos" element={<TestimonialsPagePublic />} />
       <Route path="/depoimentos/:id" element={<TestimonialDetailsPage />} />
+      <Route path="/relatorios/:clientSlug" element={<PublicClientReportsPage />} />
+      <Route path="/relatorios/:clientSlug/:reportId" element={<PublicClientReportDetailsPage />} />
       <Route path="/politica-de-privacidade" element={<PrivacyPolicyPage />} />
       <Route path="/termos-de-servico" element={<TermsOfServicePage />} />
       <Route path="/privacy" element={<Navigate replace to="/politica-de-privacidade" />} />
@@ -67,6 +74,7 @@ export function AppRoutes() {
             <Route index element={<Navigate replace to="dashboard" />} />
             <Route element={<DashboardPage />} path="dashboard" />
             <Route element={<UsersPage />} path="usuarios" />
+            <Route element={<PanelRolesPage />} path="cargos" />
             <Route element={<ContactsPage />} path="contatos" />
             <Route element={<ContactsPage />} path="contatos/funil" />
             <Route element={<Navigate replace to="/painel/contas-integracao/meta" />} path="configuracoes/api" />
@@ -84,6 +92,8 @@ export function AppRoutes() {
             <Route element={<AccountsIntegrationsPage />} path="contas-integracao/meta" />
             <Route element={<AccountsIntegrationsPage />} path="contas-integracao/google" />
             <Route element={<AccountsIntegrationsPage />} path="contas-integracao/linkedin" />
+            <Route element={<ClientReportsPage />} path="relatorios-clientes" />
+            <Route element={<ClientReportEditorPage />} path="relatorios-clientes/:reportId/editor" />
             <Route element={<ClientsPage />} path="clientes" />
             <Route element={<PortfolioPage />} path="portfolio" />
             <Route element={<TestimonialsPage />} path="depoimentos" />

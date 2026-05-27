@@ -4,9 +4,11 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { PanelFormSection } from "../shared/PanelFormSection";
 import { ImageCropDialog } from "../shared/ImageCropDialog";
 import { PanelDrawer } from "../shared/PanelDrawer";
+import { AppCheckbox } from "../shared/ui/AppCheckbox";
 import { AppInput } from "../shared/ui/AppInput";
 import { AppPasswordField } from "../shared/ui/AppPasswordField";
 import { AppTabs } from "../shared/ui/AppTabs";
+import type { PanelRoleRecord } from "../../services/painel/panel-roles-api";
 
 export type PanelUsersDrawerMode = "create" | "edit";
 export type PanelUsersDrawerTab = "main" | "meta" | "password";
@@ -21,6 +23,7 @@ export type PanelUserDraft = {
   name: string;
   password: string;
   passwordConfirmation: string;
+  panelRoleIds: string[];
   updatedAt: string | null;
 };
 
@@ -31,9 +34,11 @@ type PanelUsersDrawerProps = {
   isLoading: boolean;
   isSaving: boolean;
   mode: PanelUsersDrawerMode;
+  panelRoles?: PanelRoleRecord[];
   onActiveTabChange: (tab: PanelUsersDrawerTab) => void;
   onAvatarChange: (file: File | null) => void;
   onChange: (field: EditableUserField, value: string) => void;
+  onPanelRoleToggle?: (roleId: string, checked: boolean) => void;
   onClose: () => void;
   onSave: () => void;
   open: boolean;
@@ -70,9 +75,11 @@ export function PanelUsersDrawer({
   isLoading,
   isSaving,
   mode,
+  panelRoles = [],
   onActiveTabChange,
   onAvatarChange,
   onChange,
+  onPanelRoleToggle = () => undefined,
   onClose,
   onSave,
   open,
@@ -263,6 +270,33 @@ export function PanelUsersDrawer({
                     />
                   </div>
                 </PanelFormSection>
+
+                {panelRoles.length ? (
+                  <PanelFormSection
+                    description="Escolha um ou mais cargos para liberar as páginas do painel."
+                    icon={<Shield className="h-4 w-4" />}
+                    title="Cargos"
+                  >
+                    <div className="mt-5 grid gap-3 md:grid-cols-2">
+                      {panelRoles.map((role) => (
+                        <AppCheckbox
+                          checked={user.panelRoleIds.includes(role.id)}
+                          className="panel-card-muted inline-flex min-h-12 items-center gap-3 rounded-2xl border px-4 py-3 text-sm font-semibold text-on-surface"
+                          key={role.id}
+                          label={
+                            <span>
+                              <span className="block">{role.name}</span>
+                              <span className="block text-xs font-medium text-on-surface-variant">
+                                {role.pageKeys.includes("*") ? "Todas as páginas" : `${role.pageKeys.length} página(s)`}
+                              </span>
+                            </span>
+                          }
+                          onChange={(event) => onPanelRoleToggle(role.id, event.target.checked)}
+                        />
+                      ))}
+                    </div>
+                  </PanelFormSection>
+                ) : null}
               </section>
             ) : null}
 

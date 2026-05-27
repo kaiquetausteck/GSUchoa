@@ -77,11 +77,15 @@ export function PanelPaidMediaMetaClientsTable({
                 <td className="min-w-[24rem] px-6 py-5">
                   <div className="flex items-center gap-4">
                     <div className="partner-logo-card flex h-16 w-24 flex-none items-center justify-center overflow-hidden rounded-2xl border px-4 py-3">
-                      <img
-                        alt={item.name}
-                        className="partner-logo-image max-h-9 w-full object-contain"
-                        src={item.logoUrl}
-                      />
+                      {item.logoUrl ? (
+                        <img
+                          alt={item.name}
+                          className="partner-logo-image max-h-9 w-full object-contain"
+                          src={item.logoUrl}
+                        />
+                      ) : (
+                        <span className="text-xs font-semibold uppercase text-on-surface-variant">Sem logo</span>
+                      )}
                     </div>
                     <div className="min-w-0">
                       <p className="truncate text-[15px] font-semibold text-on-surface">{item.name}</p>

@@ -28,11 +28,13 @@ import {
   type PanelUserRecord,
   updatePanelUser,
 } from "../../services/painel/users-api";
+import { listPanelRoles, type PanelRoleRecord } from "../../services/painel/panel-roles-api";
 
 export default function UsersPage() {
   const toast = useToast();
   const { token } = usePanelAuth();
   const [items, setItems] = useState<PanelUserRecord[]>([]);
+  const [panelRoles, setPanelRoles] = useState<PanelRoleRecord[]>([]);
   const [drawerActiveTab, setDrawerActiveTab] = useState<PanelUsersDrawerTab>("main");
   const [drawerMode, setDrawerMode] = useState<PanelUsersDrawerMode | null>(null);
   const [selectedUser, setSelectedUser] = useState<PanelUserDraft | null>(null);
@@ -88,6 +90,33 @@ export default function UsersPage() {
   useEffect(() => {
     void loadUsers();
   }, [loadUsers]);
+
+  useEffect(() => {
+    if (!token) {
+      return;
+    }
+
+    let isMounted = true;
+    void (async () => {
+      try {
+        const roles = await listPanelRoles(token);
+        if (isMounted) {
+          setPanelRoles(roles);
+        }
+      } catch (error) {
+        if (isMounted) {
+          toast.error({
+            title: "Cargos indisponíveis",
+            description: error instanceof Error ? error.message : "Não foi possível carregar cargos.",
+          });
+        }
+      }
+    })();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [toast, token]);
 
   useEffect(() => {
     if (!selectedUserId || !token || drawerMode !== "edit") {
@@ -205,6 +234,7 @@ export default function UsersPage() {
           name: selectedUser.name,
           password: selectedUser.password,
           avatarFile: selectedUser.avatarFile,
+          panelRoleIds: selectedUser.panelRoleIds,
         });
 
         toast.success({
@@ -234,6 +264,7 @@ export default function UsersPage() {
         email: selectedUser.email,
         password: selectedUser.password || undefined,
         avatarFile: selectedUser.avatarFile,
+        panelRoleIds: selectedUser.panelRoleIds,
       });
 
       setSelectedUser(createPanelUserDraft(updatedUser));
@@ -374,6 +405,7 @@ export default function UsersPage() {
         isLoading={isDrawerLoading}
         isSaving={isSaving}
         mode={drawerMode ?? "edit"}
+        panelRoles={panelRoles}
         onActiveTabChange={setDrawerActiveTab}
         onAvatarChange={(file) => {
           setSelectedUser((currentUser) => {
@@ -396,6 +428,20 @@ export default function UsersPage() {
             return {
               ...currentUser,
               [field]: value,
+            };
+          });
+        }}
+        onPanelRoleToggle={(roleId, checked) => {
+          setSelectedUser((currentUser) => {
+            if (!currentUser) {
+              return currentUser;
+            }
+
+            return {
+              ...currentUser,
+              panelRoleIds: checked
+                ? Array.from(new Set([...currentUser.panelRoleIds, roleId]))
+                : currentUser.panelRoleIds.filter((currentRoleId) => currentRoleId !== roleId),
             };
           });
         }}

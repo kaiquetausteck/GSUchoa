@@ -1,4 +1,8 @@
 import { getPanelApiBaseUrl } from "./auth-api";
+import {
+  normalizePanelResourceAccessUsers,
+  type PanelResourceAccessUserRecord,
+} from "./resource-access";
 import { resolveApiAssetUrl } from "./resolve-api-asset-url";
 
 const PANEL_API_BASE_URL = getPanelApiBaseUrl();
@@ -142,6 +146,7 @@ export type PanelLinkedInSocialAccountRecord = {
   profileUrl: string | null;
   role: string | null;
   vanityName: string | null;
+  accessUsers: PanelResourceAccessUserRecord[];
 };
 
 export type PanelLinkedInSocialMetricTotalsRecord = {
@@ -845,6 +850,7 @@ function normalizeLinkedInSocialAccountRecord(
     profileUrl: normalizeRenderableUrl(payload.profileUrl),
     role: getFirstString([payload.role]),
     vanityName: getFirstString([payload.vanityName]),
+    accessUsers: normalizePanelResourceAccessUsers(payload.accessUsers),
   };
 }
 

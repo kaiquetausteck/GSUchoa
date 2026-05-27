@@ -93,10 +93,19 @@ export function PanelLayout() {
   const [isProfileLoading, setIsProfileLoading] = useState(false);
   const [isProfileSaving, setIsProfileSaving] = useState(false);
   const panelTitle = getPanelPageTitle(location.pathname);
+  const isReportEditorPage =
+    location.pathname.startsWith("/painel/relatorios-clientes/") &&
+    location.pathname.endsWith("/editor");
 
   useEffect(() => {
     setMobileSidebarOpen(false);
   }, [location.pathname]);
+
+  useEffect(() => {
+    if (isReportEditorPage) {
+      setSidebarCollapsed(true);
+    }
+  }, [isReportEditorPage]);
 
   const handleLogout = async () => {
     await logout();
@@ -160,6 +169,7 @@ export function PanelLayout() {
       id: user.id,
       isActive: true,
       name: user.name,
+      panelRoleIds: [],
       password: "",
       passwordConfirmation: "",
       updatedAt: null,
@@ -272,8 +282,8 @@ export function PanelLayout() {
               onToggleCollapsed={() => setSidebarCollapsed((current) => !current)}
             />
 
-            <main className="min-h-0 flex-1 overflow-y-auto">
-              <div className="w-full px-5 py-6 md:px-8 md:py-7 xl:px-10">
+            <main className={`min-h-0 flex-1 ${isReportEditorPage ? "overflow-hidden" : "overflow-y-auto"}`}>
+              <div className={`w-full px-5 py-6 md:px-8 md:py-7 xl:px-10 ${isReportEditorPage ? "h-full overflow-hidden" : ""}`}>
                 <Outlet />
               </div>
             </main>

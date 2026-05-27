@@ -2,6 +2,7 @@ import {
   BadgeDollarSign,
   BriefcaseBusiness,
   Funnel,
+  FileText,
   FolderKanban,
   Globe,
   Inbox,
@@ -10,6 +11,7 @@ import {
   Link2,
   MessageSquareQuote,
   Users,
+  ShieldCheck,
   UsersRound,
   type LucideIcon,
 } from "lucide-react";
@@ -43,19 +45,35 @@ export const PANEL_NAV_PRIMARY_ITEMS: PanelNavItem[] = [
     title: "Dashboard",
     description: "Resumo geral do painel, indicadores e atalhos operacionais.",
   },
-  {
-    key: "usuarios",
-    label: "Usuários",
-    segment: "usuarios",
-    to: "/painel/usuarios",
-    icon: Users,
-    implemented: true,
-    title: "Usuários",
-    description: "Gestão de perfis, acessos, papéis e administradores do sistema.",
-  },
 ];
 
 export const PANEL_NAV_GROUPS: PanelNavGroup[] = [
+  {
+    key: "administration",
+    label: "Administração",
+    items: [
+      {
+        key: "usuarios",
+        label: "Usuários",
+        segment: "usuarios",
+        to: "/painel/usuarios",
+        icon: Users,
+        implemented: true,
+        title: "Usuários",
+        description: "Gestão de perfis, acessos, papéis e administradores do sistema.",
+      },
+      {
+        key: "cargos",
+        label: "Cargos",
+        segment: "cargos",
+        to: "/painel/cargos",
+        icon: ShieldCheck,
+        implemented: true,
+        title: "Cargos",
+        description: "Cadastro de cargos e permissões de páginas do painel.",
+      },
+    ],
+  },
   {
     key: "contacts",
     label: "Contatos",
@@ -115,6 +133,22 @@ export const PANEL_NAV_GROUPS: PanelNavGroup[] = [
         implemented: true,
         title: "Clientes",
         description: "Gestão das marcas atendidas, com controle de status, destaques e relacionamento.",
+      },
+    ],
+  },
+  {
+    key: "reports",
+    label: "Relatórios",
+    items: [
+      {
+        key: "relatorio-cliente",
+        label: "Relatório Cliente",
+        segment: "relatorios-clientes",
+        to: "/painel/relatorios-clientes",
+        icon: FileText,
+        implemented: true,
+        title: "Relatório Cliente",
+        description: "Criação, edição e gestão de relatórios personalizados por cliente.",
       },
     ],
   },

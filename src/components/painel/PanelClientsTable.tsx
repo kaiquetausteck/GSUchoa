@@ -30,6 +30,14 @@ function formatDate(value: string | null) {
   }).format(parsedDate);
 }
 
+const CLIENT_STATUS_LABELS: Record<PanelClientSummaryRecord["status"], string> = {
+  active: "Ativo",
+  onboarding: "Onboarding",
+  paused: "Pausado",
+  inactive: "Inativo",
+  archived: "Arquivado",
+};
+
 export function PanelClientsTable({
   footer,
   isLoading,
@@ -72,7 +80,8 @@ export function PanelClientsTable({
           <thead className="panel-card-muted border-b border-outline-variant/12">
             <tr className="text-[11px] uppercase tracking-[0.18em] text-on-surface-variant">
               <th className="px-6 py-4 font-semibold">Cliente</th>
-              <th className="px-6 py-4 font-semibold">Status</th>
+              <th className="px-6 py-4 font-semibold">Gestão</th>
+              <th className="px-6 py-4 font-semibold">Site</th>
               <th className="px-6 py-4 font-semibold">Ordem</th>
               <th className="px-6 py-4 font-semibold">Atualizado em</th>
               <th className="px-6 py-4 text-right font-semibold">Ações</th>
@@ -87,11 +96,15 @@ export function PanelClientsTable({
                 <td className="min-w-[22rem] px-6 py-5">
                   <div className="flex items-center gap-4">
                     <div className="partner-logo-card flex h-16 w-24 flex-none items-center justify-center overflow-hidden rounded-2xl border px-4 py-3">
-                      <img
-                        alt={item.name}
-                        className="partner-logo-image max-h-9 w-full object-contain"
-                        src={item.logoUrl}
-                      />
+                      {item.logoUrl ? (
+                        <img
+                          alt={item.name}
+                          className="partner-logo-image max-h-9 w-full object-contain"
+                          src={item.logoUrl}
+                        />
+                      ) : (
+                        <span className="text-xs font-semibold uppercase text-on-surface-variant">Sem logo</span>
+                      )}
                     </div>
                     <div className="min-w-0">
                       <p className="truncate text-[15px] font-semibold text-on-surface">{item.name}</p>
@@ -114,6 +127,16 @@ export function PanelClientsTable({
                 </td>
                 <td className="px-6 py-5">
                   <div className="flex flex-col gap-2">
+                    <span className="inline-flex rounded-full border border-primary/20 bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">
+                      {CLIENT_STATUS_LABELS[item.status]}
+                    </span>
+                    <span className="inline-flex rounded-full border border-outline-variant/16 bg-surface-container-low px-3 py-1 text-xs font-semibold text-on-surface-variant">
+                      {item.permissionsCount} funcionário{item.permissionsCount === 1 ? "" : "s"}
+                    </span>
+                  </div>
+                </td>
+                <td className="px-6 py-5">
+                  <div className="flex flex-col gap-2">
                     <span
                       className={`inline-flex rounded-full border px-3 py-1 text-xs font-semibold ${
                         item.isPublished
@@ -132,6 +155,33 @@ export function PanelClientsTable({
                     >
                       {item.featured ? "Em destaque" : "Sem destaque"}
                     </span>
+                    <div className="flex flex-wrap gap-1.5 pt-1">
+                      {item.socialMediaEnabled ? (
+                        <span className="rounded-full bg-surface-container-low px-2 py-1 text-[11px] font-semibold text-on-surface-variant">
+                          Social
+                        </span>
+                      ) : null}
+                      {item.paidMediaEnabled ? (
+                        <span className="rounded-full bg-surface-container-low px-2 py-1 text-[11px] font-semibold text-on-surface-variant">
+                          Tráfego
+                        </span>
+                      ) : null}
+                      {item.metaEnabled ? (
+                        <span className="rounded-full bg-surface-container-low px-2 py-1 text-[11px] font-semibold text-on-surface-variant">
+                          Meta
+                        </span>
+                      ) : null}
+                      {item.googleEnabled ? (
+                        <span className="rounded-full bg-surface-container-low px-2 py-1 text-[11px] font-semibold text-on-surface-variant">
+                          Google
+                        </span>
+                      ) : null}
+                      {item.linkedinEnabled ? (
+                        <span className="rounded-full bg-surface-container-low px-2 py-1 text-[11px] font-semibold text-on-surface-variant">
+                          LinkedIn
+                        </span>
+                      ) : null}
+                    </div>
                   </div>
                 </td>
                 <td className="px-6 py-5 text-on-surface-variant">

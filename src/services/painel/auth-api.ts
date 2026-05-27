@@ -30,6 +30,13 @@ export type PanelUser = {
   email: string;
   role: string;
   avatarUrl: string | null;
+  panelRoles: Array<{
+    id: string;
+    name: string;
+    slug: string;
+    pageKeys: string[];
+  }>;
+  panelPageKeys: string[];
 };
 
 type JsonRecord = Record<string, unknown>;
@@ -170,6 +177,22 @@ function normalizeUser(payload: unknown): PanelUser | null {
     name: name ?? email ?? "Usuário",
     email: email ?? "",
     role: getFirstString([source.role, source.profile, source.type, source.permission]) ?? "Administrador",
+    panelRoles: Array.isArray(source.panelRoles)
+      ? source.panelRoles
+          .filter(isRecord)
+          .map((role) => ({
+            id: getFirstString([role.id]) ?? "",
+            name: getFirstString([role.name]) ?? "Cargo",
+            slug: getFirstString([role.slug]) ?? "",
+            pageKeys: Array.isArray(role.pageKeys)
+              ? role.pageKeys.filter((item): item is string => typeof item === "string")
+              : [],
+          }))
+          .filter((role) => role.id)
+      : [],
+    panelPageKeys: Array.isArray(source.panelPageKeys)
+      ? source.panelPageKeys.filter((item): item is string => typeof item === "string")
+      : [],
     avatarUrl: resolveApiAssetUrl(
       PANEL_API_BASE_URL,
       getFirstString([source.avatarUrl, source.avatar_url, source.image, source.photo, source.picture]),

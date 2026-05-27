@@ -13,6 +13,8 @@ const PANEL_CLIENT_FEATURE_PATH =
   import.meta.env.VITE_PANEL_ADMIN_CLIENT_FEATURE_PATH ?? "/admin/clients/:id/feature";
 
 export type PanelClientSort =
+  | "name-asc"
+  | "name-desc"
   | "sortOrder-asc"
   | "sortOrder-desc"
   | "createdAt-desc"
@@ -20,13 +22,58 @@ export type PanelClientSort =
   | "publishedAt-desc"
   | "publishedAt-asc";
 
+export type PanelClientStatus = "active" | "onboarding" | "paused" | "inactive" | "archived";
+export type PanelClientAccessModule = "paid_media" | "social_media";
+export type PanelClientAccessPlatform = "META" | "GOOGLE" | "LINKEDIN";
+
+export type PanelClientAccessResourceRecord = {
+  id: string;
+  clientId: string;
+  module: PanelClientAccessModule;
+  platform: PanelClientAccessPlatform;
+  externalId: string;
+  name: string;
+  pictureUrl: string | null;
+  metadata: unknown;
+};
+
+export type PanelClientPermissionRecord = {
+  id: string;
+  clientId: string;
+  userId: string;
+  canEdit: boolean;
+  canViewSocialMedia: boolean;
+  canViewPaidMedia: boolean;
+  canViewMeta: boolean;
+  canViewGoogle: boolean;
+  canViewLinkedin: boolean;
+  createdAt: string | null;
+  updatedAt: string | null;
+  user: {
+    id: string;
+    name: string;
+    email: string;
+    role: string;
+    avatarUrl: string | null;
+    isActive: boolean;
+  };
+  resources: PanelClientAccessResourceRecord[];
+};
+
 export type PanelClientSummaryRecord = {
   id: string;
   name: string;
   slug: string;
-  logoUrl: string;
+  logoUrl: string | null;
   website: string | null;
   description: string | null;
+  status: PanelClientStatus;
+  socialMediaEnabled: boolean;
+  paidMediaEnabled: boolean;
+  metaEnabled: boolean;
+  googleEnabled: boolean;
+  linkedinEnabled: boolean;
+  permissionsCount: number;
   featured: boolean;
   sortOrder: number;
   isPublished: boolean;
@@ -39,6 +86,8 @@ export type PanelClientDetailRecord = PanelClientSummaryRecord & {
   deletedAt: string | null;
   createdByUserId: string | null;
   updatedByUserId: string | null;
+  permissions: PanelClientPermissionRecord[];
+  resources: PanelClientAccessResourceRecord[];
 };
 
 export type PanelClientListFilters = {
@@ -63,11 +112,43 @@ export type PanelClientUpsertInput = {
   slug: string;
   website?: string | null;
   description?: string | null;
+  status: PanelClientStatus;
+  socialMediaEnabled: boolean;
+  paidMediaEnabled: boolean;
+  metaEnabled: boolean;
+  googleEnabled: boolean;
+  linkedinEnabled: boolean;
+  permissions?: Array<{
+    userId: string;
+    canEdit: boolean;
+    canViewSocialMedia: boolean;
+    canViewPaidMedia: boolean;
+    canViewMeta: boolean;
+    canViewGoogle: boolean;
+    canViewLinkedin: boolean;
+    resources?: Array<{
+      module: PanelClientAccessModule;
+      platform: PanelClientAccessPlatform;
+      externalId: string;
+      name: string;
+      pictureUrl?: string | null;
+      metadata?: Record<string, unknown> | null;
+    }>;
+  }>;
+  resources?: Array<{
+    module: PanelClientAccessModule;
+    platform: PanelClientAccessPlatform;
+    externalId: string;
+    name: string;
+    pictureUrl?: string | null;
+    metadata?: Record<string, unknown> | null;
+  }>;
   featured: boolean;
   sortOrder: number;
   isPublished: boolean;
   publishedAt?: string | null;
   logoFile?: File | null;
+  removeLogo?: boolean;
 };
 
 type JsonRecord = Record<string, unknown>;
@@ -150,6 +231,93 @@ function getFirstNumber(values: unknown[]) {
   }
 
   return null;
+}
+
+function normalizeClientStatus(value: unknown): PanelClientStatus {
+  const normalized = typeof value === "string" ? value.trim().toLowerCase() : "";
+
+  if (["onboarding", "paused", "inactive", "archived"].includes(normalized)) {
+    return normalized as PanelClientStatus;
+  }
+
+  return "active";
+}
+
+function normalizePanelClientPermission(payload: unknown): PanelClientPermissionRecord | null {
+  if (!isRecord(payload)) {
+    return null;
+  }
+
+  const user = isRecord(payload.user) ? payload.user : null;
+  const userId = getFirstString([payload.userId, user?.id]);
+  const userName = getFirstString([user?.name, user?.email]);
+
+  if (!userId || !userName) {
+    return null;
+  }
+
+  const resourcesRaw = Array.isArray(payload.resources) ? payload.resources : [];
+
+  return {
+    id: getFirstString([payload.id]) ?? `${getFirstString([payload.clientId]) ?? "client"}-${userId}`,
+    clientId: getFirstString([payload.clientId]) ?? "",
+    userId,
+    canEdit: getFirstBoolean([payload.canEdit]) ?? false,
+    canViewSocialMedia: getFirstBoolean([payload.canViewSocialMedia]) ?? true,
+    canViewPaidMedia: getFirstBoolean([payload.canViewPaidMedia]) ?? true,
+    canViewMeta: getFirstBoolean([payload.canViewMeta]) ?? true,
+    canViewGoogle: getFirstBoolean([payload.canViewGoogle]) ?? false,
+    canViewLinkedin: getFirstBoolean([payload.canViewLinkedin]) ?? false,
+    createdAt: getFirstString([payload.createdAt]),
+    updatedAt: getFirstString([payload.updatedAt]),
+    user: {
+      id: userId,
+      name: userName,
+      email: getFirstString([user?.email]) ?? "",
+      role: getFirstString([user?.role]) ?? "editor",
+      avatarUrl: normalizeLogoUrl(user?.avatarUrl) ?? null,
+      isActive: getFirstBoolean([user?.isActive]) ?? true,
+    },
+    resources: resourcesRaw
+      .map((resource) => normalizePanelClientAccessResource(resource))
+      .filter((resource): resource is PanelClientAccessResourceRecord => resource !== null),
+  };
+}
+
+function normalizeClientAccessModule(value: unknown): PanelClientAccessModule | null {
+  return value === "paid_media" || value === "social_media" ? value : null;
+}
+
+function normalizeClientAccessPlatform(value: unknown): PanelClientAccessPlatform | null {
+  return value === "META" || value === "GOOGLE" || value === "LINKEDIN" ? value : null;
+}
+
+function normalizePanelClientAccessResource(payload: unknown): PanelClientAccessResourceRecord | null {
+  if (!isRecord(payload)) {
+    return null;
+  }
+
+  const id = getFirstString([payload.id]);
+  const clientId = getFirstString([payload.clientId]);
+  const module = normalizeClientAccessModule(payload.module);
+  const platform = normalizeClientAccessPlatform(payload.platform);
+  const externalId = getFirstString([payload.externalId]);
+  const name = getFirstString([payload.name]);
+
+  if (!id || !clientId || !module || !platform || !externalId || !name) {
+    return null;
+  }
+
+  return {
+    id,
+    clientId,
+    module,
+    platform,
+    externalId,
+    name,
+    pictureUrl: normalizeLogoUrl(payload.pictureUrl) ?? null,
+    metadata: payload.metadata ?? null,
+  };
 }
 
 function extractStringList(value: unknown): string[] {
@@ -257,8 +425,10 @@ function normalizePanelClientRecord(payload: unknown): PanelClientDetailRecord |
   const featured = getFirstBoolean([payload.featured]);
   const sortOrder = getFirstNumber([payload.sortOrder]);
   const isPublished = getFirstBoolean([payload.isPublished]);
+  const permissionsRaw = Array.isArray(payload.permissions) ? payload.permissions : [];
+  const resourcesRaw = Array.isArray(payload.resources) ? payload.resources : [];
 
-  if (!id || !name || !slug || !logoUrl || featured === null || sortOrder === null || isPublished === null) {
+  if (!id || !name || !slug || featured === null || sortOrder === null || isPublished === null) {
     return null;
   }
 
@@ -269,6 +439,13 @@ function normalizePanelClientRecord(payload: unknown): PanelClientDetailRecord |
     logoUrl,
     website: getFirstString([payload.website]),
     description: getFirstString([payload.description]),
+    status: normalizeClientStatus(payload.status),
+    socialMediaEnabled: getFirstBoolean([payload.socialMediaEnabled]) ?? false,
+    paidMediaEnabled: getFirstBoolean([payload.paidMediaEnabled]) ?? false,
+    metaEnabled: getFirstBoolean([payload.metaEnabled]) ?? false,
+    googleEnabled: getFirstBoolean([payload.googleEnabled]) ?? false,
+    linkedinEnabled: getFirstBoolean([payload.linkedinEnabled]) ?? false,
+    permissionsCount: getFirstNumber([payload.permissionsCount, isRecord(payload._count) ? payload._count.permissions : null]) ?? permissionsRaw.length,
     featured,
     sortOrder,
     isPublished,
@@ -278,6 +455,12 @@ function normalizePanelClientRecord(payload: unknown): PanelClientDetailRecord |
     deletedAt: getFirstString([payload.deletedAt]),
     createdByUserId: getFirstString([payload.createdByUserId]),
     updatedByUserId: getFirstString([payload.updatedByUserId]),
+    permissions: permissionsRaw
+      .map((permission) => normalizePanelClientPermission(permission))
+      .filter((permission): permission is PanelClientPermissionRecord => permission !== null),
+    resources: resourcesRaw
+      .map((resource) => normalizePanelClientAccessResource(resource))
+      .filter((resource): resource is PanelClientAccessResourceRecord => resource !== null),
   };
 }
 
@@ -286,6 +469,8 @@ function toSummaryRecord(item: PanelClientDetailRecord): PanelClientSummaryRecor
     deletedAt: _deletedAt,
     createdByUserId: _createdByUserId,
     updatedByUserId: _updatedByUserId,
+    permissions: _permissions,
+    resources: _resources,
     ...summary
   } = item;
 
@@ -320,16 +505,22 @@ function buildClientFormData(input: PanelClientUpsertInput) {
   const formData = new FormData();
   formData.set("name", input.name.trim());
   formData.set("slug", input.slug.trim());
+  formData.set("status", input.status);
+  formData.set("socialMediaEnabled", String(input.socialMediaEnabled));
+  formData.set("paidMediaEnabled", String(input.paidMediaEnabled));
+  formData.set("metaEnabled", String(input.metaEnabled));
+  formData.set("googleEnabled", String(input.googleEnabled));
+  formData.set("linkedinEnabled", String(input.linkedinEnabled));
   formData.set("featured", String(input.featured));
   formData.set("sortOrder", String(input.sortOrder));
   formData.set("isPublished", String(input.isPublished));
 
-  if (input.website?.trim()) {
-    formData.set("website", input.website.trim());
+  if (input.website !== undefined) {
+    formData.set("website", input.website?.trim() ?? "");
   }
 
-  if (input.description?.trim()) {
-    formData.set("description", input.description.trim());
+  if (input.description !== undefined) {
+    formData.set("description", input.description?.trim() ?? "");
   }
 
   if (input.publishedAt) {
@@ -338,6 +529,18 @@ function buildClientFormData(input: PanelClientUpsertInput) {
 
   if (input.logoFile) {
     formData.set("logo", input.logoFile);
+  }
+
+  if (input.removeLogo) {
+    formData.set("removeLogo", "true");
+  }
+
+  if (input.permissions) {
+    formData.set("permissions", JSON.stringify(input.permissions));
+  }
+
+  if (input.resources) {
+    formData.set("resources", JSON.stringify(input.resources));
   }
 
   return formData;

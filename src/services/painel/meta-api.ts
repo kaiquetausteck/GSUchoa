@@ -1,4 +1,8 @@
 import { getPanelApiBaseUrl } from "./auth-api";
+import {
+  normalizePanelResourceAccessUsers,
+  type PanelResourceAccessUserRecord,
+} from "./resource-access";
 
 const PANEL_API_BASE_URL = getPanelApiBaseUrl();
 const PANEL_META_STATUS_PATH = import.meta.env.VITE_PANEL_META_STATUS_PATH ?? "/integrations/meta/status";
@@ -35,6 +39,7 @@ export type PanelMetaAdAccountRecord = {
   accountStatus: number | null;
   currency: string | null;
   timezoneName: string | null;
+  accessUsers: PanelResourceAccessUserRecord[];
 };
 
 export type PanelMetaConnectionDetailsRecord = PanelMetaConnectionStatusRecord & {
@@ -261,6 +266,7 @@ function normalizeMetaAdAccount(payload: unknown): PanelMetaAdAccountRecord | nu
     accountStatus: getFirstNumber([payload.accountStatus]),
     currency: getFirstString([payload.currency]),
     timezoneName: getFirstString([payload.timezoneName]),
+    accessUsers: normalizePanelResourceAccessUsers(payload.accessUsers),
   };
 }
 

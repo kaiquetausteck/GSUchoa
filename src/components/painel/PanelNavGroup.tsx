@@ -17,13 +17,11 @@ export function PanelNavGroup({ collapsed, group }: PanelNavGroupProps) {
     () => group.items.some((item) => location.pathname.startsWith(item.to)),
     [group.items, location.pathname],
   );
-  const [open, setOpen] = useState(true);
+  const [open, setOpen] = useState(hasActiveItem);
 
   useEffect(() => {
-    if (hasActiveItem) {
-      setOpen(true);
-    }
-  }, [hasActiveItem]);
+    setOpen(hasActiveItem);
+  }, [hasActiveItem, location.pathname]);
 
   if (collapsed) {
     return (

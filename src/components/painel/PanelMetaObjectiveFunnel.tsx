@@ -56,6 +56,78 @@ const FUNNEL_MIN_WIDTH = 124;
 const FUNNEL_VIEWBOX_WIDTH = 420;
 const FUNNEL_CENTER_X = FUNNEL_VIEWBOX_WIDTH / 2;
 
+function normalizeHexColor(value: string) {
+  const normalizedValue = value.trim();
+  const shortHexMatch = /^#([a-f\d])([a-f\d])([a-f\d])$/i.exec(normalizedValue);
+
+  if (shortHexMatch) {
+    return `#${shortHexMatch[1]}${shortHexMatch[1]}${shortHexMatch[2]}${shortHexMatch[2]}${shortHexMatch[3]}${shortHexMatch[3]}`;
+  }
+
+  return /^#[a-f\d]{6}$/i.test(normalizedValue) ? normalizedValue : null;
+}
+
+function hexToRgb(hex: string) {
+  const normalizedHex = normalizeHexColor(hex);
+
+  if (!normalizedHex) {
+    return null;
+  }
+
+  return {
+    b: Number.parseInt(normalizedHex.slice(5, 7), 16),
+    g: Number.parseInt(normalizedHex.slice(3, 5), 16),
+    r: Number.parseInt(normalizedHex.slice(1, 3), 16),
+  };
+}
+
+function rgbToHex({ b, g, r }: { b: number; g: number; r: number }) {
+  return `#${[r, g, b]
+    .map((channel) => Math.min(255, Math.max(0, Math.round(channel))).toString(16).padStart(2, "0"))
+    .join("")}`;
+}
+
+function mixHexColor(hex: string, targetHex: string, amount: number) {
+  const color = hexToRgb(hex);
+  const target = hexToRgb(targetHex);
+
+  if (!color || !target) {
+    return hex;
+  }
+
+  return rgbToHex({
+    b: color.b + (target.b - color.b) * amount,
+    g: color.g + (target.g - color.g) * amount,
+    r: color.r + (target.r - color.r) * amount,
+  });
+}
+
+function resolveStagePalette(stageColor: string, index: number) {
+  const fallback = FUNNEL_STAGE_PALETTE[index % FUNNEL_STAGE_PALETTE.length]!;
+  const gradientColors = Array.from(stageColor.matchAll(/#[a-f\d]{3,6}|rgba?\([^)]+\)/gi)).map((match) => match[0]);
+  const baseHex = normalizeHexColor(stageColor);
+
+  if (gradientColors.length >= 2) {
+    return {
+      end: gradientColors[1]!,
+      glow: fallback.glow,
+      start: gradientColors[0]!,
+    };
+  }
+
+  if (baseHex) {
+    const rgb = hexToRgb(baseHex);
+
+    return {
+      end: mixHexColor(baseHex, "#020617", 0.12),
+      glow: rgb ? `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 0.24)` : fallback.glow,
+      start: mixHexColor(baseHex, "#ffffff", 0.22),
+    };
+  }
+
+  return fallback;
+}
+
 function buildFunnelSegmentPath({
   bottomWidth,
   centerX,
@@ -252,8 +324,8 @@ export function PanelMetaObjectiveFunnel({
                     <feDropShadow dx="0" dy="18" floodColor="#020617" floodOpacity="0.34" stdDeviation="18" />
                   </filter>
 
-                  {safeStages.map((_, index) => {
-                    const palette = FUNNEL_STAGE_PALETTE[index % FUNNEL_STAGE_PALETTE.length]!;
+                  {safeStages.map((stage, index) => {
+                    const palette = resolveStagePalette(stage.color, index);
 
                     return (
                       <linearGradient
@@ -272,7 +344,7 @@ export function PanelMetaObjectiveFunnel({
                 </defs>
 
                 {safeStages.map((stage, index) => {
-                  const palette = FUNNEL_STAGE_PALETTE[index % FUNNEL_STAGE_PALETTE.length]!;
+                  const palette = resolveStagePalette(stage.color, index);
                   const topWidth = stageWidths[index]!;
                   const nextWidth =
                     stageWidths[index + 1] ?? Math.max(FUNNEL_MIN_WIDTH * 0.8, topWidth * 0.74);
@@ -368,7 +440,7 @@ export function PanelMetaObjectiveFunnel({
 
           <div className="grid content-start gap-3">
             {safeStages.map((stage, index) => {
-              const palette = FUNNEL_STAGE_PALETTE[index % FUNNEL_STAGE_PALETTE.length]!;
+              const palette = resolveStagePalette(stage.color, index);
 
               return (
                 <article
@@ -405,7 +477,7 @@ export function PanelMetaObjectiveFunnel({
         </div>
       </div>
 
-      <div className="grid gap-3 md:grid-cols-3">
+      {metrics.length ? <div className="grid gap-3 md:grid-cols-3">
         {metrics.map((metric) => (
           <article className="panel-card-muted rounded-[1.4rem] border px-4 py-4" key={metric.label}>
             <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-on-surface-variant">
@@ -415,9 +487,9 @@ export function PanelMetaObjectiveFunnel({
             <p className="mt-1 text-xs leading-relaxed text-on-surface-variant">{metric.helper}</p>
           </article>
         ))}
-      </div>
+      </div> : null}
 
-      <div className="grid grid-cols-2 gap-3">
+      {kpis.length ? <div className="grid grid-cols-2 gap-3">
         {kpis.map((kpi) => (
           <article className="panel-card-muted rounded-[1.25rem] border px-4 py-3" key={kpi.label}>
             <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-on-surface-variant">
@@ -426,7 +498,7 @@ export function PanelMetaObjectiveFunnel({
             <p className="mt-2 text-sm font-bold text-on-surface md:text-base">{kpi.value}</p>
           </article>
         ))}
-      </div>
+      </div> : null}
 
       {note ? (
         <div className="rounded-[1.35rem] border border-amber-500/18 bg-amber-500/8 px-4 py-3 text-sm leading-relaxed text-on-surface-variant">

@@ -7,6 +7,8 @@ import { PanelUserMenu } from "./PanelUserMenu";
 import {
   PANEL_NAV_GROUPS,
   PANEL_NAV_PRIMARY_ITEMS,
+  type PanelNavGroup as PanelNavGroupType,
+  type PanelNavItem,
 } from "../../config/painel/navigation";
 import type { PanelUser } from "../../services/painel/auth-api";
 
@@ -31,6 +33,21 @@ export function PanelSidebar({
   onOpenProfile,
   user,
 }: PanelSidebarProps) {
+  const canAccessItem = (item: PanelNavItem) => {
+    if (!user?.panelPageKeys?.length || user.panelPageKeys.includes("*")) {
+      return true;
+    }
+
+    return user.panelPageKeys.includes(item.key);
+  };
+  const primaryItems = PANEL_NAV_PRIMARY_ITEMS.filter(canAccessItem);
+  const groups = PANEL_NAV_GROUPS
+    .map((group): PanelNavGroupType => ({
+      ...group,
+      items: group.items.filter(canAccessItem),
+    }))
+    .filter((group) => group.items.length > 0);
+
   return (
     <>
       {mobileOpen ? (
@@ -63,7 +80,7 @@ export function PanelSidebar({
         <div className="min-h-0 flex-1 overflow-y-auto px-3 py-5">
           <nav className="space-y-4">
             <div className="space-y-2">
-              {PANEL_NAV_PRIMARY_ITEMS.map((item) => (
+              {primaryItems.map((item) => (
                 <PanelNavLink
                   activeMatch={item.activeMatch}
                   collapsed={collapsed}
@@ -75,7 +92,7 @@ export function PanelSidebar({
               ))}
             </div>
 
-            {PANEL_NAV_GROUPS.map((group) => (
+            {groups.map((group) => (
               <PanelNavGroup collapsed={collapsed} group={group} key={group.key} />
             ))}
           </nav>

@@ -1,4 +1,8 @@
 import { getPanelApiBaseUrl } from "./auth-api";
+import {
+  normalizePanelResourceAccessUsers,
+  type PanelResourceAccessUserRecord,
+} from "./resource-access";
 
 const PANEL_API_BASE_URL = getPanelApiBaseUrl();
 const PANEL_GOOGLE_STATUS_PATH = import.meta.env.VITE_PANEL_GOOGLE_STATUS_PATH ?? "/integrations/google/status";
@@ -39,6 +43,7 @@ export type PanelGoogleAdsCustomerRecord = {
   status: string | null;
   testAccount: boolean;
   timeZone: string | null;
+  accessUsers: PanelResourceAccessUserRecord[];
 };
 
 export type PanelGoogleConnectionDetailsRecord = PanelGoogleConnectionStatusRecord & {
@@ -288,6 +293,7 @@ function normalizeGoogleAdsCustomerRecord(payload: unknown): PanelGoogleAdsCusto
     status: getFirstString([payload.status]),
     testAccount: getFirstBoolean([payload.testAccount]) ?? false,
     timeZone: getFirstString([payload.timeZone]),
+    accessUsers: normalizePanelResourceAccessUsers(payload.accessUsers),
   };
 }
 

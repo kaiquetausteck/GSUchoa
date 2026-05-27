@@ -1,5 +1,6 @@
 import { ArrowUpRight, Clock3, Globe, ShieldCheck } from "lucide-react";
 
+import { PanelResourceAccessUsers } from "./PanelResourceAccessUsers";
 import type { PanelGoogleAdsCustomerRecord } from "../../services/painel/google-api";
 
 type PanelPaidMediaGoogleCustomersTableProps = {
@@ -57,6 +58,7 @@ export function PanelPaidMediaGoogleCustomersTable({
               <th className="px-6 py-4 font-semibold">Moeda</th>
               <th className="px-6 py-4 font-semibold">Fuso</th>
               <th className="px-6 py-4 font-semibold">Status</th>
+              <th className="px-6 py-4 font-semibold">Acessos</th>
               <th className="px-6 py-4 text-right font-semibold">Dashboard</th>
             </tr>
           </thead>
@@ -110,6 +112,9 @@ export function PanelPaidMediaGoogleCustomersTable({
                     <ShieldCheck className="h-3.5 w-3.5" />
                     {formatCustomerStatus(item.status)}
                   </span>
+                </td>
+                <td className="px-6 py-5">
+                  <PanelResourceAccessUsers users={item.accessUsers} />
                 </td>
                 <td className="px-6 py-5 text-right">
                   <button

@@ -1,5 +1,6 @@
 import { ArrowUpRight, BarChart3, Camera, CheckCircle2, Globe2, Radar } from "lucide-react";
 
+import { PanelResourceAccessUsers } from "./PanelResourceAccessUsers";
 import type { PanelMetaSocialMediaAccountRecord } from "../../services/painel/social-media-api";
 
 type PanelSocialMediaAccountsTableProps = {
@@ -55,6 +56,7 @@ export function PanelSocialMediaAccountsTable({
               <th className="px-6 py-4 font-semibold">Conta</th>
               <th className="px-6 py-4 font-semibold">Canais</th>
               <th className="px-6 py-4 font-semibold">Cobertura</th>
+              <th className="px-6 py-4 font-semibold">Acessos</th>
               <th className="px-6 py-4 text-right font-semibold">Abrir</th>
             </tr>
           </thead>
@@ -143,6 +145,10 @@ export function PanelSocialMediaAccountsTable({
                       </span>
                     </div>
                   </div>
+                </td>
+
+                <td className="px-6 py-5">
+                  <PanelResourceAccessUsers users={item.accessUsers} />
                 </td>
 
                 <td className="px-6 py-5 text-right">

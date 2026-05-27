@@ -15,6 +15,7 @@ export function createPanelUserDraft(user: PanelUserRecord): PanelUserDraft {
     name: user.name,
     password: "",
     passwordConfirmation: "",
+    panelRoleIds: user.panelRoles.map((role) => role.id),
     updatedAt: user.updatedAt,
   };
 }
@@ -30,6 +31,7 @@ export function createEmptyPanelUserDraft(): PanelUserDraft {
     name: "",
     password: "",
     passwordConfirmation: "",
+    panelRoleIds: [],
     updatedAt: null,
   };
 }

@@ -1,4 +1,8 @@
 import { getPanelApiBaseUrl } from "./auth-api";
+import {
+  normalizePanelResourceAccessUsers,
+  type PanelResourceAccessUserRecord,
+} from "./resource-access";
 import { resolveApiAssetUrl } from "./resolve-api-asset-url";
 
 const PANEL_API_BASE_URL = getPanelApiBaseUrl();
@@ -499,6 +503,7 @@ export type PanelMetaSocialMediaAccountRecord = {
   platforms: PanelMetaSocialMediaAccountPlatformRecord[];
   relation: PanelMetaSocialMediaAccountRelationRecord;
   type: PanelMetaSocialMediaAccountType;
+  accessUsers: PanelResourceAccessUserRecord[];
 };
 
 export type PanelMetaSocialMediaMetricTotalsRecord = {
@@ -1853,6 +1858,7 @@ function normalizeMetaSocialMediaAccountRecord(
     platforms,
     relation,
     type,
+    accessUsers: normalizePanelResourceAccessUsers(payload.accessUsers),
   };
 }
 
