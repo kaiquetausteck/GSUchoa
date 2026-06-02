@@ -206,6 +206,17 @@ export const PANEL_NAV_GROUPS: PanelNavGroup[] = [
         title: "Google Ads",
         description: "Listagem de contas Google Ads com acesso ao dashboard operacional em uma rota dedicada por conta.",
       },
+      {
+        activeMatch: "prefix",
+        key: "trafego-pago-linkedin",
+        label: "LinkedIn",
+        segment: "trafego-pago/linkedin",
+        to: "/painel/trafego-pago/linkedin",
+        icon: BriefcaseBusiness,
+        implemented: true,
+        title: "LinkedIn Ads",
+        description: "Listagem de contas LinkedIn Ads com leitura operacional de investimento, impressões, cliques e conversões.",
+      },
     ],
   },
   {

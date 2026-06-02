@@ -67,11 +67,11 @@ function getFirstBoolean(values: unknown[]) {
     if (typeof value === "string") {
       const normalized = value.trim().toLowerCase();
 
-      if (["true", "1", "yes", "sim", "featured"].includes(normalized)) {
+      if (["true", "1", "yes", "sim", "featured", "published", "visible", "active"].includes(normalized)) {
         return true;
       }
 
-      if (["false", "0", "no", "nao"].includes(normalized)) {
+      if (["false", "0", "no", "nao", "draft", "hidden", "inactive"].includes(normalized)) {
         return false;
       }
     }
@@ -179,8 +179,24 @@ function normalizePublicClientRecord(payload: unknown): PublicClientDetail | nul
   const logoUrl = resolveApiAssetUrl(SITE_API_BASE_URL, getFirstString([payload.logoUrl, payload.logo, payload.image]));
   const featured = getFirstBoolean([payload.featured]);
   const sortOrder = getFirstNumber([payload.sortOrder]);
+  const status = getFirstString([payload.status])?.toLowerCase();
+  const isVisibleOnSite = getFirstBoolean([
+    payload.showOnSite,
+    payload.visibleOnSite,
+    payload.isVisibleOnSite,
+    payload.showInSite,
+    payload.isPublished,
+  ]);
 
   if (!id || !name || !slug || !logoUrl || featured === null || sortOrder === null) {
+    return null;
+  }
+
+  if (status && status !== "active") {
+    return null;
+  }
+
+  if (isVisibleOnSite === false) {
     return null;
   }
 
@@ -226,7 +242,7 @@ export async function listPublicClients(filters?: { featured?: boolean }) {
 
   if (!response.ok) {
     throw new PublicClientsApiError(
-      extractMessage(payload, "Não foi possível carregar os clientes publicados."),
+      extractMessage(payload, "Não foi possível carregar os clientes visíveis no site."),
       response.status,
     );
   }

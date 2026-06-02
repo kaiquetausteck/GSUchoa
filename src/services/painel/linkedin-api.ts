@@ -16,6 +16,8 @@ const PANEL_LINKEDIN_VALIDATE_PATH =
   import.meta.env.VITE_PANEL_LINKEDIN_VALIDATE_PATH ?? "/integrations/linkedin/validate";
 const PANEL_LINKEDIN_CONNECTION_PATH =
   import.meta.env.VITE_PANEL_LINKEDIN_CONNECTION_PATH ?? "/integrations/linkedin/connection";
+const PANEL_LINKEDIN_AD_ACCOUNTS_PATH =
+  import.meta.env.VITE_PANEL_LINKEDIN_AD_ACCOUNTS_PATH ?? "/integrations/linkedin/ad-accounts";
 const PANEL_LINKEDIN_SOCIAL_MEDIA_ACCOUNTS_PATH =
   import.meta.env.VITE_PANEL_LINKEDIN_SOCIAL_MEDIA_ACCOUNTS_PATH ??
   "/integrations/linkedin/social-media/accounts";
@@ -56,6 +58,19 @@ export type PanelLinkedInConnectionDetailsRecord = PanelLinkedInConnectionStatus
 export type PanelLinkedInConnectResponse = {
   authorizationUrl: string;
   expiresAt: string | null;
+};
+
+export type PanelLinkedInAdAccountRecord = {
+  accountId: string;
+  accountUrn: string;
+  currency: string | null;
+  name: string;
+  referenceUrn: string | null;
+  role: string | null;
+  servingStatuses: string[];
+  status: string | null;
+  test: boolean;
+  type: string | null;
 };
 
 export type PanelLinkedInExchangeInput = {
@@ -652,6 +667,45 @@ function normalizeLinkedInConnectResponse(
   return {
     authorizationUrl,
     expiresAt: normalizeDateTime(root.expiresAt),
+  };
+}
+
+function normalizeStringList(value: unknown): string[] {
+  if (!Array.isArray(value)) {
+    return [];
+  }
+
+  return value
+    .map((item) => getFirstString([item]))
+    .filter((item): item is string => item !== null);
+}
+
+function normalizeLinkedInAdAccountRecord(
+  payload: unknown,
+): PanelLinkedInAdAccountRecord | null {
+  if (!isRecord(payload)) {
+    return null;
+  }
+
+  const accountId = getFirstString([payload.accountId, payload.id]);
+  const accountUrn = getFirstString([payload.accountUrn]);
+  const name = getFirstString([payload.name]);
+
+  if (!accountId || !accountUrn || !name) {
+    return null;
+  }
+
+  return {
+    accountId,
+    accountUrn,
+    currency: getFirstString([payload.currency]),
+    name,
+    referenceUrn: getFirstString([payload.referenceUrn]),
+    role: getFirstString([payload.role]),
+    servingStatuses: normalizeStringList(payload.servingStatuses),
+    status: getFirstString([payload.status]),
+    test: getFirstBoolean([payload.test]) ?? false,
+    type: getFirstString([payload.type]),
   };
 }
 
@@ -1332,6 +1386,21 @@ export async function deletePanelLinkedInConnection(token: string) {
       response.status,
     );
   }
+}
+
+export async function listPanelLinkedInAdAccounts(token: string) {
+  const { payload, response } = await requestJson(PANEL_LINKEDIN_AD_ACCOUNTS_PATH, token);
+
+  if (!response.ok) {
+    throw new PanelLinkedInApiError(
+      extractMessage(payload, "Não foi possível carregar as contas LinkedIn Ads."),
+      response.status,
+    );
+  }
+
+  return listPayloadArray(payload)
+    .map((item) => normalizeLinkedInAdAccountRecord(item))
+    .filter((item): item is PanelLinkedInAdAccountRecord => item !== null);
 }
 
 export async function listPanelLinkedInSocialAccounts(token: string) {

@@ -34,7 +34,7 @@ export function PartnersCarousel() {
         setErrorMessage(
           error instanceof Error
             ? error.message
-            : "Não foi possível carregar os clientes publicados.",
+            : "Não foi possível carregar os clientes visíveis no site.",
         );
       } finally {
         if (isMounted) {
@@ -70,7 +70,7 @@ export function PartnersCarousel() {
       <div className="rounded-[1.75rem] border border-outline-variant/12 bg-surface-container-low px-6 py-6 text-center">
         <p className="text-sm font-semibold text-on-surface">Não foi possível carregar os clientes.</p>
         <p className="mt-2 text-sm leading-relaxed text-on-surface-variant">
-          {errorMessage ?? "Assim que os clientes forem publicados no painel, eles aparecerão aqui."}
+          {errorMessage ?? "Assim que os clientes estiverem ativos e visíveis no site, eles aparecerão aqui."}
         </p>
       </div>
     );

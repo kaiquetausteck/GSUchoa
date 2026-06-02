@@ -424,7 +424,13 @@ function normalizePanelClientRecord(payload: unknown): PanelClientDetailRecord |
   const logoUrl = normalizeLogoUrl(payload.logoUrl ?? payload.logo ?? payload.image);
   const featured = getFirstBoolean([payload.featured]);
   const sortOrder = getFirstNumber([payload.sortOrder]);
-  const isPublished = getFirstBoolean([payload.isPublished]);
+  const isPublished = getFirstBoolean([
+    payload.isPublished,
+    payload.showOnSite,
+    payload.visibleOnSite,
+    payload.isVisibleOnSite,
+    payload.showInSite,
+  ]);
   const permissionsRaw = Array.isArray(payload.permissions) ? payload.permissions : [];
   const resourcesRaw = Array.isArray(payload.resources) ? payload.resources : [];
 
@@ -689,7 +695,7 @@ export async function setPanelClientPublished(token: string, id: string, isPubli
 
   if (!response.ok) {
     throw new PanelClientsApiError(
-      extractMessage(payload, "Não foi possível atualizar a publicação desse cliente."),
+      extractMessage(payload, "Não foi possível atualizar a exibição desse cliente no site."),
       response.status,
     );
   }
@@ -700,7 +706,7 @@ export async function setPanelClientPublished(token: string, id: string, isPubli
 
   if (!item) {
     throw new PanelClientsApiError(
-      "A API respondeu à publicação, mas o cliente retornado não foi reconhecido.",
+      "A API respondeu à exibição no site, mas o cliente retornado não foi reconhecido.",
     );
   }
 

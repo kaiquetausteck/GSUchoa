@@ -58,7 +58,7 @@ export default function ClientsPagePublic() {
         setErrorMessage(
           error instanceof Error
             ? error.message
-            : "Não foi possível carregar os clientes publicados.",
+            : "Não foi possível carregar os clientes visíveis no site.",
         );
       } finally {
         if (isMounted) {

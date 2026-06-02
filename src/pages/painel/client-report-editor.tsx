@@ -61,7 +61,7 @@ import {
 } from "../../services/painel/client-reports-api";
 
 type ReportBlockWidth = "full" | "half" | "third";
-type ReportBlockSource = "manual" | "meta_paid" | "google_paid" | "meta_social" | "linkedin_social";
+type ReportBlockSource = "manual" | "meta_paid" | "google_paid" | "linkedin_paid" | "meta_social" | "linkedin_social";
 type ReportImageFormat = "free" | "landscape" | "portrait" | "square" | "story";
 type ReportImageSourceMode = "gallery" | "upload";
 type ReportImagePropertyTab = "format" | "images";
@@ -247,6 +247,7 @@ type PendingInsertBlock = {
 
 const SOURCE_LABELS: Record<ReportBlockSource, string> = {
   google_paid: "Google Ads",
+  linkedin_paid: "LinkedIn Ads",
   linkedin_social: "LinkedIn",
   manual: "Manual",
   meta_paid: "Meta Ads",
@@ -257,6 +258,8 @@ const LIST_LABEL_OVERRIDES: Record<string, string> = {
   "meta_paid:ads": "Anúncios",
   "meta_paid:adsets": "Conjuntos de anúncios",
   "meta_paid:campaigns": "Campanhas",
+  "linkedin_paid:campaigns": "Campanhas",
+  "linkedin_paid:creatives": "Criativos",
   "meta_social:content_types": "Tipos de conteúdo",
   "meta_social:posts": "Posts",
 };
@@ -329,6 +332,14 @@ const METRIC_FIELDS: MetricField[] = [
   { source: "google_paid", key: "cpc", label: "CPC", value: "R$ 0,00", helper: "Google Ads - resumo atual", tone: "#16a34a" },
   { source: "google_paid", key: "conversions", label: "Conversões", value: "0", helper: "Google Ads - resumo atual", tone: "#16a34a" },
   { source: "google_paid", key: "cost_per_conversion", label: "Custo por conversão", value: "R$ 0,00", helper: "Google Ads - resumo atual", tone: "#16a34a" },
+  { source: "linkedin_paid", key: "spend", label: "Investimento", value: "R$ 0,00", helper: "LinkedIn Ads - resumo atual", tone: "#0a66c2" },
+  { source: "linkedin_paid", key: "impressions", label: "Impressões", value: "0", helper: "LinkedIn Ads - resumo atual", tone: "#0a66c2" },
+  { source: "linkedin_paid", key: "clicks", label: "Cliques", value: "0", helper: "LinkedIn Ads - resumo atual", tone: "#0a66c2" },
+  { source: "linkedin_paid", key: "ctr", label: "CTR", value: "0%", helper: "LinkedIn Ads - resumo atual", tone: "#0a66c2" },
+  { source: "linkedin_paid", key: "cpc", label: "CPC", value: "R$ 0,00", helper: "LinkedIn Ads - resumo atual", tone: "#0a66c2" },
+  { source: "linkedin_paid", key: "cpm", label: "CPM", value: "R$ 0,00", helper: "LinkedIn Ads - resumo atual", tone: "#0a66c2" },
+  { source: "linkedin_paid", key: "results", label: "Resultados", value: "0", helper: "LinkedIn Ads - resumo atual", tone: "#0a66c2" },
+  { source: "linkedin_paid", key: "cost_per_result", label: "Custo por resultado", value: "R$ 0,00", helper: "LinkedIn Ads - resumo atual", tone: "#0a66c2" },
   { source: "meta_social", key: "content_count", label: "Publicações", value: "0", helper: "Meta social - dashboard atual", tone: "#7c3aed" },
   { source: "meta_social", key: "views", label: "Visualizações", value: "0", helper: "Meta social - dashboard atual", tone: "#7c3aed" },
   { source: "meta_social", key: "reach", label: "Alcance", value: "0", helper: "Meta social - dashboard atual", tone: "#7c3aed" },
@@ -660,6 +671,7 @@ function asSpan(value: unknown) {
 function asSource(value: unknown): ReportBlockSource {
   return value === "meta_paid" ||
     value === "google_paid" ||
+    value === "linkedin_paid" ||
     value === "meta_social" ||
     value === "linkedin_social" ||
     value === "manual"
@@ -1491,7 +1503,7 @@ function normalizeDataSnapshot(value: unknown): ReportDataSnapshot | null {
     }),
   );
 
-  (["meta_paid", "google_paid", "meta_social", "linkedin_social"] as const).forEach((sourceKey) => {
+  (["meta_paid", "google_paid", "linkedin_paid", "meta_social", "linkedin_social"] as const).forEach((sourceKey) => {
     const source = rawSources[sourceKey];
     if (!isRecord(source)) {
       return;
@@ -1583,7 +1595,7 @@ function getSnapshotGalleryImages(snapshot: ReportDataSnapshot | null): Snapshot
     return [];
   }
 
-  return (["meta_paid", "google_paid", "meta_social", "linkedin_social"] as const).flatMap((source) =>
+  return (["meta_paid", "google_paid", "linkedin_paid", "meta_social", "linkedin_social"] as const).flatMap((source) =>
     (snapshot.sources[source]?.media ?? []).map((item) => ({
       ...item,
       source,
@@ -1597,7 +1609,7 @@ function getSnapshotLists(snapshot: ReportDataSnapshot | null, mode?: ReportList
     return [];
   }
 
-  return (["meta_paid", "google_paid", "meta_social", "linkedin_social"] as const)
+  return (["meta_paid", "google_paid", "linkedin_paid", "meta_social", "linkedin_social"] as const)
     .flatMap((source) => snapshot.sources[source]?.lists ?? [])
     .filter((list) => !mode || list.kind === mode);
 }
@@ -3326,6 +3338,7 @@ export default function ClientReportEditorPage() {
                     <option value="manual">Manual</option>
                     <option value="meta_paid">Meta Ads</option>
                     <option value="google_paid">Google Ads</option>
+                    <option value="linkedin_paid">LinkedIn Ads</option>
                     <option value="meta_social">Meta social</option>
                     <option value="linkedin_social">LinkedIn</option>
                   </AppSelect>
@@ -3964,6 +3977,7 @@ export default function ClientReportEditorPage() {
                               <option value="manual">Manual</option>
                               <option value="meta_paid">Meta Ads</option>
                               <option value="google_paid">Google Ads</option>
+                              <option value="linkedin_paid">LinkedIn Ads</option>
                               <option value="meta_social">Meta social</option>
                               <option value="linkedin_social">LinkedIn</option>
                             </AppSelect>

@@ -30,13 +30,9 @@ function formatDate(value: string | null) {
   }).format(parsedDate);
 }
 
-const CLIENT_STATUS_LABELS: Record<PanelClientSummaryRecord["status"], string> = {
-  active: "Ativo",
-  onboarding: "Onboarding",
-  paused: "Pausado",
-  inactive: "Inativo",
-  archived: "Arquivado",
-};
+function getClientStatusLabel(status: PanelClientSummaryRecord["status"]) {
+  return status === "active" ? "Ativo" : "Inativo";
+}
 
 export function PanelClientsTable({
   footer,
@@ -88,121 +84,130 @@ export function PanelClientsTable({
             </tr>
           </thead>
           <tbody>
-            {items.map((item) => (
-              <tr
-                className="border-b border-outline-variant/10 transition-colors hover:bg-surface-container-low/55 last:border-b-0"
-                key={item.id}
-              >
-                <td className="min-w-[22rem] px-6 py-5">
-                  <div className="flex items-center gap-4">
-                    <div className="partner-logo-card flex h-16 w-24 flex-none items-center justify-center overflow-hidden rounded-2xl border px-4 py-3">
-                      {item.logoUrl ? (
-                        <img
-                          alt={item.name}
-                          className="partner-logo-image max-h-9 w-full object-contain"
-                          src={item.logoUrl}
-                        />
-                      ) : (
-                        <span className="text-xs font-semibold uppercase text-on-surface-variant">Sem logo</span>
-                      )}
+            {items.map((item) => {
+              const isActive = item.status === "active";
+              const isVisibleOnSite = isActive && item.isPublished;
+
+              return (
+                <tr
+                  className="border-b border-outline-variant/10 transition-colors hover:bg-surface-container-low/55 last:border-b-0"
+                  key={item.id}
+                >
+                  <td className="min-w-[22rem] px-6 py-5">
+                    <div className="flex items-center gap-4">
+                      <div className="partner-logo-card flex h-16 w-24 flex-none items-center justify-center overflow-hidden rounded-2xl border px-4 py-3">
+                        {item.logoUrl ? (
+                          <img
+                            alt={item.name}
+                            className="partner-logo-image max-h-9 w-full object-contain"
+                            src={item.logoUrl}
+                          />
+                        ) : (
+                          <span className="text-xs font-semibold uppercase text-on-surface-variant">Sem logo</span>
+                        )}
+                      </div>
+                      <div className="min-w-0">
+                        <p className="truncate text-[15px] font-semibold text-on-surface">{item.name}</p>
+                        <p className="mt-1 truncate text-xs text-on-surface-variant">/{item.slug}</p>
+                        {item.website ? (
+                          <a
+                            className="mt-2 inline-flex items-center gap-2 text-xs font-medium text-primary transition-opacity hover:opacity-80"
+                            href={item.website}
+                            rel="noreferrer"
+                            target="_blank"
+                          >
+                            <Globe2 className="h-3.5 w-3.5" />
+                            {item.website}
+                          </a>
+                        ) : item.description ? (
+                          <p className="mt-2 line-clamp-1 text-xs text-on-surface-variant">{item.description}</p>
+                        ) : null}
+                      </div>
                     </div>
-                    <div className="min-w-0">
-                      <p className="truncate text-[15px] font-semibold text-on-surface">{item.name}</p>
-                      <p className="mt-1 truncate text-xs text-on-surface-variant">/{item.slug}</p>
-                      {item.website ? (
-                        <a
-                          className="mt-2 inline-flex items-center gap-2 text-xs font-medium text-primary transition-opacity hover:opacity-80"
-                          href={item.website}
-                          rel="noreferrer"
-                          target="_blank"
+                  </td>
+                  <td className="px-6 py-5">
+                    <div className="flex flex-wrap items-center gap-1.5">
+                      <span className="inline-flex items-center rounded-full border border-primary/20 bg-primary/10 px-2 py-0.5 text-[11px] font-semibold text-primary">
+                        {getClientStatusLabel(item.status)}
+                      </span>
+                      <span className="inline-flex items-center rounded-full border border-outline-variant/16 bg-surface-container-low px-2 py-0.5 text-[11px] font-semibold text-on-surface-variant">
+                        {item.permissionsCount} funcionário{item.permissionsCount === 1 ? "" : "s"}
+                      </span>
+                    </div>
+                  </td>
+                  <td className="px-6 py-5">
+                    <div className="flex max-w-[24rem] flex-col gap-2">
+                      <div className="flex flex-wrap items-center gap-1.5">
+                        <span
+                          className={`inline-flex items-center rounded-full border px-2 py-0.5 text-[11px] font-semibold ${
+                            isVisibleOnSite
+                              ? "border-emerald-500/20 bg-emerald-500/10 text-emerald-500"
+                              : "border-amber-500/20 bg-amber-500/10 text-amber-500"
+                          }`}
                         >
-                          <Globe2 className="h-3.5 w-3.5" />
-                          {item.website}
-                        </a>
-                      ) : item.description ? (
-                        <p className="mt-2 line-clamp-1 text-xs text-on-surface-variant">{item.description}</p>
-                      ) : null}
+                          {isVisibleOnSite ? "Aparece no site" : "Não aparece no site"}
+                        </span>
+                        {isVisibleOnSite ? (
+                          <span
+                            className={`inline-flex items-center rounded-full border px-2 py-0.5 text-[11px] font-semibold ${
+                              item.featured
+                                ? "border-primary/20 bg-primary/10 text-primary"
+                                : "border-outline-variant/16 bg-surface-container-low text-on-surface-variant"
+                            }`}
+                          >
+                            {item.featured ? "Em destaque" : "Sem destaque"}
+                          </span>
+                        ) : null}
+                      </div>
+                      <div className="flex flex-wrap gap-1.5">
+                        {item.socialMediaEnabled ? (
+                          <span className="rounded-full bg-surface-container-low px-2 py-0.5 text-[10px] font-semibold text-on-surface-variant">
+                            Social
+                          </span>
+                        ) : null}
+                        {item.paidMediaEnabled ? (
+                          <span className="rounded-full bg-surface-container-low px-2 py-0.5 text-[10px] font-semibold text-on-surface-variant">
+                            Tráfego
+                          </span>
+                        ) : null}
+                        {item.metaEnabled ? (
+                          <span className="rounded-full bg-surface-container-low px-2 py-0.5 text-[10px] font-semibold text-on-surface-variant">
+                            Meta
+                          </span>
+                        ) : null}
+                        {item.googleEnabled ? (
+                          <span className="rounded-full bg-surface-container-low px-2 py-0.5 text-[10px] font-semibold text-on-surface-variant">
+                            Google
+                          </span>
+                        ) : null}
+                        {item.linkedinEnabled ? (
+                          <span className="rounded-full bg-surface-container-low px-2 py-0.5 text-[10px] font-semibold text-on-surface-variant">
+                            LinkedIn
+                          </span>
+                        ) : null}
+                      </div>
                     </div>
-                  </div>
-                </td>
-                <td className="px-6 py-5">
-                  <div className="flex flex-col gap-2">
-                    <span className="inline-flex rounded-full border border-primary/20 bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">
-                      {CLIENT_STATUS_LABELS[item.status]}
-                    </span>
-                    <span className="inline-flex rounded-full border border-outline-variant/16 bg-surface-container-low px-3 py-1 text-xs font-semibold text-on-surface-variant">
-                      {item.permissionsCount} funcionário{item.permissionsCount === 1 ? "" : "s"}
-                    </span>
-                  </div>
-                </td>
-                <td className="px-6 py-5">
-                  <div className="flex flex-col gap-2">
-                    <span
-                      className={`inline-flex rounded-full border px-3 py-1 text-xs font-semibold ${
-                        item.isPublished
-                          ? "border-emerald-500/20 bg-emerald-500/10 text-emerald-500"
-                          : "border-amber-500/20 bg-amber-500/10 text-amber-500"
-                      }`}
-                    >
-                      {item.isPublished ? "Publicado" : "Rascunho"}
-                    </span>
-                    <span
-                      className={`inline-flex rounded-full border px-3 py-1 text-xs font-semibold ${
-                        item.featured
-                          ? "border-primary/20 bg-primary/10 text-primary"
-                          : "border-outline-variant/16 bg-surface-container-low text-on-surface-variant"
-                      }`}
-                    >
-                      {item.featured ? "Em destaque" : "Sem destaque"}
-                    </span>
-                    <div className="flex flex-wrap gap-1.5 pt-1">
-                      {item.socialMediaEnabled ? (
-                        <span className="rounded-full bg-surface-container-low px-2 py-1 text-[11px] font-semibold text-on-surface-variant">
-                          Social
-                        </span>
-                      ) : null}
-                      {item.paidMediaEnabled ? (
-                        <span className="rounded-full bg-surface-container-low px-2 py-1 text-[11px] font-semibold text-on-surface-variant">
-                          Tráfego
-                        </span>
-                      ) : null}
-                      {item.metaEnabled ? (
-                        <span className="rounded-full bg-surface-container-low px-2 py-1 text-[11px] font-semibold text-on-surface-variant">
-                          Meta
-                        </span>
-                      ) : null}
-                      {item.googleEnabled ? (
-                        <span className="rounded-full bg-surface-container-low px-2 py-1 text-[11px] font-semibold text-on-surface-variant">
-                          Google
-                        </span>
-                      ) : null}
-                      {item.linkedinEnabled ? (
-                        <span className="rounded-full bg-surface-container-low px-2 py-1 text-[11px] font-semibold text-on-surface-variant">
-                          LinkedIn
-                        </span>
-                      ) : null}
-                    </div>
-                  </div>
-                </td>
-                <td className="px-6 py-5 text-on-surface-variant">
-                  <p className="font-medium text-on-surface">#{item.sortOrder}</p>
-                  {item.publishedAt ? (
-                    <p className="mt-1 text-xs">Publicado em {formatDate(item.publishedAt)}</p>
-                  ) : null}
-                </td>
-                <td className="px-6 py-5 text-on-surface-variant">{formatDate(item.updatedAt)}</td>
-                <td className="px-6 py-5 text-right">
-                  <PanelClientsActionMenu
-                    featured={item.featured}
-                    isPublished={item.isPublished}
-                    onDelete={() => onDelete(item)}
-                    onEdit={() => onEdit(item)}
-                    onToggleFeatured={() => onToggleFeatured(item)}
-                    onTogglePublished={() => onTogglePublished(item)}
-                  />
-                </td>
-              </tr>
-            ))}
+                  </td>
+                  <td className="px-6 py-5 text-on-surface-variant">
+                    <p className="font-medium text-on-surface">#{item.sortOrder}</p>
+                    <p className="mt-1 text-xs">
+                      {isVisibleOnSite ? "Usada na vitrine pública" : "Não aplicada no site"}
+                    </p>
+                  </td>
+                  <td className="px-6 py-5 text-on-surface-variant">{formatDate(item.updatedAt)}</td>
+                  <td className="px-6 py-5 text-right">
+                    <PanelClientsActionMenu
+                      featured={item.featured}
+                      isPublished={item.isPublished}
+                      onDelete={() => onDelete(item)}
+                      onEdit={() => onEdit(item)}
+                      onToggleFeatured={() => onToggleFeatured(item)}
+                      onTogglePublished={() => onTogglePublished(item)}
+                    />
+                  </td>
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       </div>

@@ -1,9 +1,10 @@
 import {
   Ellipsis,
+  Eye,
+  EyeOff,
   PencilLine,
   Sparkles,
   Trash2,
-  UploadCloud,
 } from "lucide-react";
 import { useRef, useState } from "react";
 
@@ -71,8 +72,12 @@ export function PanelClientsActionMenu({
             }}
             type="button"
           >
-            <UploadCloud className="h-4 w-4 text-primary" />
-            {isPublished ? "Mover para rascunho" : "Publicar"}
+            {isPublished ? (
+              <EyeOff className="h-4 w-4 text-primary" />
+            ) : (
+              <Eye className="h-4 w-4 text-primary" />
+            )}
+            {isPublished ? "Ocultar do site" : "Mostrar no site"}
           </button>
           <button
             className="flex w-full items-center gap-3 rounded-[1rem] px-3 py-3 text-left text-sm font-medium text-on-surface transition-colors hover:bg-surface-container-high"

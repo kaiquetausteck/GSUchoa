@@ -27,8 +27,6 @@ const SORT_OPTIONS: Array<{ label: string; value: PanelClientSort }> = [
   { label: "Ordem decrescente", value: "sortOrder-desc" },
   { label: "Criação recente", value: "createdAt-desc" },
   { label: "Criação antiga", value: "createdAt-asc" },
-  { label: "Publicação recente", value: "publishedAt-desc" },
-  { label: "Publicação antiga", value: "publishedAt-asc" },
 ];
 
 export function PanelClientsFiltersBar({
@@ -49,9 +47,9 @@ export function PanelClientsFiltersBar({
 }: PanelClientsFiltersBarProps) {
   const publishedLabel =
     publishedValue === "published"
-      ? "Publicados"
+      ? "Visíveis no site"
       : publishedValue === "draft"
-        ? "Rascunhos"
+        ? "Ocultos do site"
         : "Todos";
   const featuredLabel =
     featuredValue === "featured"
@@ -132,13 +130,13 @@ export function PanelClientsFiltersBar({
                   </div>
 
                   <AppSelect
-                    label="Publicação"
+                    label="Exibição no site"
                     onChange={(event) => onPublishedChange(event.target.value as "all" | "published" | "draft")}
                     value={publishedValue}
                   >
                     <option value="all">Todos</option>
-                    <option value="published">Publicados</option>
-                    <option value="draft">Rascunhos</option>
+                    <option value="published">Visíveis no site</option>
+                    <option value="draft">Ocultos do site</option>
                   </AppSelect>
 
                   <AppSelect

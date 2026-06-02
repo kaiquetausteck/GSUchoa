@@ -16,6 +16,8 @@ import LoginPage from "../pages/painel/login";
 import ModulePage from "../pages/painel/module";
 import PaidMediaGoogleAccountDashboardPage from "../pages/painel/paid-media-google-client-dashboard";
 import PaidMediaGooglePage from "../pages/painel/paid-media-google";
+import PaidMediaLinkedInAccountDashboardPage from "../pages/painel/paid-media-linkedin-client-dashboard";
+import PaidMediaLinkedInPage from "../pages/painel/paid-media-linkedin";
 import PaidMediaMetaAccountDashboardPage from "../pages/painel/paid-media-meta-client-dashboard";
 import PaidMediaMetaPage from "../pages/painel/paid-media-meta";
 import PanelRolesPage from "../pages/painel/panel-roles";
@@ -88,6 +90,8 @@ export function AppRoutes() {
             <Route element={<PaidMediaMetaAccountDashboardPage />} path="trafego-pago/meta/:adAccountId/dashboard" />
             <Route element={<PaidMediaGooglePage />} path="trafego-pago/google" />
             <Route element={<PaidMediaGoogleAccountDashboardPage />} path="trafego-pago/google/:customerId/dashboard" />
+            <Route element={<PaidMediaLinkedInPage />} path="trafego-pago/linkedin" />
+            <Route element={<PaidMediaLinkedInAccountDashboardPage />} path="trafego-pago/linkedin/:accountId/dashboard" />
             <Route element={<Navigate replace to="/painel/contas-integracao/meta" />} path="contas-integracao" />
             <Route element={<AccountsIntegrationsPage />} path="contas-integracao/meta" />
             <Route element={<AccountsIntegrationsPage />} path="contas-integracao/google" />

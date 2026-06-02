@@ -23,7 +23,7 @@ import {
   updatePanelClient,
 } from "../../services/painel/clients-api";
 import { listPanelGoogleAdsCustomers } from "../../services/painel/google-api";
-import { listPanelLinkedInSocialAccounts } from "../../services/painel/linkedin-api";
+import { listPanelLinkedInAdAccounts, listPanelLinkedInSocialAccounts } from "../../services/painel/linkedin-api";
 import { listPanelMetaAdAccounts } from "../../services/painel/meta-api";
 import { listPanelMetaSocialMediaAccounts } from "../../services/painel/social-media-api";
 import { listPanelUsers, type PanelUserRecord } from "../../services/painel/users-api";
@@ -49,6 +49,10 @@ function formatDateTimeLocal(value: string | null) {
 
   const local = new Date(parsedDate.getTime() - parsedDate.getTimezoneOffset() * 60000);
   return local.toISOString().slice(0, 16);
+}
+
+function normalizeClientStatusForDraft(status: PanelClientDetailRecord["status"]) {
+  return status === "active" ? "active" : "inactive";
 }
 
 function createClientDraft(detail: PanelClientDetailRecord): PanelClientDraft {
@@ -93,7 +97,7 @@ function createClientDraft(detail: PanelClientDetailRecord): PanelClientDraft {
     slug: detail.slug,
     sortOrder: detail.sortOrder,
     socialMediaEnabled: detail.socialMediaEnabled,
-    status: detail.status,
+    status: normalizeClientStatusForDraft(detail.status),
     updatedAt: detail.updatedAt,
     website: detail.website ?? "",
   };
@@ -130,6 +134,8 @@ function getDrawerTabFromErrorMessage(message: string): PanelClientsDrawerTab {
   const normalizedMessage = message.toLowerCase();
 
   if (
+    normalizedMessage.includes("site") ||
+    normalizedMessage.includes("exib") ||
     normalizedMessage.includes("publica") ||
     normalizedMessage.includes("featured") ||
     normalizedMessage.includes("destaque") ||
@@ -287,9 +293,10 @@ export default function ClientsPage() {
     setIsAccessResourcesLoading(true);
 
     void (async () => {
-      const [metaAdsResult, googleResult, metaSocialResult, linkedinResult] = await Promise.allSettled([
+      const [metaAdsResult, googleResult, linkedinAdsResult, metaSocialResult, linkedinResult] = await Promise.allSettled([
         listPanelMetaAdAccounts(token),
         listPanelGoogleAdsCustomers(token),
+        listPanelLinkedInAdAccounts(token),
         listPanelMetaSocialMediaAccounts(token),
         listPanelLinkedInSocialAccounts(token),
       ]);
@@ -327,6 +334,26 @@ export default function ClientsPage() {
             manager: account.manager,
             status: account.status,
             timeZone: account.timeZone,
+          },
+        })));
+      }
+
+      if (linkedinAdsResult.status === "fulfilled") {
+        resources.push(...linkedinAdsResult.value.map((account) => ({
+          module: "paid_media" as const,
+          platform: "LINKEDIN" as const,
+          externalId: account.accountId,
+          name: account.name,
+          pictureUrl: null,
+          metadata: {
+            accountUrn: account.accountUrn,
+            currency: account.currency,
+            referenceUrn: account.referenceUrn,
+            role: account.role,
+            servingStatuses: account.servingStatuses,
+            status: account.status,
+            test: account.test,
+            type: account.type,
           },
         })));
       }
@@ -443,7 +470,7 @@ export default function ClientsPage() {
       slug: item.slug,
       sortOrder: item.sortOrder,
       socialMediaEnabled: item.socialMediaEnabled,
-      status: item.status,
+      status: normalizeClientStatusForDraft(item.status),
       website: item.website ?? "",
     });
   }, []);
@@ -471,6 +498,22 @@ export default function ClientsPage() {
           ...current,
           name: nextName,
           slug: shouldSyncSlug ? slugify(nextName) : current.slug,
+        };
+      }
+
+      if (field === "isPublished" && value === false) {
+        return {
+          ...current,
+          featured: false,
+          isPublished: false,
+        };
+      }
+
+      if (field === "status" && value !== "active") {
+        return {
+          ...current,
+          featured: false,
+          status: value as PanelClientDraft["status"],
         };
       }
 
@@ -600,11 +643,14 @@ export default function ClientsPage() {
           item.platform === resource.platform &&
           item.externalId === resource.externalId,
         );
+      const shouldShowOnSite = selectedClient.isPublished;
+      const shouldFeatureOnSite =
+        selectedClient.status === "active" && shouldShowOnSite ? selectedClient.featured : false;
       const input = {
         description: selectedClient.description || null,
-        featured: selectedClient.featured,
+        featured: shouldFeatureOnSite,
         googleEnabled: hasResource((resource) => resource.platform === "GOOGLE"),
-        isPublished: selectedClient.isPublished,
+        isPublished: shouldShowOnSite,
         linkedinEnabled: hasResource((resource) => resource.platform === "LINKEDIN"),
         logoFile: selectedClient.logoFile,
         metaEnabled: hasResource((resource) => resource.platform === "META"),
@@ -631,9 +677,27 @@ export default function ClientsPage() {
         status: selectedClient.status,
         website: selectedClient.website || null,
       };
+      const syncSiteVisibility = async (client: PanelClientDetailRecord) => {
+        if (client.isPublished === input.isPublished) {
+          return client;
+        }
+
+        return setPanelClientPublished(token, client.id, input.isPublished);
+      };
+      const syncFeatured = async (client: PanelClientDetailRecord) => {
+        if (client.featured === input.featured) {
+          return client;
+        }
+
+        return setPanelClientFeatured(token, client.id, input.featured);
+      };
+      const syncSiteControls = async (client: PanelClientDetailRecord) => {
+        const visibleClient = await syncSiteVisibility(client);
+        return syncFeatured(visibleClient);
+      };
 
       if (drawerMode === "create") {
-        const created = await createPanelClient(token, input);
+        const created = await syncSiteControls(await createPanelClient(token, input));
 
         toast.success({
           title: "Cliente criado",
@@ -662,7 +726,7 @@ export default function ClientsPage() {
         return;
       }
 
-      const updated = await updatePanelClient(token, selectedClient.id, input);
+      const updated = await syncSiteControls(await updatePanelClient(token, selectedClient.id, input));
 
       setSelectedClient(createClientDraft(updated));
       setItems((currentItems) =>
@@ -752,18 +816,29 @@ export default function ClientsPage() {
     }
 
     try {
-      const updated = await setPanelClientPublished(token, item.id, !item.isPublished);
+      const shouldPublish = !item.isPublished;
+      let updated = await setPanelClientPublished(token, item.id, shouldPublish);
+
+      if ((!updated.isPublished || updated.status !== "active") && updated.featured) {
+        updated = await setPanelClientFeatured(token, updated.id, false);
+      }
+
       setItems((currentItems) => currentItems.map((currentItem) => (currentItem.id === updated.id ? updated : currentItem)));
       if (selectedClientId === updated.id && drawerMode === "edit") {
         setSelectedClient(createClientDraft(updated));
       }
+
+      const isVisibleOnSite = updated.status === "active" && updated.isPublished;
+
       toast.success({
-        title: updated.isPublished ? "Cliente publicado" : "Cliente movido para rascunho",
-        description: `${updated.name} foi atualizado com sucesso.`,
+        title: updated.isPublished ? "Exibição no site ligada" : "Exibição no site desligada",
+        description: isVisibleOnSite
+          ? `${updated.name} aparece no site respeitando ordem e destaque.`
+          : `${updated.name} não aparece no site enquanto estiver inativo ou com o switch desligado.`,
       });
     } catch (error) {
       toast.error({
-        title: "Falha ao atualizar publicação",
+        title: "Falha ao atualizar exibição no site",
         description:
           error instanceof Error
             ? error.message
@@ -816,7 +891,7 @@ export default function ClientsPage() {
             { label: "Painel", to: "/painel/dashboard" },
             { label: "Clientes" },
           ]}
-          description="Gerencie clientes, serviços ativos, publicação no site e permissões por funcionário."
+          description="Gerencie clientes ativos, visibilidade no site, ordem, destaque e permissões por funcionário."
           title="Clientes"
         />
 

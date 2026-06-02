@@ -20,6 +20,7 @@ import { PanelDrawer } from "../shared/PanelDrawer";
 import { AppInput } from "../shared/ui/AppInput";
 import { AppCheckbox } from "../shared/ui/AppCheckbox";
 import { AppSelect } from "../shared/ui/AppSelect";
+import { AppSwitch } from "../shared/ui/AppSwitch";
 import { AppTabs } from "../shared/ui/AppTabs";
 import { AppTextarea } from "../shared/ui/AppTextarea";
 
@@ -119,10 +120,7 @@ function formatDate(value: string | null) {
 
 const CLIENT_STATUS_OPTIONS: Array<{ label: string; value: PanelClientStatus }> = [
   { label: "Ativo", value: "active" },
-  { label: "Onboarding", value: "onboarding" },
-  { label: "Pausado", value: "paused" },
   { label: "Inativo", value: "inactive" },
-  { label: "Arquivado", value: "archived" },
 ];
 
 export function PanelClientsDrawer({
@@ -169,7 +167,7 @@ export function PanelClientsDrawer({
   const description =
     mode === "create"
       ? "Cadastre um novo cliente, defina operação, serviços e acesso da equipe."
-      : "Atualize dados, operação, publicação e permissões desse cliente.";
+      : "Atualize dados, operação, exibição no site e permissões desse cliente.";
 
   return (
     <>
@@ -394,6 +392,10 @@ export function PanelClientsDrawer({
                             title: "Google",
                             resources: accessResources.filter((resource) => resource.module === "paid_media" && resource.platform === "GOOGLE"),
                           },
+                          {
+                            title: "LinkedIn",
+                            resources: accessResources.filter((resource) => resource.module === "paid_media" && resource.platform === "LINKEDIN"),
+                          },
                         ],
                       },
                       {
@@ -492,6 +494,7 @@ export function PanelClientsDrawer({
                         const enabled = Boolean(permission);
                         const paidMetaResources = client.resources.filter((resource) => resource.module === "paid_media" && resource.platform === "META");
                         const paidGoogleResources = client.resources.filter((resource) => resource.module === "paid_media" && resource.platform === "GOOGLE");
+                        const paidLinkedinResources = client.resources.filter((resource) => resource.module === "paid_media" && resource.platform === "LINKEDIN");
                         const socialMetaResources = client.resources.filter((resource) => resource.module === "social_media" && resource.platform === "META");
                         const socialLinkedinResources = client.resources.filter((resource) => resource.module === "social_media" && resource.platform === "LINKEDIN");
 
@@ -569,6 +572,7 @@ export function PanelClientsDrawer({
                                     <div className="mt-4 space-y-4">
                                       {renderResourceGroup("Meta", paidMetaResources)}
                                       {renderResourceGroup("Google", paidGoogleResources)}
+                                      {renderResourceGroup("LinkedIn", paidLinkedinResources)}
                                     </div>
                                   </div>
                                   <div className="rounded-[1.5rem] border border-outline-variant/12 bg-surface-container-low/45 p-4">
@@ -593,40 +597,42 @@ export function PanelClientsDrawer({
             {activeTab === "meta" ? (
               <section className="space-y-6">
                 <PanelFormSection
-                  description="Controles de exibição no site público, ordem e destaque."
+                  description="O cliente só aparece no site quando estiver ativo e com a exibição ligada."
                   icon={<Megaphone className="h-4 w-4" />}
-                  title="Site e cases"
+                  title="Exibição no site"
                 >
                   <div className="mt-5 grid gap-4 md:grid-cols-2">
-                    <AppSelect
-                      label="Status"
-                      onChange={(event) => onChange("isPublished", event.target.value === "published")}
-                      value={client.isPublished ? "published" : "draft"}
-                    >
-                      <option value="draft">Rascunho</option>
-                      <option value="published">Publicado</option>
-                    </AppSelect>
-                    <AppSelect
-                      label="Destaque"
-                      onChange={(event) => onChange("featured", event.target.value === "featured")}
-                      value={client.featured ? "featured" : "regular"}
-                    >
-                      <option value="regular">Sem destaque</option>
-                      <option value="featured">Em destaque</option>
-                    </AppSelect>
-                    <AppInput
-                      label="Ordem"
-                      min={0}
-                      onChange={(event) => onChange("sortOrder", Number(event.target.value))}
-                      type="number"
-                      value={String(client.sortOrder)}
-                    />
-                    <AppInput
-                      label="Publicado em"
-                      onChange={(event) => onChange("publishedAt", event.target.value)}
-                      type="datetime-local"
-                      value={client.publishedAt}
-                    />
+                    <div className="md:col-span-2">
+                      <AppSwitch
+                        checked={client.isPublished}
+                        description={
+                          client.status === "active"
+                            ? "Com este switch ligado, o cliente entra na vitrine pública respeitando ordem e destaque."
+                            : "Defina o status como Ativo para que este switch tenha efeito no site."
+                        }
+                        label="Mostrar no site"
+                        onCheckedChange={(checked) => onChange("isPublished", checked)}
+                      />
+                    </div>
+                    {client.status === "active" && client.isPublished ? (
+                      <>
+                        <AppSelect
+                          label="Destaque"
+                          onChange={(event) => onChange("featured", event.target.value === "featured")}
+                          value={client.featured ? "featured" : "regular"}
+                        >
+                          <option value="regular">Sem destaque</option>
+                          <option value="featured">Em destaque</option>
+                        </AppSelect>
+                        <AppInput
+                          label="Ordem"
+                          min={0}
+                          onChange={(event) => onChange("sortOrder", Number(event.target.value))}
+                          type="number"
+                          value={String(client.sortOrder)}
+                        />
+                      </>
+                    ) : null}
                   </div>
                 </PanelFormSection>
 

@@ -203,10 +203,10 @@ export default function ClientDetailsPage() {
                 Cliente não encontrado
               </p>
               <h1 className="mt-5 text-4xl font-black tracking-tight text-on-surface">
-                Este cliente não existe ou ainda não foi publicado.
+                Este cliente não existe ou não está disponível no site.
               </h1>
               <p className="mt-5 text-lg leading-relaxed text-on-surface-variant">
-                {errorMessage ?? "Você pode voltar para a listagem geral e navegar pelas outras marcas publicadas."}
+                {errorMessage ?? "Você pode voltar para a listagem geral e navegar pelas outras marcas disponíveis."}
               </p>
               <Link
                 className="mt-8 inline-flex items-center gap-2 rounded-2xl bg-primary px-6 py-4 text-sm font-bold text-white"
@@ -240,7 +240,7 @@ export default function ClientDetailsPage() {
             <div className="mt-10 grid gap-12 xl:grid-cols-[1.05fr_0.95fr]">
               <div>
                 <p className="text-xs font-bold uppercase tracking-[0.34em] text-primary">
-                  Cliente publicado
+                  Cliente GSUCHOA
                 </p>
                 <h1 className="mt-6 text-5xl font-black leading-none tracking-tight md:text-7xl">
                   {client.name}

@@ -151,12 +151,11 @@ export function ImageCropDialog({
     const drawX = (CROPPER_SIZE / 2 - renderedSize.width / 2 + position.x) * ratio;
     const drawY = (CROPPER_SIZE / 2 - renderedSize.height / 2 + position.y) * ratio;
 
-    context.fillStyle = "#ffffff";
-    context.fillRect(0, 0, outputSize, outputSize);
+    context.clearRect(0, 0, outputSize, outputSize);
     context.drawImage(imageRef.current, drawX, drawY, drawWidth, drawHeight);
 
     const blob = await new Promise<Blob | null>((resolve) => {
-      canvas.toBlob(resolve, sourceFile.type || "image/png", 0.92);
+      canvas.toBlob(resolve, "image/png");
     });
 
     if (!blob) {
@@ -164,7 +163,7 @@ export function ImageCropDialog({
     }
 
     const croppedFile = new File([blob], formatFileName(sourceFile.name), {
-      type: blob.type || sourceFile.type || "image/png",
+      type: blob.type || "image/png",
     });
 
     onConfirm(croppedFile);
