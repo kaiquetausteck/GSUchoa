@@ -38,16 +38,20 @@ export function ClientCard({
         </p>
       </div>
 
-      {client.website ? (
-        <div className="mt-5 inline-flex items-center gap-2 text-sm font-medium text-primary">
-          <Globe2 className="h-4 w-4" />
-          {client.website.replace(/^https?:\/\//, "")}
-        </div>
-      ) : null}
+      <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        {client.website ? (
+          <div className="inline-flex min-w-0 items-center gap-2 text-sm font-medium text-primary">
+            <Globe2 className="h-4 w-4 flex-none" />
+            <span className="truncate">{client.website.replace(/^https?:\/\//, "")}</span>
+          </div>
+        ) : (
+          <span />
+        )}
 
-      <div className="mt-6 inline-flex items-center gap-2 text-sm font-bold text-primary">
-        Ver cliente
-        <ArrowUpRight className="h-4 w-4 transition-transform duration-300 group-hover:-translate-y-1 group-hover:translate-x-1" />
+        <div className="inline-flex flex-none items-center gap-2 text-sm font-bold text-primary">
+          Ver cliente
+          <ArrowUpRight className="h-4 w-4 transition-transform duration-300 group-hover:-translate-y-1 group-hover:translate-x-1" />
+        </div>
       </div>
     </Link>
   );
