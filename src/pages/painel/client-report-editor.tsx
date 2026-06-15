@@ -58,6 +58,7 @@ import {
   refreshPanelClientReportDataSnapshot,
   type PanelClientReportRecord,
   updatePanelClientReport,
+  uploadPanelClientReportImage,
 } from "../../services/painel/client-reports-api";
 
 type ReportBlockWidth = "full" | "half" | "third";
@@ -271,6 +272,11 @@ const IMAGE_FORMAT_OPTIONS: Array<{ description: string; format: ReportImageForm
   { description: "Formato 1:1 para feed quadrado.", format: "square", label: "Quadrado", ratio: "1 / 1" },
   { description: "Formato 4:5 para feed vertical.", format: "portrait", label: "Feed vertical", ratio: "4 / 5" },
 ];
+const REPORT_UPLOAD_IMAGE_MAX_BYTES = 180 * 1024;
+const REPORT_UPLOAD_IMAGE_MAX_EDGE = 1200;
+const REPORT_UPLOAD_IMAGE_MIN_EDGE = 640;
+const REPORT_UPLOAD_IMAGE_QUALITY = 0.78;
+const REPORT_UPLOAD_IMAGE_QUALITY_STEPS = [0.78, 0.68, 0.58, 0.5];
 
 const METRIC_ICON_OPTIONS: Array<{ Icon: LucideIcon; key: string; label: string }> = [
   { Icon: BarChart3, key: "bar-chart", label: "Gráfico" },
@@ -1255,13 +1261,130 @@ function createBlock(type: ReportBlock["type"], options: { listMode?: ReportList
   };
 }
 
-function readFileAsDataUrl(file: File) {
+function readFileAsDataUrl(file: Blob) {
   return new Promise<string>((resolve, reject) => {
     const reader = new FileReader();
     reader.onload = () => resolve(typeof reader.result === "string" ? reader.result : "");
     reader.onerror = () => reject(reader.error);
     reader.readAsDataURL(file);
   });
+}
+
+async function dataUrlToBlob(dataUrl: string) {
+  const response = await fetch(dataUrl);
+  return response.blob();
+}
+
+function isImageDataUrl(value: string) {
+  return value.startsWith("data:image/");
+}
+
+function loadImageElement(src: string) {
+  return new Promise<HTMLImageElement>((resolve, reject) => {
+    const image = new Image();
+    image.onload = () => resolve(image);
+    image.onerror = () => reject(new Error("Não foi possível abrir a imagem selecionada."));
+    image.src = src;
+  });
+}
+
+function canvasToBlob(canvas: HTMLCanvasElement, type = "image/jpeg", quality = REPORT_UPLOAD_IMAGE_QUALITY) {
+  return new Promise<Blob>((resolve, reject) => {
+    if (!canvas.toBlob) {
+      fetch(canvas.toDataURL(type, quality))
+        .then((response) => response.blob())
+        .then(resolve, reject);
+      return;
+    }
+
+    canvas.toBlob(
+      (blob) => {
+        if (!blob) {
+          reject(new Error("Não foi possível otimizar a imagem selecionada."));
+          return;
+        }
+
+        resolve(blob);
+      },
+      type,
+      quality,
+    );
+  });
+}
+
+function drawImageToCanvas(image: HTMLImageElement, maxEdge: number) {
+  const originalWidth = image.naturalWidth || image.width;
+  const originalHeight = image.naturalHeight || image.height;
+  const scale = Math.min(1, maxEdge / Math.max(originalWidth, originalHeight));
+  const width = Math.max(1, Math.round(originalWidth * scale));
+  const height = Math.max(1, Math.round(originalHeight * scale));
+  const canvas = document.createElement("canvas");
+  const context = canvas.getContext("2d");
+
+  if (!context) {
+    return null;
+  }
+
+  canvas.width = width;
+  canvas.height = height;
+  context.fillStyle = "#ffffff";
+  context.fillRect(0, 0, width, height);
+  context.drawImage(image, 0, 0, width, height);
+
+  return canvas;
+}
+
+async function optimizeReportImageFile(file: File) {
+  if (!file.type.startsWith("image/")) {
+    throw new Error("Selecione apenas arquivos de imagem.");
+  }
+
+  const sourceUrl = URL.createObjectURL(file);
+
+  try {
+    const image = await loadImageElement(sourceUrl);
+    const originalWidth = image.naturalWidth || image.width;
+    const originalHeight = image.naturalHeight || image.height;
+
+    if (!originalWidth || !originalHeight) {
+      return readFileAsDataUrl(file);
+    }
+
+    let bestBlob: Blob | null = null;
+    let nextMaxEdge = Math.min(REPORT_UPLOAD_IMAGE_MAX_EDGE, Math.max(originalWidth, originalHeight));
+
+    while (nextMaxEdge >= REPORT_UPLOAD_IMAGE_MIN_EDGE) {
+      const canvas = drawImageToCanvas(image, nextMaxEdge);
+
+      if (!canvas) {
+        return readFileAsDataUrl(file);
+      }
+
+      for (const quality of REPORT_UPLOAD_IMAGE_QUALITY_STEPS) {
+        const blob = await canvasToBlob(canvas, "image/jpeg", quality);
+
+        if (!bestBlob || blob.size < bestBlob.size) {
+          bestBlob = blob;
+        }
+
+        if (blob.size <= REPORT_UPLOAD_IMAGE_MAX_BYTES) {
+          return readFileAsDataUrl(blob);
+        }
+      }
+
+      nextMaxEdge = Math.floor(nextMaxEdge * 0.82);
+    }
+
+    return bestBlob ? readFileAsDataUrl(bestBlob) : readFileAsDataUrl(file);
+  } finally {
+    URL.revokeObjectURL(sourceUrl);
+  }
+}
+
+async function optimizeReportImageFileForUpload(file: File) {
+  const dataUrl = await optimizeReportImageFile(file);
+  const blob = await dataUrlToBlob(dataUrl);
+  return new File([blob], file.name.replace(/\.[^.]+$/, ".jpg"), { type: blob.type || "image/jpeg" });
 }
 
 function getTextLabel(value: unknown, fallback: string) {
@@ -2023,6 +2146,7 @@ export default function ClientReportEditorPage() {
   const [imagePropertyTab, setImagePropertyTab] = useState<ReportImagePropertyTab>("images");
   const [isImageGalleryOpen, setIsImageGalleryOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [isProcessingImages, setIsProcessingImages] = useState(false);
   const [isRefreshingData, setIsRefreshingData] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
 
@@ -2251,25 +2375,74 @@ export default function ClientReportEditorPage() {
       return;
     }
 
-    void readFileAsDataUrl(file).then((imageUrl) => {
-      updateListItem(block, itemId, { imageUrl });
-    });
-  }, [updateListItem]);
+    if (!token || !report) {
+      toast.error({
+        title: "Relatório indisponível",
+        description: "Reabra o relatório antes de enviar imagens.",
+      });
+      return;
+    }
+
+    setIsProcessingImages(true);
+    void optimizeReportImageFileForUpload(file)
+      .then((optimizedFile) => uploadPanelClientReportImage(token, report.id, optimizedFile, optimizedFile.name))
+      .then(({ src }) => {
+        updateListItem(block, itemId, { imageUrl: src });
+      })
+      .catch((error) => {
+        toast.error({
+          title: "Falha ao carregar imagem",
+          description: error instanceof Error ? error.message : "Não foi possível enviar a imagem selecionada.",
+        });
+      })
+      .finally(() => setIsProcessingImages(false));
+  }, [report, toast, token, updateListItem]);
 
   const addUploadedImages = useCallback((block: ReportImageBlock, files: File[]) => {
     if (!files.length) {
       return;
     }
 
-    void Promise.all(files.map((file) => readFileAsDataUrl(file).then((src) => createImageItem({
-      caption: file.name,
-      showMetrics: false,
-      source: "manual",
-      src,
-    })))).then((newImages) => {
-      updateImageBlockImages(block, [...block.images, ...newImages], { sourceMode: "upload" });
-    });
-  }, [updateImageBlockImages]);
+    if (!token || !report) {
+      toast.error({
+        title: "Relatório indisponível",
+        description: "Reabra o relatório antes de enviar imagens.",
+      });
+      return;
+    }
+
+    setIsProcessingImages(true);
+    void Promise.allSettled(files.map(async (file) => {
+      const optimizedFile = await optimizeReportImageFileForUpload(file);
+      const { src } = await uploadPanelClientReportImage(token, report.id, optimizedFile, optimizedFile.name);
+
+      return createImageItem({
+        caption: file.name,
+        showMetrics: false,
+        source: "manual",
+        src,
+      });
+    }))
+      .then((results) => {
+        const newImages = results.flatMap((result) => (result.status === "fulfilled" ? [result.value] : []));
+        const failedCount = results.length - newImages.length;
+
+        if (newImages.length) {
+          updateImageBlockImages(block, [...block.images, ...newImages], { sourceMode: "upload" });
+        }
+
+        if (failedCount > 0) {
+          toast.error({
+            title: failedCount === files.length ? "Falha ao carregar imagens" : "Algumas imagens não foram carregadas",
+            description:
+              failedCount === files.length
+                ? "Não foi possível enviar as imagens selecionadas."
+                : `${failedCount} imagem(ns) não puderam ser enviadas para o relatório.`,
+          });
+        }
+      })
+      .finally(() => setIsProcessingImages(false));
+  }, [report, toast, token, updateImageBlockImages]);
 
   const toggleGalleryImage = useCallback((block: ReportImageBlock, item: SnapshotGalleryImage) => {
     const isSelected = block.images.some((image) => image.source === item.source && image.mediaId === item.id);
@@ -2544,15 +2717,89 @@ export default function ClientReportEditorPage() {
     }
   };
 
+  const uploadEmbeddedLayoutImages = async (currentLayout: ReportLayout) => {
+    if (!token || !report) {
+      return currentLayout;
+    }
+
+    const uploadDataUrl = async (dataUrl: string, fileName: string) => {
+      const blob = await dataUrlToBlob(dataUrl);
+      const uploadFile = new File([blob], fileName, { type: blob.type || "image/jpeg" });
+      const { src } = await uploadPanelClientReportImage(token, report.id, uploadFile, uploadFile.name);
+      return src;
+    };
+
+    let changed = false;
+    const blocks = await Promise.all(currentLayout.blocks.map(async (block): Promise<ReportBlock> => {
+      if (block.type === "image") {
+        const images = await Promise.all(block.images.map(async (image) => {
+          if (!isImageDataUrl(image.src)) {
+            return image;
+          }
+
+          changed = true;
+          return {
+            ...image,
+            src: await uploadDataUrl(image.src, `${image.id}.jpg`),
+          };
+        }));
+        const firstImage = images[0];
+
+        return {
+          ...block,
+          images,
+          src: firstImage?.src ?? "",
+        };
+      }
+
+      if (block.type === "list") {
+        const items = await Promise.all(block.items.map(async (item) => {
+          if (!isImageDataUrl(item.imageUrl)) {
+            return item;
+          }
+
+          changed = true;
+          return {
+            ...item,
+            imageUrl: await uploadDataUrl(item.imageUrl, `${item.id}.jpg`),
+          };
+        }));
+
+        return {
+          ...block,
+          items,
+        };
+      }
+
+      return block;
+    }));
+
+    return changed ? { ...currentLayout, blocks } : currentLayout;
+  };
+
   const saveLayout = async () => {
     if (!token || !report) {
       return;
     }
 
+    if (isProcessingImages) {
+      toast.error({
+        title: "Imagens em processamento",
+        description: "Aguarde as imagens terminarem de carregar antes de salvar o relatório.",
+      });
+      return;
+    }
+
     setIsSaving(true);
     try {
+      setIsProcessingImages(true);
+      const layoutToSave = await uploadEmbeddedLayoutImages(layout);
+      if (layoutToSave !== layout) {
+        setLayout(layoutToSave);
+      }
+      setIsProcessingImages(false);
       const savedReport = await updatePanelClientReport(token, report.id, {
-        layout: layout as unknown as Record<string, unknown>,
+        layout: layoutToSave as unknown as Record<string, unknown>,
         title: report.title,
       });
       setReport(savedReport);
@@ -2567,6 +2814,7 @@ export default function ClientReportEditorPage() {
         description: error instanceof Error ? error.message : "Não foi possível salvar o layout.",
       });
     } finally {
+      setIsProcessingImages(false);
       setIsSaving(false);
     }
   };
@@ -2815,12 +3063,12 @@ export default function ClientReportEditorPage() {
               </button>
               <button
                 className="inline-flex h-11 items-center justify-center gap-2 rounded-2xl bg-primary px-3 text-sm font-semibold text-white transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
-                disabled={isSaving || !report}
+                disabled={isSaving || isProcessingImages || !report}
                 onClick={() => void saveLayout()}
                 type="button"
               >
                 <Save className="h-4 w-4" />
-                {isSaving ? "..." : "Salvar"}
+                {isSaving ? "..." : isProcessingImages ? "Preparando..." : "Salvar"}
               </button>
             </div>
           </div>

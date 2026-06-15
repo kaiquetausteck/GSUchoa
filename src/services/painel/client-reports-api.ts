@@ -8,6 +8,8 @@ const CLIENT_REPORT_DETAIL_PATH =
   import.meta.env.VITE_PANEL_CLIENT_REPORT_DETAIL_PATH ?? "/client-reports/:id";
 const CLIENT_REPORT_DUPLICATE_PATH =
   import.meta.env.VITE_PANEL_CLIENT_REPORT_DUPLICATE_PATH ?? "/client-reports/:id/duplicate";
+const CLIENT_REPORT_IMAGE_UPLOAD_PATH =
+  import.meta.env.VITE_PANEL_CLIENT_REPORT_IMAGE_UPLOAD_PATH ?? "/client-reports/:id/images";
 const CLIENT_REPORT_REFRESH_DATA_PATH =
   import.meta.env.VITE_PANEL_CLIENT_REPORT_REFRESH_DATA_PATH ?? "/client-reports/:id/refresh-data";
 const PUBLIC_CLIENT_REPORTS_BY_CLIENT_PATH =
@@ -149,13 +151,14 @@ function extractMessage(payload: unknown, fallbackMessage: string) {
 
 async function requestJson(path: string, token: string, init: RequestInit = {}) {
   let response: Response;
+  const isFormDataPayload = typeof FormData !== "undefined" && init.body instanceof FormData;
 
   try {
     response = await fetch(buildUrl(path), {
       ...init,
       headers: {
         Accept: "application/json",
-        ...(init.body ? { "Content-Type": "application/json" } : {}),
+        ...(!isFormDataPayload && init.body ? { "Content-Type": "application/json" } : {}),
         Authorization: `Bearer ${token}`,
         ...(init.headers ?? {}),
       },
@@ -407,6 +410,28 @@ export async function duplicatePanelClientReport(token: string, id: string) {
     throw new PanelClientReportsApiError("A API respondeu, mas o relatório clonado não foi reconhecido.");
   }
   return report;
+}
+
+export async function uploadPanelClientReportImage(token: string, id: string, file: Blob, fileName: string) {
+  const formData = new FormData();
+  formData.append("image", file, fileName);
+
+  const { response, payload } = await requestJson(buildPathWithId(CLIENT_REPORT_IMAGE_UPLOAD_PATH, id), token, {
+    method: "POST",
+    body: formData,
+  });
+
+  if (!response.ok) {
+    throw new PanelClientReportsApiError(extractMessage(payload, "Não foi possível enviar imagem."), response.status);
+  }
+
+  const src = isRecord(payload) ? getFirstString([payload.src]) : null;
+
+  if (!src) {
+    throw new PanelClientReportsApiError("A API respondeu, mas a imagem enviada não foi reconhecida.");
+  }
+
+  return { src };
 }
 
 export async function refreshPanelClientReportDataSnapshot(token: string, id: string) {
