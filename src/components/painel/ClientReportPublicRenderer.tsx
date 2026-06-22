@@ -18,6 +18,7 @@ import {
   UsersRound,
   type LucideIcon,
 } from "lucide-react";
+import type { CSSProperties } from "react";
 
 import { LogoIconAnimated } from "../shared/LogoIconAnimated";
 import { PanelMetaObjectiveFunnel, type PanelMetaObjectiveFunnelStage } from "./PanelMetaObjectiveFunnel";
@@ -98,6 +99,16 @@ function asImageFormat(value: unknown): ReportImageFormat {
 
 function getImageFormatOption(format: ReportImageFormat) {
   return IMAGE_FORMAT_OPTIONS.find((option) => option.format === format) ?? IMAGE_FORMAT_OPTIONS[0]!;
+}
+
+function getCenteredImageItemStyle(span: number): CSSProperties {
+  const normalizedSpan = Math.max(1, span);
+  const availableWidth = `calc((100% - ${(normalizedSpan - 1) * 0.75}rem) / ${normalizedSpan})`;
+
+  return {
+    flex: `0 1 ${availableWidth}`,
+    maxWidth: availableWidth,
+  };
 }
 
 function escapeHtml(value: string) {
@@ -342,13 +353,23 @@ export function ClientReportPublicRenderer({ report }: { report: PublicClientRep
                 {type === "image" ? (
                   <figure>
                     <h2 className={`text-lg font-black ${isDark ? "text-white" : "text-neutral-950"}`}>{asString(block.title, "Imagem")}</h2>
-                    <div className="mt-4 grid gap-3" style={{ gridTemplateColumns: `repeat(${Math.max(1, Math.min(span, Array.isArray(block.images) ? block.images.length : 1))}, minmax(0, 1fr))` }}>
+                    <div
+                      className={asBoolean(block.centerImages, false) ? "mt-4 flex flex-wrap justify-center gap-3" : "mt-4 grid gap-3"}
+                      style={
+                        asBoolean(block.centerImages, false)
+                          ? undefined
+                          : { gridTemplateColumns: `repeat(${Math.max(1, Math.min(span, Array.isArray(block.images) ? block.images.length : 1))}, minmax(0, 1fr))` }
+                      }
+                    >
                       {(Array.isArray(block.images) ? block.images.filter(isRecord) : []).map((image, imageIndex) => {
                         const visibleMetrics = getImageMetricPairs(image);
                         const imageFormat = getImageFormatOption(asImageFormat(block.format));
 
                         return (
-                          <div key={asString(image.id, `image-${imageIndex}`)}>
+                          <div
+                            key={asString(image.id, `image-${imageIndex}`)}
+                            style={asBoolean(block.centerImages, false) ? getCenteredImageItemStyle(span) : undefined}
+                          >
                             <div
                               className={`overflow-hidden rounded-xl border ${isDark ? "border-white/12 bg-white/8" : "border-neutral-200 bg-neutral-50"}`}
                               style={imageFormat.ratio ? { aspectRatio: imageFormat.ratio } : undefined}

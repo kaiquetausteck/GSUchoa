@@ -36,7 +36,7 @@ import {
   UsersRound,
   type LucideIcon,
 } from "lucide-react";
-import { Fragment, useCallback, useEffect, useMemo, useRef, useState, type DragEvent, type ReactNode } from "react";
+import { Fragment, useCallback, useEffect, useMemo, useRef, useState, type CSSProperties, type DragEvent, type ReactNode } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { EditorContent, useEditor, type Editor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
@@ -45,6 +45,7 @@ import {
   PanelMetaObjectiveFunnel,
   type PanelMetaObjectiveFunnelStage,
 } from "../../components/painel/PanelMetaObjectiveFunnel";
+import { ConfirmDialog } from "../../components/shared/ConfirmDialog";
 import { LogoIconAnimated } from "../../components/shared/LogoIconAnimated";
 import { AppCheckbox } from "../../components/shared/ui/AppCheckbox";
 import { AppColorInput } from "../../components/shared/ui/AppColorInput";
@@ -94,6 +95,7 @@ type ReportMetricBlock = ReportBlockBase & {
 
 type ReportImageBlock = ReportBlockBase & {
   caption: string;
+  centerImages: boolean;
   format: ReportImageFormat;
   images: ReportImageItem[];
   mediaId: string;
@@ -244,6 +246,15 @@ type DropIndicator = {
 type PendingInsertBlock = {
   listMode?: ReportListBlock["mode"];
   type: ReportBlock["type"];
+};
+type DeleteConfirmationState = {
+  blockId?: string;
+  confirmLabel: string;
+  description: string;
+  itemId?: string;
+  kind: "block" | "listItem" | "funnelStage";
+  stageId?: string;
+  title: string;
 };
 
 const SOURCE_LABELS: Record<ReportBlockSource, string> = {
@@ -1021,6 +1032,7 @@ function normalizeBlock(value: unknown): ReportBlock | null {
     return {
       id,
       caption: legacyCaption,
+      centerImages: asBoolean(value.centerImages, false),
       format: asImageFormat(value.format),
       images: normalizedImages,
       mediaId: firstImage?.mediaId ?? legacyMediaId,
@@ -1170,6 +1182,7 @@ function createBlock(type: ReportBlock["type"], options: { listMode?: ReportList
     return {
       id,
       caption: "",
+      centerImages: false,
       format: "story",
       images: [],
       mediaId: "",
@@ -1697,6 +1710,16 @@ function getImageFormatOption(format: ReportImageFormat) {
   return IMAGE_FORMAT_OPTIONS.find((option) => option.format === format) ?? IMAGE_FORMAT_OPTIONS[0]!;
 }
 
+function getCenteredImageItemStyle(span: number): CSSProperties {
+  const normalizedSpan = Math.max(1, span);
+  const availableWidth = `calc((100% - ${(normalizedSpan - 1) * 0.75}rem) / ${normalizedSpan})`;
+
+  return {
+    flex: `0 1 ${availableWidth}`,
+    maxWidth: availableWidth,
+  };
+}
+
 function getDateInputValue(value: string | null) {
   return value ? value.slice(0, 10) : "";
 }
@@ -2149,6 +2172,7 @@ export default function ClientReportEditorPage() {
   const [isProcessingImages, setIsProcessingImages] = useState(false);
   const [isRefreshingData, setIsRefreshingData] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const [deleteConfirmation, setDeleteConfirmation] = useState<DeleteConfirmationState | null>(null);
 
   const selectedBlock = useMemo(
     () => layout.blocks.find((block) => block.id === selectedBlockId) ?? null,
@@ -2347,16 +2371,20 @@ export default function ClientReportEditorPage() {
     setOpenListItemIds((current) => ({ ...current, [item.id]: true }));
   }, [updateBlock]);
 
-  const removeListItem = useCallback((block: ReportListBlock, itemId: string) => {
-    updateBlock(block.id, {
-      items: block.items.filter((item) => item.id !== itemId),
-    } as Partial<ReportBlock>);
-    setOpenListItemIds((current) => {
-      const next = { ...current };
-      delete next[itemId];
-      return next;
+  const requestRemoveListItem = useCallback((block: ReportListBlock, itemId: string) => {
+    const item = block.items.find((currentItem) => currentItem.id === itemId);
+    const itemIndex = block.items.findIndex((currentItem) => currentItem.id === itemId);
+    const itemLabel = getTextLabel(item?.title, itemIndex >= 0 ? `Linha ${itemIndex + 1}` : "selecionada");
+
+    setDeleteConfirmation({
+      blockId: block.id,
+      confirmLabel: "Excluir linha",
+      description: `Essa ação remove a linha "${itemLabel}" do bloco "${getBlockName(block)}".`,
+      itemId,
+      kind: "listItem",
+      title: "Excluir linha?",
     });
-  }, [updateBlock]);
+  }, []);
 
   const toggleListItemOpen = useCallback((itemId: string) => {
     setOpenListItemIds((current) => ({ ...current, [itemId]: !current[itemId] }));
@@ -2463,7 +2491,7 @@ export default function ClientReportEditorPage() {
     updateImageBlockImages(block, nextImages, { sourceMode: "gallery" });
   }, [updateImageBlockImages]);
 
-  const removeBlock = useCallback((blockId: string) => {
+  const deleteBlock = useCallback((blockId: string) => {
     setLayout((current) => ({
       ...current,
       blocks: current.blocks.filter((block) => block.id !== blockId),
@@ -2471,10 +2499,83 @@ export default function ClientReportEditorPage() {
     setSelectedBlockId((current) => (current === blockId ? null : current));
   }, []);
 
+  const requestRemoveBlock = useCallback((blockId: string) => {
+    const block = layout.blocks.find((currentBlock) => currentBlock.id === blockId);
+
+    setDeleteConfirmation({
+      blockId,
+      confirmLabel: "Excluir bloco",
+      description: `Essa ação remove o bloco "${block ? getBlockName(block) : "selecionado"}" do relatório.`,
+      kind: "block",
+      title: "Excluir bloco?",
+    });
+  }, [layout.blocks]);
+
+  const requestRemoveFunnelStage = useCallback((block: ReportFunnelBlock, stageId: string) => {
+    const stage = block.stages.find((currentStage) => currentStage.id === stageId);
+    setDeleteConfirmation({
+      blockId: block.id,
+      confirmLabel: "Excluir etapa",
+      description: `Essa ação remove a etapa "${getTextLabel(stage?.name, "selecionada")}" do funil "${getBlockName(block)}".`,
+      kind: "funnelStage",
+      stageId,
+      title: "Excluir etapa?",
+    });
+  }, []);
+
+  const confirmDelete = useCallback(() => {
+    if (!deleteConfirmation) {
+      return;
+    }
+
+    if (deleteConfirmation.kind === "block" && deleteConfirmation.blockId) {
+      deleteBlock(deleteConfirmation.blockId);
+    }
+
+    if (deleteConfirmation.kind === "listItem" && deleteConfirmation.blockId && deleteConfirmation.itemId) {
+      const itemId = deleteConfirmation.itemId;
+
+      setLayout((current) => ({
+        ...current,
+        blocks: current.blocks.map((block) =>
+          block.id === deleteConfirmation.blockId && block.type === "list"
+            ? { ...block, items: block.items.filter((item) => item.id !== itemId) }
+            : block,
+        ),
+      }));
+      setOpenListItemIds((current) => {
+        const next = { ...current };
+        delete next[itemId];
+        return next;
+      });
+    }
+
+    if (deleteConfirmation.kind === "funnelStage" && deleteConfirmation.blockId && deleteConfirmation.stageId) {
+      const stageId = deleteConfirmation.stageId;
+
+      setLayout((current) => ({
+        ...current,
+        blocks: current.blocks.map((block) =>
+          block.id === deleteConfirmation.blockId && block.type === "funnel"
+            ? { ...block, stages: block.stages.filter((stage) => stage.id !== stageId) }
+            : block,
+        ),
+      }));
+      setOpenFunnelStageIds((current) => {
+        const next = { ...current };
+        delete next[stageId];
+        return next;
+      });
+    }
+
+    setDeleteConfirmation(null);
+  }, [deleteBlock, deleteConfirmation]);
+
   useEffect(() => {
     const handleDeleteSelectedBlock = (event: KeyboardEvent) => {
       if (
         !selectedBlockId ||
+        deleteConfirmation ||
         isImageGalleryOpen ||
         isEditableKeyboardTarget(event.target) ||
         (event.key !== "Delete" && event.key !== "Backspace")
@@ -2483,12 +2584,12 @@ export default function ClientReportEditorPage() {
       }
 
       event.preventDefault();
-      removeBlock(selectedBlockId);
+      requestRemoveBlock(selectedBlockId);
     };
 
     window.addEventListener("keydown", handleDeleteSelectedBlock);
     return () => window.removeEventListener("keydown", handleDeleteSelectedBlock);
-  }, [isImageGalleryOpen, removeBlock, selectedBlockId]);
+  }, [deleteConfirmation, isImageGalleryOpen, requestRemoveBlock, selectedBlockId]);
 
   const reorderBlock = useCallback((
     sourceBlockId: string,
@@ -3200,7 +3301,7 @@ export default function ClientReportEditorPage() {
                         className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-red-50 text-red-500 shadow-sm transition-colors hover:bg-red-100"
                         onClick={(event) => {
                           event.stopPropagation();
-                          removeBlock(block.id);
+                          requestRemoveBlock(block.id);
                         }}
                         type="button"
                       >
@@ -3238,14 +3339,14 @@ export default function ClientReportEditorPage() {
                         <h3 className={`pr-16 text-lg font-black ${layout.page.theme === "dark" ? "text-white" : "text-neutral-950"}`}>{block.title}</h3>
                         {block.images.length ? (
                           <div
-                            className="mt-4 grid gap-3"
-                            style={{ gridTemplateColumns: `repeat(${Math.max(1, Math.min(blockSpan, block.images.length))}, minmax(0, 1fr))` }}
+                            className={block.centerImages ? "mt-4 flex flex-wrap justify-center gap-3" : "mt-4 grid gap-3"}
+                            style={block.centerImages ? undefined : { gridTemplateColumns: `repeat(${Math.max(1, Math.min(blockSpan, block.images.length))}, minmax(0, 1fr))` }}
                           >
                             {block.images.map((image, imageIndex) => {
                               const imageFormat = getImageFormatOption(block.format);
                               const visibleMetrics = getVisibleImageMetrics(image);
                               return (
-                                <div key={image.id}>
+                                <div key={image.id} style={block.centerImages ? getCenteredImageItemStyle(blockSpan) : undefined}>
                                   <div
                                     className={`overflow-hidden rounded-xl border ${
                                       layout.page.theme === "dark" ? "border-white/12 bg-white/8" : "border-neutral-200 bg-neutral-50"
@@ -3446,7 +3547,7 @@ export default function ClientReportEditorPage() {
                 </button>
                 <button
                   className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-red-500/20 bg-red-500/8 text-red-500 transition-colors hover:bg-red-500/14"
-                  onClick={() => removeBlock(selectedBlock.id)}
+                  onClick={() => requestRemoveBlock(selectedBlock.id)}
                   title="Excluir bloco"
                   type="button"
                 >
@@ -3661,6 +3762,19 @@ export default function ClientReportEditorPage() {
                     onChange={(event) => updateBlock(selectedBlock.id, { title: event.target.value } as Partial<ReportBlock>)}
                     value={selectedBlock.title}
                   />
+
+                  <div className="rounded-2xl border border-outline-variant/12 bg-surface-container-high/35 p-3">
+                    <AppCheckbox
+                      checked={selectedBlock.centerImages}
+                      className="text-sm font-semibold text-on-surface"
+                      label="Centralizar imagens"
+                      onChange={(event) =>
+                        updateBlock(selectedBlock.id, {
+                          centerImages: event.target.checked,
+                        } as Partial<ReportBlock>)
+                      }
+                    />
+                  </div>
 
                   <div className="grid grid-cols-2 gap-2 rounded-2xl border border-outline-variant/12 bg-surface-container-high/35 p-1">
                     {[
@@ -4033,7 +4147,7 @@ export default function ClientReportEditorPage() {
                               </button>
                               <button
                                 className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-red-500/20 bg-red-500/8 text-red-500 transition-colors hover:bg-red-500/14"
-                                onClick={() => removeListItem(selectedBlock, item.id)}
+                                onClick={() => requestRemoveListItem(selectedBlock, item.id)}
                                 title="Remover linha"
                                 type="button"
                               >
@@ -4280,10 +4394,7 @@ export default function ClientReportEditorPage() {
                             {selectedBlock.stages.length > 1 ? (
                               <button
                                 className="rounded-xl border border-red-500/20 bg-red-500/8 px-3 py-2 text-xs font-bold text-red-500 transition-colors hover:bg-red-500/14"
-                                onClick={() =>
-                                  updateBlock(selectedBlock.id, {
-                                    stages: selectedBlock.stages.filter((item) => item.id !== stage.id),
-                                  } as Partial<ReportBlock>)}
+                                onClick={() => requestRemoveFunnelStage(selectedBlock, stage.id)}
                                 type="button"
                               >
                                 Remover etapa
@@ -4421,6 +4532,14 @@ export default function ClientReportEditorPage() {
           </div>
         </div>
       ) : null}
+      <ConfirmDialog
+        confirmLabel={deleteConfirmation?.confirmLabel ?? "Excluir"}
+        description={deleteConfirmation?.description ?? ""}
+        onClose={() => setDeleteConfirmation(null)}
+        onConfirm={confirmDelete}
+        open={Boolean(deleteConfirmation)}
+        title={deleteConfirmation?.title ?? "Confirmar exclusão"}
+      />
     </div>
   );
 }
