@@ -5,7 +5,7 @@ import { Link, useParams } from "react-router-dom";
 import { usePanelAuth } from "../../../context/painel/PanelAuthContext";
 import {
   listPublicClientReportsByClient,
-  type PanelClientReportRecord,
+  type PublicClientReportRecord,
 } from "../../../services/painel/client-reports-api";
 
 function formatDate(value: string | null) {
@@ -21,7 +21,7 @@ function formatDate(value: string | null) {
   return new Intl.DateTimeFormat("pt-BR", { dateStyle: "medium" }).format(parsedDate);
 }
 
-function formatPeriod(report: PanelClientReportRecord) {
+function formatPeriod(report: PublicClientReportRecord) {
   if (!report.periodStart && !report.periodEnd) {
     return "Sem período definido";
   }
@@ -32,7 +32,7 @@ function formatPeriod(report: PanelClientReportRecord) {
 export default function PublicClientReportsPage() {
   const { clientSlug } = useParams();
   const { token } = usePanelAuth();
-  const [reports, setReports] = useState<PanelClientReportRecord[]>([]);
+  const [reports, setReports] = useState<PublicClientReportRecord[]>([]);
   const [errorMessage, setErrorMessage] = useState("");
   const [isLoading, setIsLoading] = useState(true);
 

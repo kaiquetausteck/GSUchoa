@@ -6,14 +6,14 @@ import { ClientReportPublicRenderer } from "../../../components/painel/ClientRep
 import { usePanelAuth } from "../../../context/painel/PanelAuthContext";
 import {
   getPublicClientReportById,
-  type PanelClientReportRecord,
+  type PublicClientReportRecord,
 } from "../../../services/painel/client-reports-api";
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return Boolean(value) && typeof value === "object" && !Array.isArray(value);
 }
 
-function getReportTheme(report: PanelClientReportRecord | null) {
+function getReportTheme(report: PublicClientReportRecord | null) {
   if (!report || !isRecord(report.layout)) {
     return "dark";
   }
@@ -22,7 +22,7 @@ function getReportTheme(report: PanelClientReportRecord | null) {
   return page.theme === "light" ? "light" : "dark";
 }
 
-function getReportColumns(report: PanelClientReportRecord | null) {
+function getReportColumns(report: PublicClientReportRecord | null) {
   if (!report || !isRecord(report.layout)) {
     return 3;
   }
@@ -51,7 +51,7 @@ function getReportPageMaxWidth(columns: number) {
 export default function PublicClientReportDetailsPage() {
   const { clientSlug, reportId } = useParams();
   const { token } = usePanelAuth();
-  const [report, setReport] = useState<PanelClientReportRecord | null>(null);
+  const [report, setReport] = useState<PublicClientReportRecord | null>(null);
   const [errorMessage, setErrorMessage] = useState("");
   const [isLoading, setIsLoading] = useState(true);
   const reportTheme = getReportTheme(report);

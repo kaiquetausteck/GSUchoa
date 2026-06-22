@@ -21,7 +21,7 @@ import {
 
 import { LogoIconAnimated } from "../shared/LogoIconAnimated";
 import { PanelMetaObjectiveFunnel, type PanelMetaObjectiveFunnelStage } from "./PanelMetaObjectiveFunnel";
-import type { PanelClientReportRecord } from "../../services/painel/client-reports-api";
+import type { PublicClientReportRecord } from "../../services/painel/client-reports-api";
 
 type ReportPageTheme = "light" | "dark";
 type ReportPageColumns = 3 | 4 | 5;
@@ -120,7 +120,7 @@ function bodyToHtml(value: string) {
     .join("");
 }
 
-function formatPeriod(report: PanelClientReportRecord) {
+function formatPeriod(report: PublicClientReportRecord) {
   if (!report.periodStart && !report.periodEnd) {
     return "Sem período definido";
   }
@@ -262,7 +262,7 @@ function toFunnelStages(value: unknown): PanelMetaObjectiveFunnelStage[] {
   }));
 }
 
-export function ClientReportPublicRenderer({ report }: { report: PanelClientReportRecord }) {
+export function ClientReportPublicRenderer({ report }: { report: PublicClientReportRecord }) {
   const layout = isRecord(report.layout) ? report.layout : {};
   const page = isRecord(layout.page) ? layout.page : {};
   const header = isRecord(page.header) ? page.header : {};

@@ -20,7 +20,14 @@ const PUBLIC_CLIENT_REPORT_DETAIL_PATH =
 export type PanelClientReportStatus = "draft" | "generated" | "archived";
 export type PanelClientReportSnapshotStatus = "pending" | "ready" | "partial" | "failed";
 
-export type PanelClientReportRecord = {
+type ClientReportUserRecord = {
+  id: string;
+  name: string;
+  email: string;
+  avatarUrl: string | null;
+};
+
+type ClientReportBaseRecord = {
   id: string;
   clientId: string;
   title: string;
@@ -40,19 +47,14 @@ export type PanelClientReportRecord = {
     slug: string;
     logoUrl: string | null;
   };
-  createdByUser: {
-    id: string;
-    name: string;
-    email: string;
-    avatarUrl: string | null;
-  };
-  updatedByUser: {
-    id: string;
-    name: string;
-    email: string;
-    avatarUrl: string | null;
-  } | null;
 };
+
+export type PanelClientReportRecord = ClientReportBaseRecord & {
+  createdByUser: ClientReportUserRecord;
+  updatedByUser: ClientReportUserRecord | null;
+};
+
+export type PublicClientReportRecord = ClientReportBaseRecord;
 
 export type PanelClientReportClientRecord = PanelClientReportRecord["client"];
 
@@ -217,6 +219,30 @@ function normalizeUser(payload: unknown) {
 }
 
 function normalizeClientReport(payload: unknown): PanelClientReportRecord | null {
+  const baseReport = normalizeClientReportBase(payload);
+
+  if (!baseReport || !isRecord(payload)) {
+    return null;
+  }
+
+  const createdByUser = normalizeUser(payload.createdByUser);
+
+  if (!createdByUser) {
+    return null;
+  }
+
+  return {
+    ...baseReport,
+    createdByUser,
+    updatedByUser: normalizeUser(payload.updatedByUser),
+  };
+}
+
+function normalizePublicClientReport(payload: unknown): PublicClientReportRecord | null {
+  return normalizeClientReportBase(payload);
+}
+
+function normalizeClientReportBase(payload: unknown): ClientReportBaseRecord | null {
   if (!isRecord(payload)) {
     return null;
   }
@@ -228,9 +254,8 @@ function normalizeClientReport(payload: unknown): PanelClientReportRecord | null
   const client = isRecord(payload.client) ? payload.client : null;
   const clientName = getFirstString([client?.name]);
   const clientSlug = getFirstString([client?.slug]);
-  const createdByUser = normalizeUser(payload.createdByUser);
 
-  if (!id || !clientId || !title || !status || !client || !clientName || !clientSlug || !createdByUser) {
+  if (!id || !clientId || !title || !status || !client || !clientName || !clientSlug) {
     return null;
   }
 
@@ -254,8 +279,6 @@ function normalizeClientReport(payload: unknown): PanelClientReportRecord | null
       slug: clientSlug,
       logoUrl: getFirstString([client.logoUrl]),
     },
-    createdByUser,
-    updatedByUser: normalizeUser(payload.updatedByUser),
   };
 }
 
@@ -306,7 +329,7 @@ export async function listPublicClientReportsByClient(clientSlug: string, fallba
   }
 
   const items = Array.isArray(payload) ? payload : isRecord(payload) && Array.isArray(payload.data) ? payload.data : [];
-  return items.map((item) => normalizeClientReport(item)).filter((item): item is PanelClientReportRecord => item !== null);
+  return items.map((item) => normalizePublicClientReport(item)).filter((item): item is PublicClientReportRecord => item !== null);
 }
 
 export async function getPublicClientReportById(clientSlug: string, reportId: string, fallbackToken?: string | null) {
@@ -328,7 +351,7 @@ export async function getPublicClientReportById(clientSlug: string, reportId: st
     throw new PanelClientReportsApiError(extractMessage(payload, "Não foi possível carregar relatório público."), response.status);
   }
 
-  const report = normalizeClientReport(payload);
+  const report = normalizePublicClientReport(payload);
   if (!report) {
     throw new PanelClientReportsApiError("A API respondeu, mas o relatório público não foi reconhecido.");
   }
